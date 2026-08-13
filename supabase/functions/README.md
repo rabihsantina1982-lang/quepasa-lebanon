@@ -12,7 +12,7 @@ interface Adapter {
 ```
 The shared `upsertEvent()` helper dedupes on `(source, source_url)`.
 
-Planned adapters: `ingest-eventbrite` (official API — start here), `ingest-platinumlist`, `ingest-timeout`, `ingest-visitdubai`.
+Planned adapters: `ingest-eventbrite` (official API — start here), plus additional Lebanon-focused ticketing/listing sources to be identified.
 
 > Respect each source's robots.txt and Terms of Service. Prefer official APIs.
 > Scraping adapters MUST be reviewed by the project owner before enabling in production.

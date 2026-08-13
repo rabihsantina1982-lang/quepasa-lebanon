@@ -28,8 +28,8 @@ export function buildGoogleCalendarUrl(
     text: pickLocalized(event.title_i18n, locale),
     dates: `${gcalFmt(start)}/${gcalFmt(end)}`,
     details: pickLocalized(event.description_i18n, locale),
-    location: event.venue ? [event.venue.name, event.venue.address, event.venue.city].filter(Boolean).join(", ") : "Dubai",
-    ctz: event.timezone || "Asia/Dubai",
+    location: event.venue ? [event.venue.name, event.venue.address, event.venue.city].filter(Boolean).join(", ") : "Beirut",
+    ctz: event.timezone || "Asia/Beirut",
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
@@ -46,7 +46,7 @@ export function buildIcs(event: EventWithRelations, locale = "en"): string {
     description: pickLocalized(event.description_i18n, locale),
     location: event.venue
       ? [event.venue.name, event.venue.address, event.venue.city].filter(Boolean).join(", ")
-      : "Dubai",
+      : "Beirut",
     url: event.ticket_url || undefined,
     uid: `${event.id}@quepasa`,
     productId: "quepasa/ics",

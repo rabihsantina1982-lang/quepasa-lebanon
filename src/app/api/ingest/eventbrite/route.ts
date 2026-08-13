@@ -2,7 +2,7 @@
  * POST /api/ingest/eventbrite
  *
  * Now powered by the Ticketmaster Discovery API (Eventbrite's search API
- * was shut down in 2020). Fetches live UAE events and upserts them into
+ * was shut down in 2020). Fetches live Lebanon events and upserts them into
  * the Supabase events table.
  *
  * Security: requires  Authorization: Bearer <CRON_SECRET>  header.

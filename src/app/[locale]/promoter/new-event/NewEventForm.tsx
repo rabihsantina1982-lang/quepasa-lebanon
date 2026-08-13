@@ -46,7 +46,7 @@ export function NewEventForm() {
 
   const [form, setForm] = useState({
     title: "", description: "", starts_at: "", ends_at: "",
-    venue_name: "", venue_area: "", emirate: "", category_id: "",
+    venue_name: "", venue_area: "", governorate: "", category_id: "",
     ticket_url: "", booking_phone: "", price_min: "", price_max: "",
   });
 
@@ -142,7 +142,7 @@ export function NewEventForm() {
 
       // 2. Upsert venue
       const { data: venue, error: venueErr } = await supabase
-        .from("venues").insert({ name: form.venue_name, area: form.venue_area || null, city: form.emirate || "Dubai" })
+        .from("venues").insert({ name: form.venue_name, area: form.venue_area || null, city: form.governorate || "Beirut" })
         .select().single();
       if (venueErr) throw new Error(venueErr.message);
 
@@ -155,7 +155,7 @@ export function NewEventForm() {
         user_id: user.id,
         created_by: user.id,
         venue_id: (venue as { id: string }).id,
-        emirate: form.emirate || null,
+        governorate: form.governorate || null,
         category_id: form.category_id || null,
         starts_at: new Date(form.starts_at).toISOString(),
         ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
@@ -316,24 +316,25 @@ export function NewEventForm() {
           </Field>
         </div>
 
-        <Field label="Emirate" required>
-          <select value={form.emirate} onChange={(e) => set("emirate", e.target.value)} className={inputCls} required>
+        <Field label="Governorate" required>
+          <select value={form.governorate} onChange={(e) => set("governorate", e.target.value)} className={inputCls} required>
             <option value="">— select —</option>
-            <option value="dubai">Dubai</option>
-            <option value="abu_dhabi">Abu Dhabi</option>
-            <option value="sharjah">Sharjah</option>
-            <option value="ajman">Ajman</option>
-            <option value="ras_al_khaimah">Ras Al Khaimah</option>
-            <option value="umm_al_quwain">Umm Al Quwain</option>
-            <option value="fujairah">Fujairah</option>
+            <option value="beirut">Beirut</option>
+            <option value="mount_lebanon">Mount Lebanon</option>
+            <option value="north_lebanon">North Lebanon</option>
+            <option value="south_lebanon">South Lebanon</option>
+            <option value="bekaa">Bekaa</option>
+            <option value="nabatieh">Nabatieh</option>
+            <option value="akkar">Akkar</option>
+            <option value="baalbek_hermel">Baalbek-Hermel</option>
           </select>
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Price from (AED)" hint="Leave empty if free">
+          <Field label="Price from (USD)" hint="Leave empty if free">
             <input type="number" min="0" value={form.price_min} onChange={(e) => set("price_min", e.target.value)} className={inputCls} />
           </Field>
-          <Field label="Price up to (AED)">
+          <Field label="Price up to (USD)">
             <input type="number" min="0" value={form.price_max} onChange={(e) => set("price_max", e.target.value)} className={inputCls} />
           </Field>
         </div>

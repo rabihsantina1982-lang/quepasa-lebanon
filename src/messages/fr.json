@@ -1,7 +1,7 @@
 {
   "Common": {
-    "appName": "QuePasa UAE",
-    "tagline": "Tout ce qui se passe aux Émirats arabes unis.",
+    "appName": "QuePasa Lebanon",
+    "tagline": "Tout ce qui se passe au Liban.",
     "search": "Rechercher des événements…",
     "clearAll": "Tout effacer",
     "loading": "Chargement…",
@@ -41,14 +41,15 @@
     "thisWeekend": "Ce week-end",
     "thisWeek": "Cette semaine",
     "pickDates": "Choisir des dates…",
-    "allUAE": "Tout les EAU",
-    "emirateDubai": "Dubaï",
-    "emirateAbuDhabi": "Abou Dabi",
-    "emirateSharjah": "Charjah",
-    "emirateAjman": "Ajman",
-    "emirateUmmAlQuwain": "Umm Al Quwain",
-    "emirateRasAlKhaimah": "Ras Al Khaïmah",
-    "emirateFujairah": "Fujairah"
+    "allLebanon": "Tout le Liban",
+    "governorateBeirut": "Beyrouth",
+    "governorateMountLebanon": "Mont-Liban",
+    "governorateNorthLebanon": "Liban-Nord",
+    "governorateSouthLebanon": "Liban-Sud",
+    "governorateBekaa": "Békaa",
+    "governorateNabatieh": "Nabatieh",
+    "governorateAkkar": "Akkar",
+    "governorateBaalbekHermel": "Baalbek-Hermel"
   },
   "Categories": {
     "live_music": "Musique live",

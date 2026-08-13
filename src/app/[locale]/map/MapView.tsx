@@ -52,8 +52,8 @@ export function MapView({ pins, locale }: { pins: Pin[]; locale: string }) {
         },
         layers: [{ id: "streets", type: "raster", source: "raster-tiles" }],
       },
-      center: [55.27, 25.2],
-      zoom: 10,
+      center: [35.5018, 33.8938],
+      zoom: 9,
     });
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(mapDivRef.current);

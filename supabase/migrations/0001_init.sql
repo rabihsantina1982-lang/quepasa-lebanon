@@ -1,4 +1,4 @@
--- QuePasa Dubai initial schema.
+-- QuePasa Lebanon initial schema.
 -- Run via Supabase CLI:  supabase db push
 -- or paste into the SQL editor in the Supabase dashboard.
 
@@ -40,21 +40,22 @@ create table categories (
 );
 
 insert into categories (slug, name_i18n, icon) values
-  ('music',        '{"en":"Music","ar":"موسيقى","hi":"संगीत","ur":"موسیقی","ru":"Музыка"}'::jsonb, '🎵'),
-  ('sports',       '{"en":"Sports","ar":"رياضة","hi":"खेल","ur":"کھیل","ru":"Спорт"}'::jsonb, '⚽'),
-  ('food_drink',   '{"en":"Food & Drink","ar":"مأكولات ومشروبات","hi":"खाना और पेय","ur":"کھانا و مشروبات","ru":"Еда и напитки"}'::jsonb, '🍽'),
-  ('arts_culture', '{"en":"Arts & Culture","ar":"فنون وثقافة","hi":"कला और संस्कृति","ur":"فن و ثقافت","ru":"Искусство"}'::jsonb, '🎭'),
-  ('family_kids',  '{"en":"Family & Kids","ar":"العائلة والأطفال","hi":"परिवार","ur":"خاندان","ru":"Семья"}'::jsonb, '👨‍👩‍👧'),
-  ('nightlife',    '{"en":"Nightlife","ar":"حياة ليلية","hi":"नाइटलाइफ़","ur":"نائٹ لائف","ru":"Ночная жизнь"}'::jsonb, '🌙'),
-  ('business',     '{"en":"Business","ar":"أعمال","hi":"व्यवसाय","ur":"کاروبار","ru":"Бизнес"}'::jsonb, '💼'),
-  ('wellness',     '{"en":"Wellness","ar":"صحة","hi":"वेलनेस","ur":"صحت","ru":"Здоровье"}'::jsonb, '🧘'),
-  ('festivals',    '{"en":"Festivals","ar":"مهرجانات","hi":"त्योहार","ur":"میلے","ru":"Фестивали"}'::jsonb, '🎪'),
-  ('conferences',  '{"en":"Conferences","ar":"مؤتمرات","hi":"सम्मेलन","ur":"کانفرنسز","ru":"Конференции"}'::jsonb, '🎤'),
-  ('workshops',    '{"en":"Workshops","ar":"ورش عمل","hi":"वर्कशॉप","ur":"ورکشاپس","ru":"Мастер-классы"}'::jsonb, '🛠'),
-  ('exhibitions',  '{"en":"Exhibitions","ar":"معارض","hi":"प्रदर्शनी","ur":"نمائشیں","ru":"Выставки"}'::jsonb, '🖼'),
-  ('outdoor',      '{"en":"Outdoor","ar":"في الهواء الطلق","hi":"आउटडोर","ur":"آؤٹ ڈور","ru":"На воздухе"}'::jsonb, '🌳'),
-  ('religious',    '{"en":"Religious","ar":"دينية","hi":"धार्मिक","ur":"مذہبی","ru":"Религия"}'::jsonb, '🕌'),
-  ('charity',      '{"en":"Charity","ar":"خيرية","hi":"चैरिटी","ur":"خیراتی","ru":"Благотворительность"}'::jsonb, '❤️');
+  ('live_music',   '{"en":"Live Music","ar":"موسيقى حية","fr":"Musique live"}'::jsonb, '🎸'),
+  ('dj_performance','{"en":"DJ Performance","ar":"عرض دي جي","fr":"Set DJ"}'::jsonb, '🎧'),
+  ('sports',       '{"en":"Sports","ar":"رياضة","fr":"Sports"}'::jsonb, '⚽'),
+  ('food_drink',   '{"en":"Food & Drink","ar":"طعام وشراب","fr":"Gastronomie"}'::jsonb, '🍽'),
+  ('arts_culture', '{"en":"Arts & Culture","ar":"فنون وثقافة","fr":"Arts et culture"}'::jsonb, '🎭'),
+  ('family_kids',  '{"en":"Family & Kids","ar":"عائلة وأطفال","fr":"Famille et enfants"}'::jsonb, '👨‍👩‍👧'),
+  ('nightlife',    '{"en":"Nightlife","ar":"حياة ليلية","fr":"Vie nocturne"}'::jsonb, '🌙'),
+  ('business',     '{"en":"Business","ar":"أعمال","fr":"Affaires"}'::jsonb, '💼'),
+  ('wellness',     '{"en":"Wellness","ar":"عافية","fr":"Bien-être"}'::jsonb, '🧘'),
+  ('festivals',    '{"en":"Festivals","ar":"مهرجانات","fr":"Festivals"}'::jsonb, '🎪'),
+  ('conferences',  '{"en":"Conferences","ar":"مؤتمرات","fr":"Conférences"}'::jsonb, '🎤'),
+  ('workshops',    '{"en":"Workshops","ar":"ورش عمل","fr":"Ateliers"}'::jsonb, '🛠'),
+  ('exhibitions',  '{"en":"Exhibitions","ar":"معارض","fr":"Expositions"}'::jsonb, '🖼'),
+  ('outdoor',      '{"en":"Outdoor","ar":"في الهواء الطلق","fr":"Plein air"}'::jsonb, '🌳'),
+  ('religious',    '{"en":"Religious","ar":"ديني","fr":"Religieux"}'::jsonb, '🕌'),
+  ('charity',      '{"en":"Charity","ar":"خيرية","fr":"Charité"}'::jsonb, '❤️');
 
 -- ---------- venues ----------
 create table venues (
@@ -64,7 +65,7 @@ create table venues (
   lat double precision,
   lng double precision,
   phone text,
-  city text not null default 'Dubai',
+  city text not null default 'Beirut',
   area text
 );
 
@@ -78,18 +79,20 @@ create table events (
   venue_id uuid references venues(id) on delete set null,
   starts_at timestamptz not null,
   ends_at timestamptz,
-  timezone text not null default 'Asia/Dubai',
+  timezone text not null default 'Asia/Beirut',
   cover_image text,
   cover_video text,
   price_min numeric(10,2),
   price_max numeric(10,2),
-  currency text not null default 'AED',
+  currency text not null default 'USD',
   ticket_url text,
   booking_phone text,
   status event_status not null default 'draft',
   source text not null default 'admin',
   source_url text,
+  governorate text,
   created_by uuid references auth.users(id) on delete set null,
+  user_id uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (source, source_url)
@@ -178,35 +181,3 @@ create policy "reminders_owner" on reminders for all using (auth.uid() = user_id
 create policy "ingestion_runs_admin" on ingestion_runs for all using (
   exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
 ) with check (true);
-
--- ---------- sample seed (optional, comment out in prod) ----------
-do $$
-declare
-  v1 uuid; v2 uuid; e1 uuid;
-begin
-  insert into venues (name, address, lat, lng, area)
-    values ('Coca-Cola Arena', 'City Walk, Al Wasl', 25.2087, 55.2628, 'City Walk')
-    returning id into v1;
-  insert into venues (name, address, lat, lng, area)
-    values ('Dubai Opera', 'Sheikh Mohammed bin Rashid Blvd', 25.1936, 55.2731, 'Downtown')
-    returning id into v2;
-
-  insert into events (slug, title_i18n, description_i18n, category_id, venue_id, starts_at, ends_at, cover_image, price_min, price_max, ticket_url, status, source)
-  values
-    ('sample-rock-night', '{"en":"Rock Night at the Arena","ar":"ليلة الروك في الأرينا"}',
-      '{"en":"A high-energy rock concert featuring local and international acts."}',
-      (select id from categories where slug='music'), v1,
-      now() + interval '3 days', now() + interval '3 days 3 hours',
-      'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200',
-      150, 600, 'https://example.com/tickets', 'published', 'admin')
-    returning id into e1;
-
-  insert into events (slug, title_i18n, description_i18n, category_id, venue_id, starts_at, cover_image, price_min, status, source)
-  values
-    ('opera-night', '{"en":"An Evening at Dubai Opera","ar":"أمسية في دار أوبرا دبي"}',
-      '{"en":"Classical works performed by the city orchestra."}',
-      (select id from categories where slug='arts_culture'), v2,
-      now() + interval '6 days',
-      'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=1200',
-      200, 'published', 'admin');
-end $$;

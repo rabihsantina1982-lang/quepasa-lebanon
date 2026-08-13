@@ -32,11 +32,11 @@ export interface FetchEventsParams {
   category?: string;
   when?: string;
   search?: string;
-  emirate?: string;
+  governorate?: string;
   limit?: number;
 }
 
-function dateRangeForPreset(preset: string | undefined, tz = "Asia/Dubai"): { from: Date; to: Date } | null {
+function dateRangeForPreset(preset: string | undefined, tz = "Asia/Beirut"): { from: Date; to: Date } | null {
   const now = new Date();
   switch (preset) {
     case "today": return { from: startOfDay(now), to: endOfDay(now) };
@@ -61,8 +61,8 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
     .eq("status", "published")
     .order("starts_at", { ascending: true })
     .limit(params.limit ?? 200); // high limit — client-side category filter handles the rest
-  if (params.emirate) {
-    q = q.eq("emirate", params.emirate);
+  if (params.governorate) {
+    q = q.eq("governorate", params.governorate);
   }
   const range = dateRangeForPreset(params.when);
   if (range) {

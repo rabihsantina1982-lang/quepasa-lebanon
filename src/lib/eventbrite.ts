@@ -77,7 +77,7 @@ interface EBEvent {
   venue?: EBVenue | null;
   status: string; // "live" | "started" | "ended" | "canceled" | "draft"
   currency: string;
-  emirate_hint?: string | null; // not in EB, we'll derive it
+  governorate_hint?: string | null; // not in EB, we'll derive it
 }
 
 interface EBSearchResponse {
@@ -134,9 +134,9 @@ async function fetchEBPage(
 }
 
 // ---------------------------------------------------------------------------
-// Derive emirate from city / address text
+// Derive governorate from city / address text
 // ---------------------------------------------------------------------------
-function deriveEmirate(venue: EBVenue | null | undefined): string {
+function deriveGovernorate(venue: EBVenue | null | undefined): string {
   const text = [
     venue?.address?.city,
     venue?.address?.region,
@@ -147,14 +147,15 @@ function deriveEmirate(venue: EBVenue | null | undefined): string {
     .join(" ")
     .toLowerCase();
 
-  if (text.includes("abu dhabi") || text.includes("abu_dhabi")) return "abu_dhabi";
-  if (text.includes("sharjah")) return "sharjah";
-  if (text.includes("ajman")) return "ajman";
-  if (text.includes("fujairah")) return "fujairah";
-  if (text.includes("ras al khaimah") || text.includes("rak")) return "ras_al_khaimah";
-  if (text.includes("umm al quwain")) return "umm_al_quwain";
-  // Default to Dubai
-  return "dubai";
+  if (text.includes("tripoli") || text.includes("zgharta") || text.includes("batroun") || text.includes("koura")) return "north_lebanon";
+  if (text.includes("akkar")) return "akkar";
+  if (text.includes("baalbek") || text.includes("hermel")) return "baalbek_hermel";
+  if (text.includes("zahle") || text.includes("bekaa") || text.includes("beqaa")) return "bekaa";
+  if (text.includes("nabatieh") || text.includes("nabatiyeh")) return "nabatieh";
+  if (text.includes("saida") || text.includes("sidon") || text.includes("tyre") || text.includes("sour")) return "south_lebanon";
+  if (text.includes("jounieh") || text.includes("byblos") || text.includes("jbeil") || text.includes("baabda") || text.includes("aley") || text.includes("chouf")) return "mount_lebanon";
+  // Default to Beirut
+  return "beirut";
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +195,7 @@ async function upsertVenue(
   supabase: ReturnType<typeof createAdminClient>,
   eb: EBVenue
 ): Promise<string | null> {
-  const city = eb.address?.city ?? "Dubai";
+  const city = eb.address?.city ?? "Beirut";
   const name = eb.name ?? "Unknown Venue";
 
   // Check if a venue with this name+city already exists
@@ -244,8 +245,8 @@ export async function ingestFromEventbrite(
   } = {}
 ): Promise<IngestionResult> {
   const {
-    locationAddress = "Dubai, UAE",
-    withinKm = 150, // covers all 7 emirates
+    locationAddress = "Beirut, Lebanon",
+    withinKm = 120, // covers all of Lebanon's governorates
     maxPages = 5,
   } = options;
 
@@ -303,15 +304,15 @@ async function processEvent(
     return;
   }
 
-  // Skip events outside UAE
+  // Skip events outside Lebanon
   const country = eb.venue?.address?.country?.toUpperCase();
-  if (country && country !== "AE") {
+  if (country && country !== "LB") {
     result.skipped++;
     return;
   }
 
   const sourceUrl = eb.url;
-  const emirate = deriveEmirate(eb.venue);
+  const governorate = deriveGovernorate(eb.venue);
 
   // Upsert venue if present
   let venueId: string | null = null;
@@ -343,16 +344,16 @@ async function processEvent(
     venue_id: venueId,
     starts_at: eb.start.utc,
     ends_at: eb.end.utc,
-    timezone: eb.start.timezone ?? "Asia/Dubai",
+    timezone: eb.start.timezone ?? "Asia/Beirut",
     cover_image: eb.logo?.url ?? null,
     price_min: priceMin,
     price_max: priceMax,
-    currency: eb.currency ?? "AED",
+    currency: eb.currency ?? "USD",
     ticket_url: sourceUrl,
     status: "published" as const,
     source: "eventbrite",
     source_url: sourceUrl,
-    emirate,
+    governorate,
   };
 
   // Check if already exists by source_url

@@ -8,14 +8,15 @@ import type { CategoryRow } from "@/lib/supabase/types";
 
 const datePresets = ["today", "tomorrow", "thisWeekend", "thisWeek"] as const;
 
-const emirateChips = [
-  { slug: "dubai", label: "Dubai" },
-  { slug: "abu_dhabi", label: "Abu Dhabi" },
-  { slug: "sharjah", label: "Sharjah" },
-  { slug: "ajman", label: "Ajman" },
-  { slug: "umm_al_quwain", label: "Umm Al Quwain" },
-  { slug: "ras_al_khaimah", label: "Ras Al Khaimah" },
-  { slug: "fujairah", label: "Fujairah" },
+const governorateChips = [
+  { slug: "beirut", key: "governorateBeirut" },
+  { slug: "mount_lebanon", key: "governorateMountLebanon" },
+  { slug: "north_lebanon", key: "governorateNorthLebanon" },
+  { slug: "south_lebanon", key: "governorateSouthLebanon" },
+  { slug: "bekaa", key: "governorateBekaa" },
+  { slug: "nabatieh", key: "governorateNabatieh" },
+  { slug: "akkar", key: "governorateAkkar" },
+  { slug: "baalbek_hermel", key: "governorateBaalbekHermel" },
 ] as const;
 
 export function EventFilters({
@@ -34,7 +35,7 @@ export function EventFilters({
 
   const activeCategory = params.get("category") ?? "";
   const activeDate = params.get("when") ?? "";
-  const activeEmirate = params.get("emirate") ?? "";
+  const activeGovernorate = params.get("governorate") ?? "";
 
   function update(next: URLSearchParams) {
     const qs = next.toString();
@@ -51,44 +52,44 @@ export function EventFilters({
     activeDate === preset ? next.delete("when") : next.set("when", preset);
     update(next);
   }
-  function setEmirate(slug: string) {
+  function setGovernorate(slug: string) {
     const next = new URLSearchParams(params);
-    activeEmirate === slug ? next.delete("emirate") : next.set("emirate", slug);
+    activeGovernorate === slug ? next.delete("governorate") : next.set("governorate", slug);
     update(next);
   }
   function clearAll() {
     update(new URLSearchParams());
   }
 
-  const anyActive = activeCategory || activeDate || activeEmirate;
+  const anyActive = activeCategory || activeDate || activeGovernorate;
 
   return (
     <div className="sticky top-14 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)]/95 backdrop-blur border-b border-[var(--color-border)] space-y-3">
-      {/* Emirate row */}
+      {/* Governorate row */}
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
-          onClick={() => { const next = new URLSearchParams(params); next.delete("emirate"); update(next); }}
+          onClick={() => { const next = new URLSearchParams(params); next.delete("governorate"); update(next); }}
           className={cn(
             "shrink-0 rounded-full px-3 h-8 text-xs border transition-colors",
-            !activeEmirate
+            !activeGovernorate
               ? "bg-[var(--color-fg)] text-[var(--color-bg)] border-[var(--color-fg)]"
               : "bg-transparent border-[var(--color-border)]"
           )}
         >
-          All UAE
+          {t("allLebanon")}
         </button>
-        {emirateChips.map(({ slug, label }) => (
+        {governorateChips.map(({ slug, key }) => (
           <button
             key={slug}
-            onClick={() => setEmirate(slug)}
+            onClick={() => setGovernorate(slug)}
             className={cn(
               "shrink-0 rounded-full px-3 h-8 text-xs border transition-colors",
-              activeEmirate === slug
+              activeGovernorate === slug
                 ? "bg-[var(--color-fg)] text-[var(--color-bg)] border-[var(--color-fg)]"
                 : "bg-transparent border-[var(--color-border)]"
             )}
           >
-            {label}
+            {t(key as never)}
           </button>
         ))}
       </div>

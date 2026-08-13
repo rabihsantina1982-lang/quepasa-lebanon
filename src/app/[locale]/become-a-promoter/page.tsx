@@ -86,7 +86,7 @@ export default function BecomeAPromoterPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Become a Promoter</h1>
         <p className="mt-2 text-[var(--color-muted)]">
-          List your events on QuePasa and reach thousands of people across the UAE.
+          List your events on QuePasa and reach thousands of people across Lebanon.
           Apply below — approved promoters get a <strong>3-month free trial</strong>.
         </p>
 
@@ -94,12 +94,12 @@ export default function BecomeAPromoterPage() {
         <div className="mt-6 grid grid-cols-2 gap-3">
           <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-4">
             <div className="text-sm font-semibold text-[var(--color-muted)]">STANDARD</div>
-            <div className="mt-1 text-2xl font-bold">AED 150<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
+            <div className="mt-1 text-2xl font-bold">$40<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
             <div className="mt-2 text-sm text-[var(--color-muted)]">Up to 5 events per month</div>
           </div>
           <div className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] p-4">
             <div className="text-sm font-semibold text-[var(--color-primary)]">PRO</div>
-            <div className="mt-1 text-2xl font-bold">AED 300<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
+            <div className="mt-1 text-2xl font-bold">$80<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
             <div className="mt-2 text-sm text-[var(--color-muted)]">Unlimited events per month</div>
           </div>
         </div>

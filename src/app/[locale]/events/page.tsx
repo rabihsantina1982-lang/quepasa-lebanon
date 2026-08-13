@@ -23,7 +23,7 @@ export default async function EventsPage({
     category: sp.category,
     when: sp.when,
     search: sp.q,
-    emirate: sp.emirate,
+    governorate: sp.governorate,
   });
 
   // Check auth and fetch saved events for the current user

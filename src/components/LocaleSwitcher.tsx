@@ -6,15 +6,7 @@ import { locales, type Locale } from "@/i18n/routing";
 const labels: Record<Locale, string> = {
   en: "English",
   ar: "العربية",
-  hi: "हिन्दी",
-  ur: "اردو",
-  ru: "Русский",
-  es: "Español",
   fr: "Français",
-  it: "Italiano",
-  ja: "日本語",
-  tl: "Filipino",
-  zh: "中文",
 };
 
 export function LocaleSwitcher() {

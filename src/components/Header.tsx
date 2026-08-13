@@ -56,7 +56,7 @@ export async function Header() {
               opacity: 0.85,
             }}
           >
-            UAE
+            Lebanon
           </span>
         </Link>
         <nav className="hidden lg:flex items-center gap-1 ms-4">

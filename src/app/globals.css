@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Dubai-inspired palette: warm sand neutrals, teal primary, coral accent. */
+  /* Mediterranean-inspired palette: warm sand neutrals, teal primary, coral accent. */
   --color-bg: #fbfaf6;
   --color-fg: #111111;
   --color-muted: #6b6b6b;

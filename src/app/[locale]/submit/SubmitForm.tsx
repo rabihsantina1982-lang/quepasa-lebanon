@@ -37,7 +37,7 @@ export function SubmitForm({ categories, locale }: { categories: CategoryRow[]; 
     // 1. Upsert venue.
     const { data: venue, error: venueErr } = await supabase
       .from("venues")
-      .insert({ name: values.venue_name, area: values.venue_area || null, city: "Dubai" })
+      .insert({ name: values.venue_name, area: values.venue_area || null, city: "Beirut" })
       .select()
       .single();
     if (venueErr) return alert(venueErr.message);

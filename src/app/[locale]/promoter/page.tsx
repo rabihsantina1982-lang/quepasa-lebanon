@@ -46,7 +46,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
         <div className="text-4xl mb-4">🎤</div>
         <h1 className="text-2xl font-bold">Become a Promoter</h1>
         <p className="mt-3 text-[var(--color-muted)]">
-          Apply to list your events on QuePasa and reach thousands of people across the UAE.
+          Apply to list your events on QuePasa and reach thousands of people across Lebanon.
           First 3 months are completely free.
         </p>
         <Link href="/become-a-promoter">
@@ -119,7 +119,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
         {isStandard && (
           <div className="flex items-center justify-between">
             <div>
-              <span className="rounded-full bg-[var(--color-border)] text-sm font-bold px-3 py-1">STANDARD · AED 150/mo</span>
+              <span className="rounded-full bg-[var(--color-border)] text-sm font-bold px-3 py-1">STANDARD · $40/mo</span>
               <p className="mt-2 text-sm text-[var(--color-muted)]">
                 {postsUsed} of 5 events used this month
               </p>
@@ -132,7 +132,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
 
         {subscription?.plan === "pro" && (
           <div className="flex items-center justify-between">
-            <span className="rounded-full bg-[var(--color-primary)] text-white text-xs font-bold px-3 py-1">PRO · AED 300/mo</span>
+            <span className="rounded-full bg-[var(--color-primary)] text-white text-xs font-bold px-3 py-1">PRO · $80/mo</span>
             <div className="text-sm text-[var(--color-muted)]">Unlimited events</div>
           </div>
         )}

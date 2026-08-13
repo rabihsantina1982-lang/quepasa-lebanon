@@ -19,7 +19,7 @@ export function formatDateRange(
   startsAt: string | Date,
   endsAt: string | Date | null,
   locale: string,
-  timeZone = "Asia/Dubai"
+  timeZone = "Asia/Beirut"
 ): string {
   const start = typeof startsAt === "string" ? new Date(startsAt) : startsAt;
   const end = endsAt ? (typeof endsAt === "string" ? new Date(endsAt) : endsAt) : null;
@@ -46,7 +46,7 @@ export function formatDateRange(
 export function formatPrice(
   min: number | null,
   max: number | null,
-  currency = "AED",
+  currency = "USD",
   locale = "en"
 ): string {
   if (min == null && max == null) return "";

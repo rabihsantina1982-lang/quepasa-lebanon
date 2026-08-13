@@ -74,21 +74,23 @@ interface TMSearchResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Derive emirate from venue city/state text
+// Derive governorate from venue city/state text
 // ---------------------------------------------------------------------------
-function deriveEmirate(venue: TMVenue | undefined): string {
+function deriveGovernorate(venue: TMVenue | undefined): string {
   const text = [venue?.city?.name, venue?.state?.name, venue?.name]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 
-  if (text.includes("abu dhabi") || text.includes("abu_dhabi")) return "abu_dhabi";
-  if (text.includes("sharjah")) return "sharjah";
-  if (text.includes("ajman")) return "ajman";
-  if (text.includes("fujairah")) return "fujairah";
-  if (text.includes("ras al khaimah") || text.includes("ras-al-khaimah")) return "ras_al_khaimah";
-  if (text.includes("umm al quwain")) return "umm_al_quwain";
-  return "dubai";
+  if (text.includes("tripoli") || text.includes("zgharta") || text.includes("batroun") || text.includes("koura")) return "north_lebanon";
+  if (text.includes("akkar")) return "akkar";
+  if (text.includes("baalbek") || text.includes("hermel")) return "baalbek_hermel";
+  if (text.includes("zahle") || text.includes("bekaa") || text.includes("beqaa")) return "bekaa";
+  if (text.includes("nabatieh") || text.includes("nabatiyeh")) return "nabatieh";
+  if (text.includes("saida") || text.includes("sidon") || text.includes("tyre") || text.includes("sour")) return "south_lebanon";
+  if (text.includes("jounieh") || text.includes("byblos") || text.includes("jbeil") || text.includes("baabda") || text.includes("aley") || text.includes("chouf")) return "mount_lebanon";
+  if (text.includes("beirut")) return "beirut";
+  return "beirut";
 }
 
 // ---------------------------------------------------------------------------
@@ -139,7 +141,7 @@ async function findOrCreateVenue(
   supabase: ReturnType<typeof createAdminClient>,
   venue: TMVenue
 ): Promise<string | null> {
-  const city = venue.city?.name ?? "Dubai";
+  const city = venue.city?.name ?? "Beirut";
   const name = venue.name;
 
   const { data: existing } = await supabase
@@ -195,7 +197,7 @@ export async function ingestFromTicketmaster(
     try {
       const params = new URLSearchParams({
         apikey: apiKey,
-        countryCode: "AE",
+        countryCode: "LB",
         size: "50",
         page: String(page),
         sort: "date,asc",
@@ -245,13 +247,13 @@ async function processTMEvent(
 ): Promise<void> {
   const venue = ev._embedded?.venues?.[0];
 
-  // Only UAE events
-  if (venue?.country?.countryCode && venue.country.countryCode !== "AE") {
+  // Only Lebanon events
+  if (venue?.country?.countryCode && venue.country.countryCode !== "LB") {
     result.skipped++;
     return;
   }
 
-  const emirate = deriveEmirate(venue);
+  const governorate = deriveGovernorate(venue);
   let venueId: string | null = null;
   if (venue) venueId = await findOrCreateVenue(supabase, venue);
 
@@ -272,16 +274,16 @@ async function processTMEvent(
     venue_id: venueId,
     starts_at: startsAt,
     ends_at: endsAt,
-    timezone: ev.dates.timezone ?? "Asia/Dubai",
+    timezone: ev.dates.timezone ?? "Asia/Beirut",
     cover_image: pickBestImage(ev.images),
     price_min: price?.min ?? null,
     price_max: price?.max ?? null,
-    currency: price?.currency ?? "AED",
+    currency: price?.currency ?? "USD",
     ticket_url: sourceUrl,
     status: "published" as const,
     source: "ticketmaster",
     source_url: sourceUrl,
-    emirate,
+    governorate,
   };
 
   const { data: existing } = await supabase

@@ -9,7 +9,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { HtmlAttributes } from "@/components/HtmlAttributes";
 import { SignInAutoOpen } from "@/components/SignInAutoOpen";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-sans-app", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans-app", display: "swap" });
 const arabic = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-arabic-app", display: "swap" });
 
 export function generateStaticParams() {
@@ -17,8 +17,8 @@ export function generateStaticParams() {
 }
 
 export const metadata = {
-  title: { default: "QuePasa Dubai", template: "%s · QuePasa Dubai" },
-  description: "Everything happening in Dubai — concerts, festivals, exhibitions, sports, family days out.",
+  title: { default: "QuePasa Lebanon", template: "%s · QuePasa Lebanon" },
+  description: "Everything happening in Lebanon — concerts, festivals, exhibitions, sports, family days out.",
 };
 
 export default async function LocaleLayout({

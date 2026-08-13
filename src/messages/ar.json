@@ -1,7 +1,7 @@
 {
   "Common": {
-    "appName": "كي باسا دبي",
-    "tagline": "كل ما يحدث في دبي.",
+    "appName": "كيو باسا لبنان",
+    "tagline": "كل ما يحدث في لبنان.",
     "search": "ابحث عن فعاليات…",
     "clearAll": "مسح الكل",
     "loading": "جارٍ التحميل…",
@@ -42,7 +42,16 @@
     "tomorrow": "غداً",
     "thisWeekend": "نهاية الأسبوع",
     "thisWeek": "هذا الأسبوع",
-    "pickDates": "اختر التواريخ…"
+    "pickDates": "اختر التواريخ…",
+    "allLebanon": "كل لبنان",
+    "governorateBeirut": "بيروت",
+    "governorateMountLebanon": "جبل لبنان",
+    "governorateNorthLebanon": "لبنان الشمالي",
+    "governorateSouthLebanon": "لبنان الجنوبي",
+    "governorateBekaa": "البقاع",
+    "governorateNabatieh": "النبطية",
+    "governorateAkkar": "عكار",
+    "governorateBaalbekHermel": "بعلبك الهرمل"
   },
   "Categories": {
     "live_music": "موسيقى حية",
