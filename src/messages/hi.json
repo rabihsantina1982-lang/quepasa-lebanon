@@ -1,0 +1,48 @@
+{
+  "_TODO": "Hindi translations pending — keys mirror en.json structure; falls back to English values via next-intl message resolution.",
+  "Common": {
+    "appName": "क्यू पासा दुबई",
+    "tagline": "दुबई में हो रहा सब कुछ।",
+    "search": "इवेंट खोजें…",
+    "clearAll": "सब साफ़ करें",
+    "loading": "लोड हो रहा है…",
+    "free": "मुफ़्त",
+    "from": "{price} से",
+    "viewDetails": "विवरण देखें",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट",
+    "save": "सेव",
+    "saved": "सहेजा गया",
+    "share": "शेयर",
+    "remindMe": "याद दिलाएँ",
+    "getTickets": "टिकट लें",
+    "callToBook": "बुक करने के लिए कॉल करें",
+    "addToCalendar": "कैलेंडर में जोड़ें",
+    "googleCalendar": "Google Calendar",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "दिशा-निर्देश",
+    "linkCopied": "लिंक कॉपी हो गया!",
+    "back": "वापस"
+  },
+  "Nav": {
+    "home": "होम", "browse": "ब्राउज़", "map": "नक़्शा", "favorites": "पसंदीदा", "profile": "प्रोफ़ाइल", "submit": "अपना इवेंट सबमिट करें", "admin": "एडमिन", "promoter": "मेरा डैशबोर्ड", "becomePromoter": "इवेंट पोस्ट करें"
+  },
+  "Filters": {
+    "category": "श्रेणी", "date": "तारीख़", "area": "क्षेत्र",
+    "today": "आज", "tomorrow": "कल", "thisWeekend": "इस वीकेंड", "thisWeek": "इस हफ़्ते", "pickDates": "तारीख़ चुनें…"
+  },
+  "Categories": {
+    "live_music": "लाइव म्यूज़िक",
+    "dj_performance": "DJ परफॉर्मेंस", "sports": "खेल", "food_drink": "खाना और पेय", "arts_culture": "कला और संस्कृति", "family_kids": "परिवार और बच्चे", "nightlife": "नाइटलाइफ़", "business": "व्यवसाय", "wellness": "स्वास्थ्य", "festivals": "त्योहार", "conferences": "सम्मेलन", "workshops": "वर्कशॉप", "exhibitions": "प्रदर्शनियाँ", "outdoor": "आउटडोर", "religious": "धार्मिक", "charity": "चैरिटी"
+  },
+  "Auth": {
+    "dialogTitle": "क्यू पासा में साइन इन करें",
+    "dialogBody": "पूरे विवरण देखने, इवेंट सहेजने और रिमाइंडर पाने के लिए साइन इन करें।",
+    "emailPlaceholder": "आपका ईमेल पता", "emailButton": "मैजिक लिंक भेजें", "emailSent": "अपना इनबॉक्स देखें!", "emailSentBody": "हमने {email} पर साइन-इन लिंक भेजा", "orContinueWith": "या जारी रखें", "sending": "भेज रहे हैं…", "tryDifferentEmail": "दूसरा ईमेल आज़माएं",
+    "google": "Google से जारी रखें", "apple": "Apple से जारी रखें", "facebook": "Facebook से जारी रखें",
+    "privacyNotice": "हम आपकी ओर से कुछ पोस्ट नहीं करेंगे।"
+  },
+  "EventDetail": { "about": "इस इवेंट के बारे में", "whenWhere": "कब और कहाँ", "related": "आपको ये भी पसंद आ सकते हैं", "source": "स्रोत" },
+  "Empty": { "noEvents": "कोई मिलते-जुलते इवेंट नहीं।", "tryClearing": "फ़िल्टर हटा कर देखें।" },
+  "Submit": { "title": "इवेंट सबमिट करें", "subtitle": "हमें बताएँ — हमारी टीम पब्लिश से पहले समीक्षा करेगी।", "submitted": "धन्यवाद! आपका इवेंट समीक्षा में है।" }
+}

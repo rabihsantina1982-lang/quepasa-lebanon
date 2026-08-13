@@ -1,0 +1,95 @@
+{
+  "Common": {
+    "appName": "QuePasa Dubai",
+    "tagline": "Everything happening in Dubai.",
+    "search": "Search events…",
+    "clearAll": "Clear all",
+    "loading": "Loading…",
+    "free": "Free",
+    "from": "From {price}",
+    "viewDetails": "View details",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "save": "Save",
+    "saved": "Saved",
+    "share": "Share",
+    "remindMe": "Remind me",
+    "getTickets": "Get tickets",
+    "callToBook": "Call to book",
+    "addToCalendar": "Add to calendar",
+    "googleCalendar": "Google Calendar",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "Directions",
+    "linkCopied": "Link copied!",
+    "back": "Back"
+  },
+  "Nav": {
+    "home": "Home",
+    "browse": "Browse",
+    "map": "Map",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "submit": "Submit your event",
+    "admin": "Admin",
+    "promoter": "My Dashboard",
+    "becomePromoter": "Post Events"
+  },
+  "Filters": {
+    "category": "Category",
+    "date": "Date",
+    "area": "Area",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "thisWeekend": "This weekend",
+    "thisWeek": "This week",
+    "pickDates": "Pick dates…"
+  },
+  "Categories": {
+    "live_music": "Live Music",
+    "dj_performance": "DJ Performance",
+    "sports": "Sports",
+    "food_drink": "Food & Drink",
+    "arts_culture": "Arts & Culture",
+    "family_kids": "Family & Kids",
+    "nightlife": "Nightlife",
+    "business": "Business",
+    "wellness": "Wellness",
+    "festivals": "Festivals",
+    "conferences": "Conferences",
+    "workshops": "Workshops",
+    "exhibitions": "Exhibitions",
+    "outdoor": "Outdoor",
+    "religious": "Religious",
+    "charity": "Charity"
+  },
+  "Auth": {
+    "dialogTitle": "Sign in to QuePasa",
+    "dialogBody": "Sign in to see full details, save events, and get reminders.",
+    "emailPlaceholder": "Your email address",
+    "emailButton": "Send magic link",
+    "emailSent": "Check your inbox!",
+    "emailSentBody": "We sent a sign-in link to {email}",
+    "orContinueWith": "or continue with",
+    "sending": "Sending…",
+    "tryDifferentEmail": "Try a different email",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "facebook": "Continue with Facebook",
+    "privacyNotice": "We never post on your behalf."
+  },
+  "EventDetail": {
+    "about": "About this event",
+    "whenWhere": "When & where",
+    "related": "You might also like",
+    "source": "Source"
+  },
+  "Empty": {
+    "noEvents": "No events match these filters.",
+    "tryClearing": "Try clearing some filters to see more events."
+  },
+  "Submit": {
+    "title": "Submit an event",
+    "subtitle": "Tell us what's happening — our team will review before publishing.",
+    "submitted": "Thanks! Your event is pending review."
+  }
+}

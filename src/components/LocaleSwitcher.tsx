@@ -1,0 +1,37 @@
+"use client";
+import { useLocale } from "next-intl";
+import { useRouter, usePathname } from "@/i18n/navigation";
+import { locales, type Locale } from "@/i18n/routing";
+
+const labels: Record<Locale, string> = {
+  en: "English",
+  ar: "العربية",
+  hi: "हिन्दी",
+  ur: "اردو",
+  ru: "Русский",
+  es: "Español",
+  fr: "Français",
+  it: "Italiano",
+  ja: "日本語",
+  tl: "Filipino",
+  zh: "中文",
+};
+
+export function LocaleSwitcher() {
+  const current = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  return (
+    <select
+      aria-label="Language"
+      value={current}
+      onChange={(e) => router.replace(pathname, { locale: e.target.value as Locale })}
+      className="h-9 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 text-sm"
+    >
+      {locales.map((l) => (
+        <option key={l} value={l}>{labels[l]}</option>
+      ))}
+    </select>
+  );
+}

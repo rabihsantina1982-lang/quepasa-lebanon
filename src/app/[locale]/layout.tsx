@@ -1,0 +1,51 @@
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { Inter, Noto_Naskh_Arabic } from "next/font/google";
+import { routing, isRtl } from "@/i18n/routing";
+import { Header } from "@/components/Header";
+import { BottomNav } from "@/components/BottomNav";
+import { HtmlAttributes } from "@/components/HtmlAttributes";
+import { SignInAutoOpen } from "@/components/SignInAutoOpen";
+
+const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-sans-app", display: "swap" });
+const arabic = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-arabic-app", display: "swap" });
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export const metadata = {
+  title: { default: "QuePasa Dubai", template: "%s · QuePasa Dubai" },
+  description: "Everything happening in Dubai — concerts, festivals, exhibitions, sports, family days out.",
+};
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+  const dir = isRtl(locale) ? "rtl" : "ltr";
+
+  return (
+    <>
+      <HtmlAttributes lang={locale} dir={dir} />
+      <NextIntlClientProvider>
+        <div className={`min-h-screen flex flex-col pb-16 lg:pb-0 ${inter.variable} ${arabic.variable}`}>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <BottomNav />
+          <Suspense fallback={null}>
+            <SignInAutoOpen />
+          </Suspense>
+        </div>
+      </NextIntlClientProvider>
+    </>
+  );
+}

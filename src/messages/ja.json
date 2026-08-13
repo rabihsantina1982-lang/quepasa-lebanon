@@ -1,0 +1,103 @@
+{
+  "Common": {
+    "appName": "QuePasa UAE",
+    "tagline": "UAEで起きていること、すべて。",
+    "search": "イベントを検索…",
+    "clearAll": "すべてクリア",
+    "loading": "読み込み中…",
+    "free": "無料",
+    "from": "{price}から",
+    "viewDetails": "詳細を見る",
+    "signIn": "サインイン",
+    "signOut": "サインアウト",
+    "save": "保存",
+    "saved": "保存済み",
+    "share": "シェア",
+    "remindMe": "リマインド",
+    "getTickets": "チケット購入",
+    "callToBook": "電話で予約",
+    "addToCalendar": "カレンダーに追加",
+    "googleCalendar": "Google カレンダー",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "経路",
+    "linkCopied": "リンクをコピーしました！",
+    "back": "戻る"
+  },
+  "Nav": {
+    "home": "ホーム",
+    "browse": "一覧",
+    "map": "マップ",
+    "favorites": "お気に入り",
+    "profile": "プロフィール",
+    "submit": "イベントを掲載する",
+    "admin": "管理",
+    "promoter": "マイダッシュボード",
+    "becomePromoter": "イベントを掲載"
+  },
+  "Filters": {
+    "category": "カテゴリー",
+    "date": "日付",
+    "area": "エリア",
+    "today": "今日",
+    "tomorrow": "明日",
+    "thisWeekend": "今週末",
+    "thisWeek": "今週",
+    "pickDates": "日付を選ぶ…",
+    "allUAE": "UAE全体",
+    "emirateDubai": "ドバイ",
+    "emirateAbuDhabi": "アブダビ",
+    "emirateSharjah": "シャルジャ",
+    "emirateAjman": "アジュマーン",
+    "emirateUmmAlQuwain": "ウンム・アル・カイワイン",
+    "emirateRasAlKhaimah": "ラアス・アル・ハイマ",
+    "emirateFujairah": "フジャイラ"
+  },
+  "Categories": {
+    "live_music": "ライブミュージック",
+    "dj_performance": "DJパフォーマンス",
+    "sports": "スポーツ",
+    "food_drink": "フード＆ドリンク",
+    "arts_culture": "アート＆文化",
+    "family_kids": "ファミリー",
+    "nightlife": "ナイトライフ",
+    "business": "ビジネス",
+    "wellness": "ウェルネス",
+    "festivals": "フェスティバル",
+    "conferences": "カンファレンス",
+    "workshops": "ワークショップ",
+    "exhibitions": "展示会",
+    "outdoor": "アウトドア",
+    "religious": "宗教",
+    "charity": "チャリティー"
+  },
+  "Auth": {
+    "dialogTitle": "QuePasaにサインイン",
+    "dialogBody": "サインインして詳細を確認し、イベントを保存してリマインダーを受け取りましょう。",
+    "emailPlaceholder": "メールアドレス",
+    "emailButton": "マジックリンクを送る",
+    "emailSent": "メールを確認してください！",
+    "emailSentBody": "{email} にサインインリンクを送りました",
+    "orContinueWith": "または",
+    "sending": "送信中…",
+    "tryDifferentEmail": "別のメールを使う",
+    "google": "Googleで続ける",
+    "apple": "Appleで続ける",
+    "facebook": "Facebookで続ける",
+    "privacyNotice": "あなたに代わって投稿することはありません。"
+  },
+  "EventDetail": {
+    "about": "このイベントについて",
+    "whenWhere": "いつ・どこで",
+    "related": "おすすめのイベント",
+    "source": "出典"
+  },
+  "Empty": {
+    "noEvents": "フィルターに一致するイベントがありません。",
+    "tryClearing": "フィルターを解除してみてください。"
+  },
+  "Submit": {
+    "title": "イベントを投稿",
+    "subtitle": "開催情報をお知らせください — チームが審査後に公開します。",
+    "submitted": "ありがとうございます！イベントは審査中です。"
+  }
+}

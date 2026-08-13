@@ -1,0 +1,65 @@
+import { Link } from "@/i18n/navigation";
+import { Video, MapPin } from "lucide-react";
+import Image from "next/image";
+import { MediaTile } from "./MediaTile";
+import { CardSaveButton } from "./CardSaveButton";
+import type { EventWithRelations } from "@/lib/supabase/types";
+import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
+
+export function EventCard({
+  event,
+  locale,
+  initialSaved = false,
+  isSignedIn = false,
+}: {
+  event: EventWithRelations;
+  locale: string;
+  initialSaved?: boolean;
+  isSignedIn?: boolean;
+}) {
+  const title = pickLocalized(event.title_i18n, locale);
+  const hero = event.media.find((m) => m.kind === "video") ?? event.media[0];
+  const hasVideo = event.media.some((m) => m.kind === "video");
+  const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
+  const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
+
+  return (
+    <Link
+      href={`/events/${event.slug}`}
+      className="group block rounded-[var(--radius-card)] overflow-hidden bg-[var(--color-card)] border border-[var(--color-border)] hover:shadow-lg transition-shadow"
+    >
+      <div className="relative aspect-[4/3] bg-[var(--color-border)]">
+        {hero ? (
+          <MediaTile media={hero} variant="card" alt={title} />
+        ) : event.cover_image ? (
+          <Image src={event.cover_image} alt={title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+        ) : null}
+        {hasVideo && (
+          <span className="absolute top-2 start-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] text-white">
+            <Video size={12} aria-hidden /> video
+          </span>
+        )}
+        {event.category && (
+          <span className="absolute top-2 end-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-medium text-[var(--color-fg)]">
+            {pickLocalized(event.category.name_i18n, locale)}
+          </span>
+        )}
+        <CardSaveButton eventId={event.id} initialSaved={initialSaved} isSignedIn={isSignedIn} />
+      </div>
+      <div className="p-3 space-y-1">
+        <h3 className="font-semibold leading-snug line-clamp-2">{title}</h3>
+        <div className="text-xs text-[var(--color-muted)]">{date}</div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="inline-flex items-center gap-1 text-[var(--color-muted)]">
+            {event.venue && (
+              <>
+                <MapPin size={12} aria-hidden /> {event.venue.area ?? event.venue.name}
+              </>
+            )}
+          </span>
+          {price && <span className="font-medium">{price}</span>}
+        </div>
+      </div>
+    </Link>
+  );
+}

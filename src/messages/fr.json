@@ -1,0 +1,94 @@
+{
+  "Common": {
+    "appName": "QuePasa UAE",
+    "tagline": "Tout ce qui se passe aux Émirats arabes unis.",
+    "search": "Rechercher des événements…",
+    "clearAll": "Tout effacer",
+    "loading": "Chargement…",
+    "free": "Gratuit",
+    "from": "À partir de {price}",
+    "viewDetails": "Voir les détails",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "share": "Partager",
+    "remindMe": "Me rappeler",
+    "getTickets": "Obtenir des billets",
+    "callToBook": "Appeler pour réserver",
+    "addToCalendar": "Ajouter au calendrier",
+    "googleCalendar": "Google Agenda",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "Itinéraire",
+    "linkCopied": "Lien copié !",
+    "back": "Retour"
+  },
+  "Nav": {
+    "home": "Accueil",
+    "browse": "Explorer",
+    "map": "Carte",
+    "favorites": "Favoris",
+    "profile": "Profil",
+    "submit": "Soumettre un événement",
+    "admin": "Admin"
+  },
+  "Filters": {
+    "category": "Catégorie",
+    "date": "Date",
+    "area": "Zone",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "thisWeekend": "Ce week-end",
+    "thisWeek": "Cette semaine",
+    "pickDates": "Choisir des dates…",
+    "allUAE": "Tout les EAU",
+    "emirateDubai": "Dubaï",
+    "emirateAbuDhabi": "Abou Dabi",
+    "emirateSharjah": "Charjah",
+    "emirateAjman": "Ajman",
+    "emirateUmmAlQuwain": "Umm Al Quwain",
+    "emirateRasAlKhaimah": "Ras Al Khaïmah",
+    "emirateFujairah": "Fujairah"
+  },
+  "Categories": {
+    "live_music": "Musique live",
+    "dj_performance": "Set DJ",
+    "sports": "Sports",
+    "food_drink": "Gastronomie",
+    "arts_culture": "Arts et culture",
+    "family_kids": "Famille",
+    "nightlife": "Vie nocturne",
+    "business": "Affaires",
+    "wellness": "Bien-être",
+    "festivals": "Festivals",
+    "conferences": "Conférences",
+    "workshops": "Ateliers",
+    "exhibitions": "Expositions",
+    "outdoor": "Plein air",
+    "religious": "Religieux",
+    "charity": "Charité"
+  },
+  "Auth": {
+    "dialogTitle": "Se connecter à QuePasa",
+    "dialogBody": "Connectez-vous pour voir les détails, enregistrer des événements et recevoir des rappels.",
+    "google": "Continuer avec Google",
+    "apple": "Continuer avec Apple",
+    "facebook": "Continuer avec Facebook",
+    "privacyNotice": "Nous ne publions jamais en votre nom."
+  },
+  "EventDetail": {
+    "about": "À propos de cet événement",
+    "whenWhere": "Quand et où",
+    "related": "Vous aimerez peut-être aussi",
+    "source": "Source"
+  },
+  "Empty": {
+    "noEvents": "Aucun événement ne correspond à ces filtres.",
+    "tryClearing": "Essayez de supprimer certains filtres pour voir plus d'événements."
+  },
+  "Submit": {
+    "title": "Soumettre un événement",
+    "subtitle": "Dites-nous ce qui se passe — notre équipe vérifiera avant de publier.",
+    "submitted": "Merci ! Votre événement est en attente de vérification."
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "Common": {
+    "appName": "كي باسا دبي",
+    "tagline": "كل ما يحدث في دبي.",
+    "search": "ابحث عن فعاليات…",
+    "clearAll": "مسح الكل",
+    "loading": "جارٍ التحميل…",
+    "free": "مجاناً",
+    "from": "ابتداءً من {price}",
+    "viewDetails": "عرض التفاصيل",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "save": "حفظ",
+    "saved": "محفوظ",
+    "share": "مشاركة",
+    "remindMe": "ذكّرني",
+    "getTickets": "احجز التذاكر",
+    "callToBook": "اتصل للحجز",
+    "addToCalendar": "إضافة إلى التقويم",
+    "googleCalendar": "تقويم Google",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "الاتجاهات",
+    "linkCopied": "تم نسخ الرابط!",
+    "back": "رجوع"
+  },
+  "Nav": {
+    "home": "الرئيسية",
+    "browse": "تصفح",
+    "map": "الخريطة",
+    "favorites": "المفضلة",
+    "profile": "الملف",
+    "submit": "أضف فعاليتك",
+    "admin": "الإدارة",
+    "promoter": "لوحتي",
+    "becomePromoter": "انشر فعالياتك"
+  },
+  "Filters": {
+    "category": "الفئة",
+    "date": "التاريخ",
+    "area": "المنطقة",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "thisWeekend": "نهاية الأسبوع",
+    "thisWeek": "هذا الأسبوع",
+    "pickDates": "اختر التواريخ…"
+  },
+  "Categories": {
+    "live_music": "موسيقى حية",
+    "dj_performance": "عرض دي جي",
+    "sports": "رياضة",
+    "food_drink": "مأكولات ومشروبات",
+    "arts_culture": "فنون وثقافة",
+    "family_kids": "العائلة والأطفال",
+    "nightlife": "حياة ليلية",
+    "business": "أعمال",
+    "wellness": "صحة وعافية",
+    "festivals": "مهرجانات",
+    "conferences": "مؤتمرات",
+    "workshops": "ورش عمل",
+    "exhibitions": "معارض",
+    "outdoor": "في الهواء الطلق",
+    "religious": "دينية",
+    "charity": "خيرية"
+  },
+  "Auth": {
+    "dialogTitle": "سجّل الدخول إلى كي باسا",
+    "dialogBody": "سجّل الدخول لعرض التفاصيل الكاملة وحفظ الفعاليات وتلقّي التذكيرات.",
+    "emailPlaceholder": "بريدك الإلكتروني",
+    "emailButton": "أرسل رابط الدخول",
+    "emailSent": "تحقق من بريدك!",
+    "emailSentBody": "أرسلنا رابط تسجيل الدخول إلى {email}",
+    "orContinueWith": "أو تابع بـ",
+    "sending": "جارٍ الإرسال…",
+    "tryDifferentEmail": "جرّب بريداً آخر",
+    "google": "المتابعة باستخدام Google",
+    "apple": "المتابعة باستخدام Apple",
+    "facebook": "المتابعة باستخدام Facebook",
+    "privacyNotice": "لن ننشر شيئاً نيابةً عنك."
+  },
+  "EventDetail": {
+    "about": "عن الفعالية",
+    "whenWhere": "الزمان والمكان",
+    "related": "قد يعجبك أيضاً",
+    "source": "المصدر"
+  },
+  "Empty": {
+    "noEvents": "لا توجد فعاليات مطابقة.",
+    "tryClearing": "جرّب مسح بعض الفلاتر لعرض المزيد."
+  },
+  "Submit": {
+    "title": "أضف فعالية",
+    "subtitle": "أخبرنا بما يحدث — سيراجع فريقنا قبل النشر.",
+    "submitted": "شكراً! فعاليتك قيد المراجعة."
+  }
+}

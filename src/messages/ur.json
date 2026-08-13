@@ -1,0 +1,40 @@
+{
+  "_TODO": "Urdu translations pending — review with a native speaker.",
+  "Common": {
+    "appName": "کیو پاسا دبئی",
+    "tagline": "دبئی میں ہر چیز جو ہو رہی ہے۔",
+    "search": "ایونٹ تلاش کریں…",
+    "clearAll": "سب صاف کریں",
+    "loading": "لوڈ ہو رہا ہے…",
+    "free": "مفت",
+    "from": "{price} سے",
+    "viewDetails": "تفصیل دیکھیں",
+    "signIn": "سائن اِن",
+    "signOut": "سائن آؤٹ",
+    "save": "محفوظ کریں",
+    "saved": "محفوظ ہو گیا",
+    "share": "شیئر",
+    "remindMe": "یاد دلائیں",
+    "getTickets": "ٹکٹ لیں",
+    "callToBook": "بکنگ کے لیے کال کریں",
+    "addToCalendar": "کیلنڈر میں شامل کریں",
+    "googleCalendar": "Google Calendar",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "ہدایات",
+    "linkCopied": "لنک کاپی ہو گیا!",
+    "back": "واپس"
+  },
+  "Nav": { "home": "ہوم", "browse": "براؤز", "map": "نقشہ", "favorites": "پسندیدہ", "profile": "پروفائل", "submit": "اپنا ایونٹ جمع کرائیں", "admin": "ایڈمن", "promoter": "میرا ڈیشبورڈ", "becomePromoter": "ایونٹس پوسٹ کریں" },
+  "Filters": { "category": "زمرہ", "date": "تاریخ", "area": "علاقہ", "today": "آج", "tomorrow": "کل", "thisWeekend": "اس ویکنڈ", "thisWeek": "اس ہفتے", "pickDates": "تاریخیں چنیں…" },
+  "Categories": { "live_music": "لائیو میوزک", "dj_performance": "ڈی جے پرفارمنس", "sports": "کھیل", "food_drink": "کھانا اور مشروبات", "arts_culture": "فن و ثقافت", "family_kids": "خاندان اور بچے", "nightlife": "نائٹ لائف", "business": "کاروبار", "wellness": "صحت", "festivals": "میلے", "conferences": "کانفرنسز", "workshops": "ورکشاپس", "exhibitions": "نمائشیں", "outdoor": "آؤٹ ڈور", "religious": "مذہبی", "charity": "خیراتی" },
+  "Auth": {
+    "dialogTitle": "کیو پاسا میں سائن اِن کریں",
+    "dialogBody": "مکمل تفصیلات دیکھنے، ایونٹس محفوظ کرنے اور یاد دہانیاں پانے کے لیے سائن اِن کریں۔",
+    "emailPlaceholder": "آپ کا ای میل پتہ", "emailButton": "میجک لنک بھیجیں", "emailSent": "اپنا ان باکس چیک کریں!", "emailSentBody": "ہم نے {email} پر سائن ان لنک بھیجا", "orContinueWith": "یا جاری رکھیں", "sending": "بھیج رہے ہیں…", "tryDifferentEmail": "مختلف ای میل آزمائیں",
+    "google": "Google کے ساتھ جاری رکھیں", "apple": "Apple کے ساتھ جاری رکھیں", "facebook": "Facebook کے ساتھ جاری رکھیں",
+    "privacyNotice": "ہم آپ کی طرف سے کچھ پوسٹ نہیں کریں گے۔"
+  },
+  "EventDetail": { "about": "اس ایونٹ کے بارے میں", "whenWhere": "کب اور کہاں", "related": "یہ بھی پسند آ سکتے ہیں", "source": "ماخذ" },
+  "Empty": { "noEvents": "کوئی ایونٹ نہیں ملا۔", "tryClearing": "فلٹر ہٹا کر دوبارہ کوشش کریں۔" },
+  "Submit": { "title": "ایونٹ جمع کرائیں", "subtitle": "ہمیں بتائیں — ہماری ٹیم اشاعت سے پہلے جائزہ لے گی۔", "submitted": "شکریہ! آپ کا ایونٹ زیرِ جائزہ ہے۔" }
+}

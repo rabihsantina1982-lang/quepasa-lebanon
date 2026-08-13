@@ -1,0 +1,103 @@
+{
+  "Common": {
+    "appName": "QuePasa UAE",
+    "tagline": "Todo lo que pasa en los Emiratos Árabes Unidos.",
+    "search": "Buscar eventos…",
+    "clearAll": "Borrar todo",
+    "loading": "Cargando…",
+    "free": "Gratis",
+    "from": "Desde {price}",
+    "viewDetails": "Ver detalles",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "share": "Compartir",
+    "remindMe": "Recordarme",
+    "getTickets": "Comprar entradas",
+    "callToBook": "Llamar para reservar",
+    "addToCalendar": "Añadir al calendario",
+    "googleCalendar": "Google Calendar",
+    "appleIcs": "Apple / Outlook (.ics)",
+    "directions": "Cómo llegar",
+    "linkCopied": "¡Enlace copiado!",
+    "back": "Volver"
+  },
+  "Nav": {
+    "home": "Inicio",
+    "browse": "Explorar",
+    "map": "Mapa",
+    "favorites": "Favoritos",
+    "profile": "Perfil",
+    "submit": "Envía tu evento",
+    "admin": "Admin",
+    "promoter": "Mi Panel",
+    "becomePromoter": "Publicar Eventos"
+  },
+  "Filters": {
+    "category": "Categoría",
+    "date": "Fecha",
+    "area": "Zona",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "thisWeekend": "Este fin de semana",
+    "thisWeek": "Esta semana",
+    "pickDates": "Elegir fechas…",
+    "allUAE": "Todo EAU",
+    "emirateDubai": "Dubái",
+    "emirateAbuDhabi": "Abu Dabi",
+    "emirateSharjah": "Sharjah",
+    "emirateAjman": "Ajmán",
+    "emirateUmmAlQuwain": "Umm Al Quwain",
+    "emirateRasAlKhaimah": "Ras Al Jaima",
+    "emirateFujairah": "Fujairah"
+  },
+  "Categories": {
+    "live_music": "Música en vivo",
+    "dj_performance": "Actuación DJ",
+    "sports": "Deportes",
+    "food_drink": "Comida y bebida",
+    "arts_culture": "Arte y cultura",
+    "family_kids": "Familia",
+    "nightlife": "Vida nocturna",
+    "business": "Negocios",
+    "wellness": "Bienestar",
+    "festivals": "Festivales",
+    "conferences": "Conferencias",
+    "workshops": "Talleres",
+    "exhibitions": "Exposiciones",
+    "outdoor": "Al aire libre",
+    "religious": "Religioso",
+    "charity": "Caridad"
+  },
+  "Auth": {
+    "dialogTitle": "Iniciar sesión en QuePasa",
+    "dialogBody": "Inicia sesión para ver detalles, guardar eventos y recibir recordatorios.",
+    "emailPlaceholder": "Tu correo electrónico",
+    "emailButton": "Enviar enlace mágico",
+    "emailSent": "¡Revisa tu bandeja!",
+    "emailSentBody": "Enviamos un enlace a {email}",
+    "orContinueWith": "o continuar con",
+    "sending": "Enviando…",
+    "tryDifferentEmail": "Usar otro correo",
+    "google": "Continuar con Google",
+    "apple": "Continuar con Apple",
+    "facebook": "Continuar con Facebook",
+    "privacyNotice": "Nunca publicamos en tu nombre."
+  },
+  "EventDetail": {
+    "about": "Sobre este evento",
+    "whenWhere": "Cuándo y dónde",
+    "related": "También te puede gustar",
+    "source": "Fuente"
+  },
+  "Empty": {
+    "noEvents": "No hay eventos que coincidan con estos filtros.",
+    "tryClearing": "Prueba a borrar algunos filtros para ver más eventos."
+  },
+  "Submit": {
+    "title": "Enviar un evento",
+    "subtitle": "Cuéntanos qué pasa — nuestro equipo revisará antes de publicar.",
+    "submitted": "¡Gracias! Tu evento está pendiente de revisión."
+  }
+}

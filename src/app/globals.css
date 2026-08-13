@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  /* Dubai-inspired palette: warm sand neutrals, teal primary, coral accent. */
+  --color-bg: #fbfaf6;
+  --color-fg: #111111;
+  --color-muted: #6b6b6b;
+  --color-card: #ffffff;
+  --color-border: #ebe7df;
+
+  --color-primary: #0d8a8a;        /* teal */
+  --color-primary-fg: #ffffff;
+  --color-accent: #f06449;         /* coral */
+  --color-sand: #e6d9b8;
+
+  --color-success: #15803d;
+  --color-danger: #b91c1c;
+
+  --radius-card: 12px;
+  --radius-pill: 9999px;
+
+  --font-sans: var(--font-sans-app);
+  --font-arabic: var(--font-arabic-app);
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-bg: #0d0f0e;
+    --color-fg: #f5f3ee;
+    --color-muted: #9a9a9a;
+    --color-card: #16181a;
+    --color-border: #262a2d;
+    --color-primary: #2eb6b6;
+    --color-primary-fg: #04201f;
+  }
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[dir="rtl"] body { font-family: var(--font-arabic), var(--font-sans), system-ui, sans-serif; }
+
+/* Force native <select> popups to render light (dark text on light background).
+   Without this, dark mode makes the dropdown itself dark while some browsers
+   still paint unselected options with a light/white background, making the
+   text unreadable except on the item the mouse is hovering. color-scheme alone
+   isn't enough on every browser, so options get explicit colors too. */
+select { color-scheme: light; }
+select option { color: #111111; background-color: #ffffff; }
+
+/* Skeleton shimmer */
+@keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+.qp-skeleton {
+  background: linear-gradient(90deg, var(--color-border) 0%, color-mix(in srgb, var(--color-border) 60%, white) 50%, var(--color-border) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .qp-skeleton { animation: none; }
+  video[data-autoplay] { animation: none !important; }
+}
