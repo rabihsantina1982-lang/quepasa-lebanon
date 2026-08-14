@@ -30,7 +30,9 @@
     "favorites": "Favoris",
     "profile": "Profil",
     "submit": "Soumettre un événement",
-    "admin": "Admin"
+    "admin": "Admin",
+    "promoter": "Mon tableau de bord",
+    "becomePromoter": "Publier des événements"
   },
   "Filters": {
     "category": "Catégorie",
@@ -72,6 +74,13 @@
   "Auth": {
     "dialogTitle": "Se connecter à QuePasa",
     "dialogBody": "Connectez-vous pour voir les détails, enregistrer des événements et recevoir des rappels.",
+    "emailPlaceholder": "Votre adresse e-mail",
+    "emailButton": "Envoyer le lien magique",
+    "emailSent": "Vérifiez votre boîte de réception !",
+    "emailSentBody": "Nous avons envoyé un lien de connexion à {email}",
+    "orContinueWith": "ou continuer avec",
+    "sending": "Envoi en cours…",
+    "tryDifferentEmail": "Essayer un autre e-mail",
     "google": "Continuer avec Google",
     "apple": "Continuer avec Apple",
     "facebook": "Continuer avec Facebook",
