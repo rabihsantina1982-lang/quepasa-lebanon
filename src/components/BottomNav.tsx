@@ -4,17 +4,16 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-const items = [
-  { href: "/", labelKey: "home", Icon: Home },
-  { href: "/events", labelKey: "browse", Icon: Compass },
-  { href: "/map", labelKey: "map", Icon: Map },
-  { href: "/favorites", labelKey: "favorites", Icon: Heart },
-  { href: "/submit", labelKey: "submit", Icon: User },
-] as const;
-
-export function BottomNav() {
+export function BottomNav({ isPromoter }: { isPromoter: boolean }) {
   const pathname = usePathname();
   const t = useTranslations("Nav");
+  const items = [
+    { href: "/", labelKey: "home", Icon: Home },
+    { href: "/events", labelKey: "browse", Icon: Compass },
+    { href: "/map", labelKey: "map", Icon: Map },
+    { href: "/favorites", labelKey: "favorites", Icon: Heart },
+    { href: isPromoter ? "/promoter/new-event" : "/become-a-promoter", labelKey: "submit", Icon: User },
+  ] as const;
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
       <ul className="grid grid-cols-5">

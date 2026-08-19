@@ -48,10 +48,10 @@ export function CardSaveButton({
         onClick={handleClick}
         disabled={loading}
         aria-label={saved ? "Unsave event" : "Save event"}
-        className="absolute bottom-2 end-2 z-10 p-1.5 rounded-full bg-white/90 shadow-md transition hover:bg-white disabled:opacity-50"
+        className="absolute bottom-2 end-2 z-10 p-3 rounded-full bg-white/90 shadow-md transition hover:bg-white disabled:opacity-50"
       >
         <Heart
-          size={15}
+          size={18}
           className={saved ? "fill-red-500 text-red-500" : "text-gray-400"}
           aria-hidden
         />
