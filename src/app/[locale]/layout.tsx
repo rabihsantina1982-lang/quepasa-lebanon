@@ -1,7 +1,6 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { Inter, Noto_Naskh_Arabic } from "next/font/google";
 import { routing, isRtl } from "@/i18n/routing";
 import { Header } from "@/components/Header";
@@ -59,9 +58,7 @@ export default async function LocaleLayout({
           <Header />
           <main className="flex-1">{children}</main>
           <BottomNav isPromoter={isPromoter} />
-          <Suspense fallback={null}>
-            <SignInAutoOpen />
-          </Suspense>
+          <SignInAutoOpen />
         </div>
       </NextIntlClientProvider>
     </>

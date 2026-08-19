@@ -1,5 +1,4 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Suspense } from "react";
 import { EventCard } from "@/components/EventCard";
 import { EventFilters } from "@/components/EventFilters";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,9 +46,7 @@ export default async function EventsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-12">
-      <Suspense fallback={<div className="h-32" />}>
-        <EventFilters categories={categories} locale={locale} />
-      </Suspense>
+      <EventFilters categories={categories} locale={locale} />
       {events.length === 0 ? (
         <div className="py-16 text-center">
           <h2 className="text-xl font-semibold">{t("noEvents")}</h2>
