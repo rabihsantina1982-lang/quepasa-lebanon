@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# scheduled task output
+scripts/ingest-log.txt
 !.env.local.example
 
 # editor / agent
