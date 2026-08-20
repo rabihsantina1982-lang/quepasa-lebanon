@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   await supabase.from("profiles").upsert({
     id: user.id,
     email: user.email,
-    full_name: body.full_name || null,
+    display_name: body.full_name || null,
   }, { onConflict: "id" });
 
   return NextResponse.json({ success: true });

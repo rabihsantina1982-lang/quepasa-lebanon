@@ -32,7 +32,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
   // Pending promoter applications
   const { data: pendingApplications } = await supabase
     .from("promoter_applications")
-    .select("id, user_id, business_name, business_type, instagram, website, description, created_at, profiles(full_name, email)")
+    .select("id, user_id, business_name, business_type, instagram, website, description, created_at, profiles(display_name, email)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 

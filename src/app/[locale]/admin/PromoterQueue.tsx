@@ -13,7 +13,7 @@ interface Application {
   website: string | null;
   description: string;
   created_at: string;
-  profiles: { full_name: string | null; email: string | null } | null;
+  profiles: { display_name: string | null; email: string | null } | null;
 }
 
 export function PromoterQueue({ items }: { items: Application[] }) {
@@ -44,7 +44,7 @@ export function PromoterQueue({ items }: { items: Application[] }) {
             <div>
               <div className="font-semibold">{a.business_name}</div>
               <div className="text-sm text-[var(--color-muted)]">
-                {a.profiles?.full_name ?? "—"} · {a.profiles?.email ?? "—"}
+                {a.profiles?.display_name ?? "—"} · {a.profiles?.email ?? "—"}
               </div>
               <div className="mt-1 flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full bg-[var(--color-border)] px-2 py-0.5">{a.business_type}</span>
