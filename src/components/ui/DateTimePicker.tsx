@@ -161,7 +161,7 @@ export function TimePicker({
         disabled={!hasDate}
         value={selected ? format(selected, "HH") : ""}
         onChange={(e) => pickHour(e.target.value)}
-        className="bg-transparent text-sm outline-none disabled:text-[var(--color-muted)]"
+        className="h-full bg-transparent text-sm outline-none disabled:text-[var(--color-muted)]"
         style={{ colorScheme: "light" }}
       >
         <option value="" disabled style={optionStyle}>HH</option>
@@ -172,7 +172,7 @@ export function TimePicker({
         disabled={!hasDate}
         value={selected ? format(selected, "mm") : ""}
         onChange={(e) => pickMinute(e.target.value)}
-        className="bg-transparent text-sm outline-none disabled:text-[var(--color-muted)]"
+        className="h-full bg-transparent text-sm outline-none disabled:text-[var(--color-muted)]"
         style={{ colorScheme: "light" }}
       >
         <option value="" disabled style={optionStyle}>MM</option>
