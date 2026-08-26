@@ -126,7 +126,14 @@ export default async function EventDetailPage({
           <Button size="lg" variant="outline"><Calendar size={16} />{t("appleIcs")}</Button>
         </a>
         <Button size="lg" variant="ghost"><Bell size={16} />{t("remindMe")}</Button>
-        <ShareButton title={title} url={eventUrl} label={t("share")} copiedLabel={t("linkCopied")} />
+        <ShareButton
+          title={title}
+          url={eventUrl}
+          label={t("share")}
+          whatsappLabel={t("shareViaWhatsapp")}
+          copyLabel={t("copyLink")}
+          copiedLabel={t("linkCopied")}
+        />
       </div>
 
       {description && (

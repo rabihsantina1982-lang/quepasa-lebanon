@@ -1,20 +1,19 @@
 "use client";
 
-import { Button } from "./ui/button";
 import { Share2 } from "lucide-react";
 import { ShareMenu } from "./ShareMenu";
 
-export function ShareButton({
+export function CardShareButton({
   title,
   url,
-  label,
+  shareLabel,
   whatsappLabel,
   copyLabel,
   copiedLabel,
 }: {
   title: string;
   url: string;
-  label: string;
+  shareLabel: string;
   whatsappLabel: string;
   copyLabel: string;
   copiedLabel: string;
@@ -26,11 +25,16 @@ export function ShareButton({
       whatsappLabel={whatsappLabel}
       copyLabel={copyLabel}
       copiedLabel={copiedLabel}
+      align="start"
+      wrapperClassName="absolute bottom-2 start-2 z-10"
       trigger={({ onClick }) => (
-        <Button size="lg" variant="ghost" onClick={onClick}>
-          <Share2 size={16} />
-          {label}
-        </Button>
+        <button
+          onClick={onClick}
+          aria-label={shareLabel}
+          className="p-3 rounded-full bg-white/90 shadow-md transition hover:bg-white"
+        >
+          <Share2 size={18} className="text-gray-500" aria-hidden />
+        </button>
       )}
     />
   );

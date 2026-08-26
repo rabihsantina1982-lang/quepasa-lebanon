@@ -1,12 +1,14 @@
 import { Link } from "@/i18n/navigation";
 import { Video, MapPin } from "lucide-react";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { MediaTile } from "./MediaTile";
 import { CardSaveButton } from "./CardSaveButton";
+import { CardShareButton } from "./CardShareButton";
 import type { EventWithRelations } from "@/lib/supabase/types";
 import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
 
-export function EventCard({
+export async function EventCard({
   event,
   locale,
   initialSaved = false,
@@ -17,7 +19,9 @@ export function EventCard({
   initialSaved?: boolean;
   isSignedIn?: boolean;
 }) {
+  const t = await getTranslations("Common");
   const title = pickLocalized(event.title_i18n, locale);
+  const eventUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/${locale}/events/${event.slug}`;
   const hero = event.media.find((m) => m.kind === "video") ?? event.media[0];
   const hasVideo = event.media.some((m) => m.kind === "video");
   const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
@@ -45,6 +49,14 @@ export function EventCard({
           </span>
         )}
         <CardSaveButton eventId={event.id} initialSaved={initialSaved} isSignedIn={isSignedIn} />
+        <CardShareButton
+          title={title}
+          url={eventUrl}
+          shareLabel={t("share")}
+          whatsappLabel={t("shareViaWhatsapp")}
+          copyLabel={t("copyLink")}
+          copiedLabel={t("linkCopied")}
+        />
       </div>
       <div className="p-3 space-y-1">
         <h3 className="font-semibold leading-snug line-clamp-2">{title}</h3>
