@@ -92,7 +92,12 @@
     "about": "عن الفعالية",
     "whenWhere": "الزمان والمكان",
     "related": "قد يعجبك أيضاً",
+    "postedBy": "نشرها",
     "source": "المصدر"
+  },
+  "PromoterProfile": {
+    "eventsCount": "{count} فعالية قادمة",
+    "noEvents": "لا توجد فعاليات قادمة حالياً."
   },
   "Empty": {
     "noEvents": "لا توجد فعاليات مطابقة.",

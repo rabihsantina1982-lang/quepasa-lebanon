@@ -92,7 +92,12 @@
     "about": "About this event",
     "whenWhere": "When & where",
     "related": "You might also like",
+    "postedBy": "Posted by",
     "source": "Source"
+  },
+  "PromoterProfile": {
+    "eventsCount": "{count} upcoming events",
+    "noEvents": "No upcoming events right now."
   },
   "Empty": {
     "noEvents": "No events match these filters.",

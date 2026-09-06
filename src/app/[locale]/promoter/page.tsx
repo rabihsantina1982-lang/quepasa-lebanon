@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { BusinessProfileForm } from "@/components/BusinessProfileForm";
 import { Calendar, Plus, Star } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
@@ -16,7 +17,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   // Check profile role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, full_name")
+    .select("role, business_name, logo_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -93,6 +94,11 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
           </Link>
         )}
       </div>
+
+      <BusinessProfileForm
+        initialBusinessName={profile?.business_name ?? application?.business_name ?? null}
+        initialLogoUrl={profile?.logo_url ?? null}
+      />
 
       {/* Subscription status */}
       <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5 space-y-3">

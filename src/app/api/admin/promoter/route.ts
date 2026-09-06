@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   // Get the application
   const { data: application } = await supabase
     .from("promoter_applications")
-    .select("user_id")
+    .select("user_id, business_name")
     .eq("id", applicationId)
     .single();
 
@@ -43,10 +43,11 @@ export async function POST(req: NextRequest) {
     .eq("id", applicationId);
 
   if (action === "approve") {
-    // Set user role to promoter
+    // Set user role to promoter, and carry their business name onto the
+    // profile so it's ready to show on their events without re-entering it.
     await supabase
       .from("profiles")
-      .upsert({ id: application.user_id, role: "promoter" }, { onConflict: "id" });
+      .upsert({ id: application.user_id, role: "promoter", business_name: application.business_name }, { onConflict: "id" });
 
     // Create 3-month free trial subscription
     const trialEnd = new Date();

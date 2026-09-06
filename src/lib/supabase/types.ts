@@ -22,8 +22,10 @@ export interface Database {
           display_name: string | null;
           locale: string | null;
           avatar_url: string | null;
-          role: "user" | "admin";
+          role: "user" | "promoter" | "admin";
           created_at: string;
+          business_name: string | null;
+          logo_url: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -74,6 +76,7 @@ export interface Database {
           source: string;
           source_url: string | null;
           created_by: string | null;
+          user_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -156,8 +159,16 @@ export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 export type VenueRow = Database["public"]["Tables"]["venues"]["Row"];
 export type EventMediaRow = Database["public"]["Tables"]["event_media"]["Row"];
 
+export interface PromoterProfile {
+  business_name: string | null;
+  logo_url: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
 export interface EventWithRelations extends EventRow {
   category: CategoryRow | null;
   venue: VenueRow | null;
   media: EventMediaRow[];
+  promoter: PromoterProfile | null;
 }

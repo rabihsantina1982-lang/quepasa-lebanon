@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { Link } from "@/i18n/navigation";
 import { fetchEventBySlug } from "@/lib/queries";
 import { EventMediaCarousel } from "@/components/EventMediaCarousel";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
-import { Calendar, MapPin, Phone, Ticket, Bell, Navigation } from "lucide-react";
+import { Calendar, MapPin, Phone, Ticket, Bell, Navigation, Building2 } from "lucide-react";
 import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import Image from "next/image";
@@ -68,6 +69,8 @@ export default async function EventDetailPage({
   const description = pickLocalized(event.description_i18n, locale);
   const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
+  const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;
+  const publisherLogo = event.promoter?.logo_url ?? event.promoter?.avatar_url ?? null;
 
   const directionsUrl = event.venue
     ? event.venue.lat != null && event.venue.lng != null
@@ -101,6 +104,21 @@ export default async function EventDetailPage({
           )}
           {price && <span className="font-medium text-[var(--color-fg)]">{price}</span>}
         </div>
+        {publisherName && event.user_id && (
+          <Link
+            href={`/promoter/${event.user_id}`}
+            className="flex items-center gap-2 pt-1 text-sm text-[var(--color-muted)] hover:underline w-fit"
+          >
+            <span className="relative w-7 h-7 rounded-full overflow-hidden bg-[var(--color-card)] border border-[var(--color-border)] shrink-0 flex items-center justify-center">
+              {publisherLogo ? (
+                <Image src={publisherLogo} alt="" fill className="object-cover" />
+              ) : (
+                <Building2 size={14} aria-hidden />
+              )}
+            </span>
+            {tDetail("postedBy")} <span className="font-medium text-[var(--color-fg)]">{publisherName}</span>
+          </Link>
+        )}
       </header>
 
       <div className="flex flex-wrap gap-2">

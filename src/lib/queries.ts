@@ -25,7 +25,8 @@ const SELECT = `
   *,
   category:categories(*),
   venue:venues(*),
-  media:event_media(*)
+  media:event_media(*),
+  promoter:profiles!events_user_id_fkey(business_name,logo_url,display_name,avatar_url)
 `;
 
 export interface FetchEventsParams {
@@ -33,6 +34,7 @@ export interface FetchEventsParams {
   when?: string;
   search?: string;
   governorate?: string;
+  promoterId?: string;
   limit?: number;
 }
 
@@ -63,6 +65,9 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
     .limit(params.limit ?? 200); // high limit — client-side category filter handles the rest
   if (params.governorate) {
     q = q.eq("governorate", params.governorate);
+  }
+  if (params.promoterId) {
+    q = q.eq("user_id", params.promoterId);
   }
   const range = dateRangeForPreset(params.when);
   if (range) {

@@ -92,7 +92,12 @@
     "about": "À propos de cet événement",
     "whenWhere": "Quand et où",
     "related": "Vous aimerez peut-être aussi",
+    "postedBy": "Publié par",
     "source": "Source"
+  },
+  "PromoterProfile": {
+    "eventsCount": "{count} événements à venir",
+    "noEvents": "Aucun événement à venir pour le moment."
   },
   "Empty": {
     "noEvents": "Aucun événement ne correspond à ces filtres.",
