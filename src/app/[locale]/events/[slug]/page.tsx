@@ -6,8 +6,9 @@ import { fetchEventBySlug } from "@/lib/queries";
 import { EventMediaCarousel } from "@/components/EventMediaCarousel";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
+import { RemindButton } from "@/components/RemindButton";
 import { ShareButton } from "@/components/ShareButton";
-import { Calendar, MapPin, Phone, Ticket, Bell, Navigation, Building2 } from "lucide-react";
+import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
 import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import Image from "next/image";
@@ -46,7 +47,8 @@ export default async function EventDetailPage({
   const event = await fetchEventBySlug(slug);
   if (!event) notFound();
 
-  // Now we have the real event UUID — re-check favorites with the correct ID
+  // Now we have the real event UUID — re-check favorites/reminders with the correct ID
+  let initialReminded = false;
   if (userId && event) {
     try {
       const supabase = await createClient();
@@ -57,6 +59,15 @@ export default async function EventDetailPage({
         .eq("event_id", event.id)
         .maybeSingle();
       initialSaved = !!fav;
+
+      const { data: reminder } = await supabase
+        .from("reminders")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("event_id", event.id)
+        .is("sent_at", null)
+        .maybeSingle();
+      initialReminded = !!reminder;
     } catch {
       // ignore
     }
@@ -143,7 +154,7 @@ export default async function EventDetailPage({
         <a href={`/api/ics/${event.id}`}>
           <Button size="lg" variant="outline"><Calendar size={16} />{t("appleIcs")}</Button>
         </a>
-        <Button size="lg" variant="ghost"><Bell size={16} />{t("remindMe")}</Button>
+        <RemindButton eventId={event.id} initialReminded={initialReminded} isSignedIn={!!userId} />
         <ShareButton
           title={title}
           url={eventUrl}

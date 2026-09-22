@@ -121,6 +121,7 @@ export interface Database {
           remind_at: string;
           channel: "email" | "push";
           sent_at: string | null;
+          locale: string;
         };
         Insert: Partial<Database["public"]["Tables"]["reminders"]["Row"]> & {
           user_id: string;

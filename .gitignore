@@ -35,7 +35,11 @@ yarn-error.log*
 
 # scheduled task output
 scripts/ingest-log.txt
+scripts/reminders-log.txt
 !.env.local.example
+
+# Supabase CLI local state
+supabase/.temp/
 
 # editor / agent
 /.claude/
