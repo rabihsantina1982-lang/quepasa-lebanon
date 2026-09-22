@@ -11,6 +11,7 @@ export async function Header() {
 
   let signedIn = false;
   let role: string | null = null;
+  let firstName: string | null = null;
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
@@ -18,10 +19,12 @@ export async function Header() {
     if (data.user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, display_name")
         .eq("id", data.user.id)
         .maybeSingle();
-      role = (profile as { role: string } | null)?.role ?? null;
+      const p = profile as { role: string; display_name: string | null } | null;
+      role = p?.role ?? null;
+      firstName = p?.display_name?.trim().split(/\s+/)[0] ?? null;
     }
   } catch {
     // Supabase env not configured yet — render anonymous.
@@ -77,7 +80,18 @@ export async function Header() {
         </nav>
         <div className="ms-auto flex items-center gap-2">
           <LocaleSwitcher />
-          {signedIn ? <SignOutButton label={t("signOut")} /> : <SignInButton label={t("signIn")} />}
+          {signedIn ? (
+            <>
+              {firstName && (
+                <span className="hidden sm:inline text-sm text-[var(--color-muted)]">
+                  {t("greeting", { name: firstName })}
+                </span>
+              )}
+              <SignOutButton label={t("signOut")} />
+            </>
+          ) : (
+            <SignInButton label={t("signIn")} />
+          )}
         </div>
       </div>
     </header>

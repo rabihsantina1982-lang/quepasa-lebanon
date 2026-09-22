@@ -5,6 +5,7 @@ import { Share2 } from "lucide-react";
 import { ShareMenu } from "./ShareMenu";
 
 export function ShareButton({
+  eventId,
   title,
   url,
   label,
@@ -12,6 +13,7 @@ export function ShareButton({
   copyLabel,
   copiedLabel,
 }: {
+  eventId: string;
   title: string;
   url: string;
   label: string;
@@ -21,6 +23,7 @@ export function ShareButton({
 }) {
   return (
     <ShareMenu
+      eventId={eventId}
       title={title}
       url={url}
       whatsappLabel={whatsappLabel}

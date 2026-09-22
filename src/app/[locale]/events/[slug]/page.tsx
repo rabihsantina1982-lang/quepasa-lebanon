@@ -156,6 +156,7 @@ export default async function EventDetailPage({
         </a>
         <RemindButton eventId={event.id} initialReminded={initialReminded} isSignedIn={!!userId} />
         <ShareButton
+          eventId={event.id}
           title={title}
           url={eventUrl}
           label={t("share")}

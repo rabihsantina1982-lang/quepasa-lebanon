@@ -12,6 +12,8 @@ export type Json =
 export type EventStatus = "draft" | "pending" | "published" | "rejected";
 export type MediaKind = "image" | "video";
 export type MediaProvider = "upload" | "youtube" | "vimeo";
+export type Gender = "male" | "female" | "non_binary";
+export type ShareChannel = "whatsapp" | "copy_link";
 
 export interface Database {
   public: {
@@ -26,9 +28,28 @@ export interface Database {
           created_at: string;
           business_name: string | null;
           logo_url: string | null;
+          date_of_birth: string | null;
+          gender: Gender | null;
+          interests: string[];
+          onboarding_completed_at: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
+      };
+      share_events: {
+        Row: {
+          id: string;
+          event_id: string;
+          user_id: string | null;
+          channel: ShareChannel;
+          locale: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["share_events"]["Row"]> & {
+          event_id: string;
+          channel: ShareChannel;
+        };
+        Update: Partial<Database["public"]["Tables"]["share_events"]["Row"]>;
       };
       categories: {
         Row: {

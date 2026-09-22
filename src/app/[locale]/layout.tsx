@@ -7,7 +7,9 @@ import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { HtmlAttributes } from "@/components/HtmlAttributes";
 import { SignInAutoOpen } from "@/components/SignInAutoOpen";
+import { CompleteProfileDialog } from "@/components/CompleteProfileDialog";
 import { createClient } from "@/lib/supabase/server";
+import { fetchCategories } from "@/lib/queries";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans-app", display: "swap" });
 const arabic = Noto_Naskh_Arabic({ subsets: ["arabic"], variable: "--font-arabic-app", display: "swap" });
@@ -34,17 +36,21 @@ export default async function LocaleLayout({
   const dir = isRtl(locale) ? "rtl" : "ltr";
 
   let isPromoter = false;
+  let shouldPromptOnboarding = false;
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     if (data.user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, onboarding_completed_at")
         .eq("id", data.user.id)
         .maybeSingle();
       const role = (profile as { role: string } | null)?.role ?? null;
       isPromoter = role === "promoter" || role === "admin";
+      // Demographics onboarding is for consumer ("user") accounts only —
+      // promoters/admins are businesses with their own profile flow.
+      shouldPromptOnboarding = role === "user" && !(profile as { onboarding_completed_at: string | null } | null)?.onboarding_completed_at;
     }
   } catch {
     // Supabase env not configured yet — render anonymous.
@@ -59,6 +65,7 @@ export default async function LocaleLayout({
           <main className="flex-1">{children}</main>
           <BottomNav isPromoter={isPromoter} />
           <SignInAutoOpen />
+          {shouldPromptOnboarding && <CompleteProfileDialog categories={await fetchCategories()} />}
         </div>
       </NextIntlClientProvider>
     </>

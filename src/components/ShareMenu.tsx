@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Link2, Check } from "lucide-react";
+import { useLocale } from "next-intl";
 
 interface ShareMenuProps {
+  eventId: string;
   title: string;
   url: string;
   whatsappLabel: string;
@@ -15,6 +17,7 @@ interface ShareMenuProps {
 }
 
 export function ShareMenu({
+  eventId,
   title,
   url,
   whatsappLabel,
@@ -24,6 +27,17 @@ export function ShareMenu({
   wrapperClassName,
   trigger,
 }: ShareMenuProps) {
+  const locale = useLocale();
+
+  function trackShare(channel: "whatsapp" | "copy_link") {
+    fetch("/api/share/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId, channel, locale }),
+    }).catch(() => {
+      // Best-effort — a failed tracking call shouldn't affect the share itself.
+    });
+  }
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -48,6 +62,7 @@ export function ShareMenu({
     e.stopPropagation();
     const text = `${title} ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+    trackShare("whatsapp");
     setOpen(false);
   }
 
@@ -60,9 +75,16 @@ export function ShareMenu({
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard access can be blocked (permissions, insecure context) —
-      // fall back to a prompt so the user can copy the link manually.
-      window.prompt("Copy this link:", url);
+      // fall back to a prompt so the user can copy the link manually. This
+      // itself can throw in some environments, so it's caught separately —
+      // tracking below must still fire either way.
+      try {
+        window.prompt("Copy this link:", url);
+      } catch {
+        // ignore
+      }
     }
+    trackShare("copy_link");
     setOpen(false);
   }
 

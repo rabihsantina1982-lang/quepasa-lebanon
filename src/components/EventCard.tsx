@@ -50,6 +50,7 @@ export async function EventCard({
           )}
           <CardSaveButton eventId={event.id} initialSaved={initialSaved} isSignedIn={isSignedIn} />
           <CardShareButton
+            eventId={event.id}
             title={title}
             url={eventUrl}
             shareLabel={t("share")}

@@ -24,7 +24,8 @@
     "appleIcs": "Apple / Outlook (.ics)",
     "directions": "Itinéraire",
     "linkCopied": "Lien copié !",
-    "back": "Retour"
+    "back": "Retour",
+    "greeting": "Bonjour, {name}"
   },
   "Nav": {
     "home": "Accueil",
@@ -108,5 +109,17 @@
     "title": "Soumettre un événement",
     "subtitle": "Dites-nous ce qui se passe — notre équipe vérifiera avant de publier.",
     "submitted": "Merci ! Votre événement est en attente de vérification."
+  },
+  "Onboarding": {
+    "title": "Parlez-nous un peu de vous",
+    "body": "Cela nous aide à vous montrer des événements plus pertinents. Totalement facultatif — vous pouvez passer et parcourir tout de suite.",
+    "dobLabel": "Date de naissance",
+    "genderLabel": "Genre",
+    "genderMale": "Homme",
+    "genderFemale": "Femme",
+    "genderNonBinary": "Non binaire",
+    "interestsLabel": "Qu'est-ce qui vous intéresse ?",
+    "save": "Enregistrer",
+    "skip": "Passer pour l'instant"
   }
 }
