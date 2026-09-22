@@ -2,11 +2,11 @@ import { createAdminClient } from "./supabase/admin";
 import { pickLocalized, formatDateRange } from "./utils";
 
 // How long before an event's start time the default reminder fires.
-export const REMINDER_OFFSET_HOURS = 3;
+export const REMINDER_OFFSET_DAYS = 2;
 
 export function computeRemindAt(startsAt: string): string {
   const d = new Date(startsAt);
-  d.setHours(d.getHours() - REMINDER_OFFSET_HOURS);
+  d.setDate(d.getDate() - REMINDER_OFFSET_DAYS);
   return d.toISOString();
 }
 

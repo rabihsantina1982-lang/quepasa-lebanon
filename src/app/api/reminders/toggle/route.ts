@@ -4,7 +4,7 @@
  * Returns: { reminded: boolean, remindAt: string | null }
  *
  * Requires the user to be signed in via Supabase session cookie.
- * Sets a reminder REMINDER_OFFSET_HOURS before the event starts (or removes
+ * Sets a reminder REMINDER_OFFSET_DAYS before the event starts (or removes
  * an existing, not-yet-sent reminder if one is already set).
  */
 
