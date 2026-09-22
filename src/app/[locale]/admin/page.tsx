@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminQueue } from "./AdminQueue";
 import { PromoterQueue } from "./PromoterQueue";
@@ -38,6 +39,10 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 space-y-10">
+      <nav className="flex gap-2 text-sm">
+        <Link href="/admin" className="px-3 py-1.5 rounded-full bg-[var(--color-card)] font-medium">Queue</Link>
+        <Link href="/admin/analytics" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Analytics</Link>
+      </nav>
 
       {/* Promoter applications */}
       <section>
