@@ -66,6 +66,7 @@ export async function Header() {
           <Link href="/events" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("browse")}</Link>
           <Link href="/map" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("map")}</Link>
           <Link href="/favorites" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("favorites")}</Link>
+          <Link href="/premium" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">✨ {tNav("premium")}</Link>
           {isPromoter ? (
             <Link href="/promoter/new-event" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("submit")}</Link>
           ) : (

@@ -36,7 +36,8 @@
     "submit": "Soumettre un événement",
     "admin": "Admin",
     "promoter": "Mon tableau de bord",
-    "becomePromoter": "Publier des événements"
+    "becomePromoter": "Publier des événements",
+    "premium": "Premium"
   },
   "Filters": {
     "category": "Catégorie",

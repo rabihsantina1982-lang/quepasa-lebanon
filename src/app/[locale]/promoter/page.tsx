@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { BusinessProfileForm } from "@/components/BusinessProfileForm";
-import { Calendar, Plus, Star } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -99,6 +99,20 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
         initialBusinessName={profile?.business_name ?? application?.business_name ?? null}
         initialLogoUrl={profile?.logo_url ?? null}
       />
+
+      {/* Premium add-ons teaser */}
+      <Link
+        href="/premium"
+        className="flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4 hover:bg-[var(--color-primary)]/10 transition-colors"
+      >
+        <div className="w-9 h-9 shrink-0 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center">
+          <Sparkles size={18} aria-hidden />
+        </div>
+        <div className="flex-1">
+          <div className="font-semibold">Get your events featured</div>
+          <div className="text-sm text-[var(--color-muted)]">Homepage spotlight, top-of-search placement, and more — coming soon.</div>
+        </div>
+      </Link>
 
       {/* Subscription status */}
       <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5 space-y-3">

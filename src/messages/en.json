@@ -36,7 +36,8 @@
     "submit": "Submit your event",
     "admin": "Admin",
     "promoter": "My Dashboard",
-    "becomePromoter": "Post Events"
+    "becomePromoter": "Post Events",
+    "premium": "Premium"
   },
   "Filters": {
     "category": "Category",
