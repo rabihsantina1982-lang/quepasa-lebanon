@@ -68,7 +68,7 @@ export function EventFilters({
   return (
     <div
       className={cn(
-        "sticky top-14 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)]/95 backdrop-blur border-b border-[var(--color-border)] space-y-3 transition-[transform,opacity] duration-300",
+        "sticky top-16 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)] border-b border-[var(--color-border)] space-y-3 transition-[transform,opacity] duration-300",
         hidden && "-translate-y-full opacity-0 pointer-events-none"
       )}
     >
