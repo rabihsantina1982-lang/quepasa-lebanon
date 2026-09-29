@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
@@ -32,6 +33,7 @@ export function EventFilters({
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const hidden = useHideOnScrollDown();
 
   const activeCategory = params.get("category") ?? "";
   const activeDate = params.get("when") ?? "";
@@ -64,7 +66,12 @@ export function EventFilters({
   const anyActive = activeCategory || activeDate || activeGovernorate;
 
   return (
-    <div className="sticky top-14 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)]/95 backdrop-blur border-b border-[var(--color-border)] space-y-3">
+    <div
+      className={cn(
+        "sticky top-14 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)]/95 backdrop-blur border-b border-[var(--color-border)] space-y-3 transition-[transform,opacity] duration-300",
+        hidden && "-translate-y-full opacity-0 pointer-events-none"
+      )}
+    >
       {/* Governorate row */}
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
@@ -93,8 +100,9 @@ export function EventFilters({
           </button>
         ))}
       </div>
-      {/* Category row — single select, wraps into two rows */}
-      <div className="flex flex-wrap gap-2">
+      {/* Category row — single select. One swipeable row on phones (wrapping
+          took up half the screen), wraps into rows on wider screens. */}
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap sm:overflow-visible sm:pb-0">
         {categories.map((c) => {
           const active = activeCategory === c.slug;
           return (
@@ -115,13 +123,13 @@ export function EventFilters({
         })}
       </div>
       {/* Date + clear row */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex gap-2 items-center overflow-x-auto no-scrollbar sm:flex-wrap sm:overflow-visible">
         {datePresets.map((p) => (
           <button
             key={p}
             onClick={() => setDate(p)}
             className={cn(
-              "rounded-full px-3 h-8 text-xs border",
+              "shrink-0 rounded-full px-3 h-8 text-xs border",
               activeDate === p
                 ? "bg-[var(--color-fg)] text-[var(--color-bg)] border-[var(--color-fg)]"
                 : "bg-transparent border-[var(--color-border)]"
@@ -131,11 +139,36 @@ export function EventFilters({
           </button>
         ))}
         {anyActive && (
-          <button onClick={clearAll} className="ms-auto inline-flex items-center gap-1 text-xs text-[var(--color-muted)]">
+          <button onClick={clearAll} className="shrink-0 ms-auto inline-flex items-center gap-1 text-xs text-[var(--color-muted)]">
             <X size={12} /> {tCommon("clearAll")}
           </button>
         )}
       </div>
     </div>
   );
+}
+
+// Slides the sticky filter bar away while scrolling down through results, and
+// brings it back on any meaningful scroll up (or near the top of the page), so
+// the bar doesn't eat most of a phone screen while browsing.
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    function onScroll() {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      if (y < 120) setHidden(false);
+      else if (delta > 8) setHidden(true);
+      else if (delta < -8) setHidden(false);
+      else return;
+      lastY.current = y;
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return hidden;
 }
