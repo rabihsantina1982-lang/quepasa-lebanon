@@ -9,9 +9,10 @@ import type { Provider } from "@supabase/supabase-js";
 
 // Only list providers that are actually enabled in this app's Supabase
 // project (Authentication -> Providers); a listed-but-disabled one fails
-// with "provider is not enabled". None are set up for Lebanon yet, so
-// sign-in is email-only until Google/Facebook/Apple are configured.
-const providers: { id: Provider; key: string; icon: string }[] = [];
+// with "provider is not enabled". Facebook and Apple aren't set up yet.
+const providers: { id: Provider; key: string; icon: string }[] = [
+  { id: "google",   key: "google",   icon: "G" },
+];
 
 export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: () => void; next?: string }) {
   const t = useTranslations("Auth");
