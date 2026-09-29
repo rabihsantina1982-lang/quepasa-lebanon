@@ -21,6 +21,9 @@ export interface Showtime {
   starts_at: string;
   ends_at: string | null;
   ticket_url: string | null;
+  // Seating area / package name when a show is sold as several ticket
+  // options (e.g. "North Grandstand"); null for plain performances.
+  label?: string | null;
 }
 
 export interface Database {

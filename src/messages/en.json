@@ -98,7 +98,8 @@
     "related": "You might also like",
     "postedBy": "Posted by",
     "source": "Source",
-    "allDates": "All dates & times"
+    "allDates": "All dates & times",
+    "ticketOptions": "Ticket options"
   },
   "PromoterProfile": {
     "eventsCount": "{count} upcoming events",

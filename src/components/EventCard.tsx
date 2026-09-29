@@ -24,10 +24,13 @@ export async function EventCard({
   const eventUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/${locale}/events/${event.slug}`;
   const hero = event.media.find((m) => m.kind === "video") ?? event.media[0];
   const hasVideo = event.media.some((m) => m.kind === "video");
-  // Multi-date shows: show the next performance plus how many more follow.
+  // Multi-date shows: show the next performance plus how many more dates
+  // follow. Seating/package options on the same date don't count as dates.
   const shows = upcomingShowtimes(event.showtimes);
+  const moreDates = new Set(shows.map((s) => s.starts_at)).size - 1;
   const date = shows.length > 1
-    ? `${formatDateRange(shows[0].starts_at, null, locale, event.timezone)} · ${t("moreDates", { count: shows.length - 1 })}`
+    ? formatDateRange(shows[0].starts_at, null, locale, event.timezone) +
+      (moreDates > 0 ? ` · ${t("moreDates", { count: moreDates })}` : "")
     : formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
   const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;

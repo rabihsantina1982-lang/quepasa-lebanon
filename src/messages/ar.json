@@ -98,7 +98,8 @@
     "related": "قد يعجبك أيضاً",
     "postedBy": "نشرها",
     "source": "المصدر",
-    "allDates": "جميع التواريخ والأوقات"
+    "allDates": "جميع التواريخ والأوقات",
+    "ticketOptions": "خيارات التذاكر"
   },
   "PromoterProfile": {
     "eventsCount": "{count} فعالية قادمة",

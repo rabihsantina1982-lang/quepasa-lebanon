@@ -175,6 +175,7 @@ export interface IngestionResult {
   inserted: number;
   updated: number;
   skipped: number;
+  hidden?: number;
   errors: string[];
 }
 
@@ -196,6 +197,7 @@ export async function ingestFromTicketmaster(
   // musical) as its own event. Collect all pages first, then save one row per
   // show with its performances in `showtimes`, instead of one row each.
   const allEvents: TMEvent[] = [];
+  let fetchedAllPages = false;
 
   for (let page = 0; page < maxPages; page++) {
     let pageData: TMSearchResponse;
@@ -225,18 +227,45 @@ export async function ingestFromTicketmaster(
     }
 
     const events = pageData._embedded?.events ?? [];
-    if (events.length === 0) break;
+    if (events.length === 0) {
+      fetchedAllPages = true;
+      break;
+    }
 
     allEvents.push(...events);
 
-    if (page >= (pageData.page.totalPages - 1)) break;
+    if (page >= (pageData.page.totalPages - 1)) {
+      fetchedAllPages = true;
+      break;
+    }
   }
 
+  const seenSourceUrls = new Set<string>();
   for (const group of groupPerformances(allEvents)) {
+    seenSourceUrls.add(seriesKeyFor(group));
+    group.forEach((p) => seenSourceUrls.add(p.url));
     try {
       await processTMShow(group, supabase, categorySlugToId, result);
     } catch (err) {
       result.errors.push(`Event ${group[0].id}: ${String(err)}`);
+    }
+  }
+
+  // Ticketmaster drops listings that are cancelled or moved to new dates.
+  // Hide (not delete) our not-yet-started copies of anything no longer
+  // listed -- but only after a complete, error-free fetch, so a partial or
+  // failed run can never hide real events.
+  if (fetchedAllPages && result.errors.length === 0) {
+    const { data: upcoming } = await supabase
+      .from("events")
+      .select("id, source_url")
+      .eq("source", "ticketmaster")
+      .eq("status", "published")
+      .gt("starts_at", new Date().toISOString());
+    const vanished = (upcoming ?? []).filter((e) => e.source_url && !seenSourceUrls.has(e.source_url)).map((e) => e.id);
+    if (vanished.length) {
+      await supabase.from("events").update({ status: "draft" }).in("id", vanished);
+      result.hidden = vanished.length;
     }
   }
 
@@ -247,13 +276,26 @@ function tmStartsAt(ev: TMEvent): string {
   return ev.dates.start.dateTime ?? `${ev.dates.start.localDate}T${ev.dates.start.localTime ?? "20:00:00"}`;
 }
 
-// Groups performances of the same show at the same venue, each group sorted
-// by start time.
+// Ticketmaster also splits one event into a listing per seating area or
+// package ("F1 ... Grand Prix - North Grandstand", "... - Club 58") or per
+// day ("... Upgrade - Thursday"). Strip a trailing " - <option>" to get the
+// shared name. Only a dash counts: "Dopa World | Saint Levant" and
+// "Dopa World | Ziad Zaza" are different line-ups and stay separate.
+function baseName(name: string): string {
+  return name.replace(/\s+[-–]\s+[^-–]+$/, "").trim() || name;
+}
+
+function seriesKeyFor(performances: TMEvent[]): string {
+  const venue = performances[0]._embedded?.venues?.[0];
+  return `ticketmaster:series:${venue?.id ?? "no-venue"}:${slugify(baseName(performances[0].name))}`;
+}
+
+// Groups performances/options of the same show at the same venue, each group
+// sorted by start time.
 function groupPerformances(events: TMEvent[]): TMEvent[][] {
   const groups = new Map<string, TMEvent[]>();
   for (const ev of events) {
-    const venueKey = ev._embedded?.venues?.[0]?.id ?? "no-venue";
-    const key = `${venueKey}|${slugify(ev.name)}`;
+    const key = seriesKeyFor([ev]);
     const list = groups.get(key) ?? [];
     list.push(ev);
     groups.set(key, list);
@@ -287,16 +329,21 @@ async function processTMShow(
   if (venue) venueId = await findOrCreateVenue(supabase, venue);
 
   const isSeries = performances.length > 1;
-  // A multi-date show gets a stable key that survives individual
+  // A multi-date/multi-option show gets a stable key that survives individual
   // performances passing; a one-off keeps its Ticketmaster URL as before.
-  const seriesKey = `ticketmaster:series:${venue?.id ?? "no-venue"}:${slugify(ev.name)}`;
+  const seriesKey = seriesKeyFor(performances);
   const sourceUrl = isSeries ? seriesKey : ev.url;
-  const baseSlug = `tm-${slugify(ev.name)}`;
+  // Listings split per seating area/package share a base name; label each
+  // option with the part after the dash.
+  const hasOptions = new Set(performances.map((p) => p.name)).size > 1;
+  const title = hasOptions ? baseName(ev.name) : ev.name;
+  const optionLabel = (p: TMEvent) => (hasOptions ? p.name.slice(baseName(p.name).length).replace(/^\s*[-–]\s*/, "") || null : null);
+  const baseSlug = `tm-${slugify(title)}`;
 
   const startsAt = tmStartsAt(ev);
   const endsAt = isSeries ? last.dates.end?.dateTime ?? tmStartsAt(last) : ev.dates.end?.dateTime ?? null;
   const showtimes = isSeries
-    ? performances.map((p) => ({ starts_at: tmStartsAt(p), ends_at: p.dates.end?.dateTime ?? null, ticket_url: p.url }))
+    ? performances.map((p) => ({ starts_at: tmStartsAt(p), ends_at: p.dates.end?.dateTime ?? null, ticket_url: p.url, label: optionLabel(p) }))
     : [];
 
   const price = ev.priceRanges?.[0];
@@ -304,7 +351,7 @@ async function processTMShow(
 
   const payload = {
     slug: baseSlug,
-    title_i18n: { en: ev.name },
+    title_i18n: { en: title },
     description_i18n: { en: description },
     category_id: resolveCategory(ev, categorySlugToId),
     venue_id: venueId,

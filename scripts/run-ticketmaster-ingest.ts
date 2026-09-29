@@ -52,7 +52,7 @@ async function main() {
 
     console.log(
       `[${new Date().toISOString()}] Done. Inserted: ${result.inserted}, ` +
-      `Updated: ${result.updated}, Skipped: ${result.skipped}, Errors: ${result.errors.length}`
+      `Updated: ${result.updated}, Skipped: ${result.skipped}, Hidden: ${result.hidden ?? 0}, Errors: ${result.errors.length}`
     );
     if (result.errors.length > 0) console.error(result.errors.join("\n"));
   } catch (err) {

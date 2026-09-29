@@ -169,13 +169,18 @@ export default async function EventDetailPage({
 
       {shows.length > 1 && (
         <section>
-          <h2 className="text-lg font-semibold mb-2">{tDetail("allDates")}</h2>
+          <h2 className="text-lg font-semibold mb-2">
+            {new Set(shows.map((s) => s.starts_at)).size > 1 ? tDetail("allDates") : tDetail("ticketOptions")}
+          </h2>
           <ul className="divide-y divide-[var(--color-border)] rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)]">
             {shows.map((s) => (
-              <li key={s.starts_at} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
-                <span className="inline-flex items-center gap-2">
-                  <Calendar size={14} aria-hidden className="text-[var(--color-muted)]" />
-                  {formatDateRange(s.starts_at, null, locale, event.timezone)}
+              <li key={`${s.starts_at}-${s.ticket_url}`} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                <span className="inline-flex items-start gap-2">
+                  <Calendar size={14} aria-hidden className="mt-0.5 shrink-0 text-[var(--color-muted)]" />
+                  <span>
+                    {formatDateRange(s.starts_at, null, locale, event.timezone)}
+                    {s.label && <span className="block font-medium">{s.label}</span>}
+                  </span>
                 </span>
                 {s.ticket_url && (
                   <a
