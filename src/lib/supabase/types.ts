@@ -15,6 +15,14 @@ export type MediaProvider = "upload" | "youtube" | "vimeo";
 export type Gender = "male" | "female" | "non_binary";
 export type ShareChannel = "whatsapp" | "copy_link";
 
+// One performance of a show that runs on several dates/times (e.g. a musical).
+// Empty for single-date events.
+export interface Showtime {
+  starts_at: string;
+  ends_at: string | null;
+  ticket_url: string | null;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -98,6 +106,7 @@ export interface Database {
           source_url: string | null;
           created_by: string | null;
           user_id: string | null;
+          showtimes: Showtime[];
           created_at: string;
           updated_at: string;
         };

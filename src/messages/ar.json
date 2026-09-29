@@ -25,7 +25,8 @@
     "directions": "الاتجاهات",
     "linkCopied": "تم نسخ الرابط!",
     "back": "رجوع",
-    "greeting": "مرحباً، {name}"
+    "greeting": "مرحباً، {name}",
+    "moreDates": "{count, plural, one {+# موعد آخر} other {+# مواعيد أخرى}}"
   },
   "Nav": {
     "home": "الرئيسية",
@@ -96,7 +97,8 @@
     "whenWhere": "الزمان والمكان",
     "related": "قد يعجبك أيضاً",
     "postedBy": "نشرها",
-    "source": "المصدر"
+    "source": "المصدر",
+    "allDates": "جميع التواريخ والأوقات"
   },
   "PromoterProfile": {
     "eventsCount": "{count} فعالية قادمة",

@@ -25,7 +25,8 @@
     "directions": "Itinéraire",
     "linkCopied": "Lien copié !",
     "back": "Retour",
-    "greeting": "Bonjour, {name}"
+    "greeting": "Bonjour, {name}",
+    "moreDates": "{count, plural, one {+# autre date} other {+# autres dates}}"
   },
   "Nav": {
     "home": "Accueil",
@@ -96,7 +97,8 @@
     "whenWhere": "Quand et où",
     "related": "Vous aimerez peut-être aussi",
     "postedBy": "Publié par",
-    "source": "Source"
+    "source": "Source",
+    "allDates": "Toutes les dates et horaires"
   },
   "PromoterProfile": {
     "eventsCount": "{count} événements à venir",

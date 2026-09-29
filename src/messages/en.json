@@ -25,7 +25,8 @@
     "directions": "Directions",
     "linkCopied": "Link copied!",
     "back": "Back",
-    "greeting": "Hi, {name}"
+    "greeting": "Hi, {name}",
+    "moreDates": "{count, plural, one {+# more date} other {+# more dates}}"
   },
   "Nav": {
     "home": "Home",
@@ -96,7 +97,8 @@
     "whenWhere": "When & where",
     "related": "You might also like",
     "postedBy": "Posted by",
-    "source": "Source"
+    "source": "Source",
+    "allDates": "All dates & times"
   },
   "PromoterProfile": {
     "eventsCount": "{count} upcoming events",

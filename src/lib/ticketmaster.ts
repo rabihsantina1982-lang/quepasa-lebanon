@@ -192,6 +192,11 @@ export async function ingestFromTicketmaster(
     (cats ?? []).map((c) => [c.slug, c.id])
   );
 
+  // Ticketmaster lists every performance of a show (e.g. each night of a
+  // musical) as its own event. Collect all pages first, then save one row per
+  // show with its performances in `showtimes`, instead of one row each.
+  const allEvents: TMEvent[] = [];
+
   for (let page = 0; page < maxPages; page++) {
     let pageData: TMSearchResponse;
     try {
@@ -222,29 +227,53 @@ export async function ingestFromTicketmaster(
     const events = pageData._embedded?.events ?? [];
     if (events.length === 0) break;
 
-    for (const ev of events) {
-      try {
-        await processTMEvent(ev, supabase, categorySlugToId, result);
-      } catch (err) {
-        result.errors.push(`Event ${ev.id}: ${String(err)}`);
-      }
-    }
+    allEvents.push(...events);
 
     if (page >= (pageData.page.totalPages - 1)) break;
+  }
+
+  for (const group of groupPerformances(allEvents)) {
+    try {
+      await processTMShow(group, supabase, categorySlugToId, result);
+    } catch (err) {
+      result.errors.push(`Event ${group[0].id}: ${String(err)}`);
+    }
   }
 
   return result;
 }
 
+function tmStartsAt(ev: TMEvent): string {
+  return ev.dates.start.dateTime ?? `${ev.dates.start.localDate}T${ev.dates.start.localTime ?? "20:00:00"}`;
+}
+
+// Groups performances of the same show at the same venue, each group sorted
+// by start time.
+function groupPerformances(events: TMEvent[]): TMEvent[][] {
+  const groups = new Map<string, TMEvent[]>();
+  for (const ev of events) {
+    const venueKey = ev._embedded?.venues?.[0]?.id ?? "no-venue";
+    const key = `${venueKey}|${slugify(ev.name)}`;
+    const list = groups.get(key) ?? [];
+    list.push(ev);
+    groups.set(key, list);
+  }
+  return [...groups.values()].map((list) =>
+    list.sort((a, b) => new Date(tmStartsAt(a)).getTime() - new Date(tmStartsAt(b)).getTime())
+  );
+}
+
 // ---------------------------------------------------------------------------
-// Process one Ticketmaster event
+// Process one show (one or more Ticketmaster performances)
 // ---------------------------------------------------------------------------
-async function processTMEvent(
-  ev: TMEvent,
+async function processTMShow(
+  performances: TMEvent[],
   supabase: ReturnType<typeof createAdminClient>,
   categorySlugToId: Map<string, number>,
   result: IngestionResult
 ): Promise<void> {
+  const ev = performances[0];
+  const last = performances[performances.length - 1];
   const venue = ev._embedded?.venues?.[0];
 
   // Only Lebanon events
@@ -257,11 +286,18 @@ async function processTMEvent(
   let venueId: string | null = null;
   if (venue) venueId = await findOrCreateVenue(supabase, venue);
 
-  const sourceUrl = ev.url;
+  const isSeries = performances.length > 1;
+  // A multi-date show gets a stable key that survives individual
+  // performances passing; a one-off keeps its Ticketmaster URL as before.
+  const seriesKey = `ticketmaster:series:${venue?.id ?? "no-venue"}:${slugify(ev.name)}`;
+  const sourceUrl = isSeries ? seriesKey : ev.url;
   const baseSlug = `tm-${slugify(ev.name)}`;
 
-  const startsAt = ev.dates.start.dateTime ?? `${ev.dates.start.localDate}T${ev.dates.start.localTime ?? "20:00:00"}`;
-  const endsAt = ev.dates.end?.dateTime ?? null;
+  const startsAt = tmStartsAt(ev);
+  const endsAt = isSeries ? last.dates.end?.dateTime ?? tmStartsAt(last) : ev.dates.end?.dateTime ?? null;
+  const showtimes = isSeries
+    ? performances.map((p) => ({ starts_at: tmStartsAt(p), ends_at: p.dates.end?.dateTime ?? null, ticket_url: p.url }))
+    : [];
 
   const price = ev.priceRanges?.[0];
   const description = [ev.info, ev.pleaseNote].filter(Boolean).join(" ").slice(0, 2000) || "";
@@ -279,21 +315,29 @@ async function processTMEvent(
     price_min: price?.min ?? null,
     price_max: price?.max ?? null,
     currency: price?.currency ?? "USD",
-    ticket_url: sourceUrl,
+    ticket_url: ev.url,
     status: "published" as const,
     source: "ticketmaster",
     source_url: sourceUrl,
     governorate,
+    showtimes,
   };
 
-  const { data: existing } = await supabase
+  // Match on the series key and on every performance URL, so rows saved
+  // before shows were grouped (one per performance) get merged into one.
+  const { data: matches } = await supabase
     .from("events")
-    .select("id, slug")
-    .eq("source_url", sourceUrl)
-    .maybeSingle();
+    .select("id, slug, status")
+    .eq("source", "ticketmaster")
+    .in("source_url", [seriesKey, ...performances.map((p) => p.url)])
+    .order("created_at");
+  const existing = matches?.[0];
 
   if (existing) {
     await supabase.from("events").update({ ...payload, slug: existing.slug }).eq("id", existing.id);
+    // Hide (not delete) any leftover per-performance duplicates.
+    const extraIds = (matches ?? []).slice(1).filter((m) => m.status === "published").map((m) => m.id);
+    if (extraIds.length) await supabase.from("events").update({ status: "draft" }).in("id", extraIds);
     result.updated++;
   } else {
     const { error } = await supabase.from("events").insert(payload);

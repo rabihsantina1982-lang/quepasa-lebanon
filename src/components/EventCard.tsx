@@ -6,7 +6,7 @@ import { MediaTile } from "./MediaTile";
 import { CardSaveButton } from "./CardSaveButton";
 import { CardShareButton } from "./CardShareButton";
 import type { EventWithRelations } from "@/lib/supabase/types";
-import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
+import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 
 export async function EventCard({
   event,
@@ -24,7 +24,11 @@ export async function EventCard({
   const eventUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"}/${locale}/events/${event.slug}`;
   const hero = event.media.find((m) => m.kind === "video") ?? event.media[0];
   const hasVideo = event.media.some((m) => m.kind === "video");
-  const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
+  // Multi-date shows: show the next performance plus how many more follow.
+  const shows = upcomingShowtimes(event.showtimes);
+  const date = shows.length > 1
+    ? `${formatDateRange(shows[0].starts_at, null, locale, event.timezone)} · ${t("moreDates", { count: shows.length - 1 })}`
+    : formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
   const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;
   const publisherLogo = event.promoter?.logo_url ?? event.promoter?.avatar_url ?? null;

@@ -9,7 +9,7 @@ import { SaveButton } from "@/components/SaveButton";
 import { RemindButton } from "@/components/RemindButton";
 import { ShareButton } from "@/components/ShareButton";
 import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
-import { formatDateRange, formatPrice, pickLocalized } from "@/lib/utils";
+import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import Image from "next/image";
 
@@ -80,6 +80,7 @@ export default async function EventDetailPage({
   const description = pickLocalized(event.description_i18n, locale);
   const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
+  const shows = upcomingShowtimes(event.showtimes);
   const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;
   const publisherLogo = event.promoter?.logo_url ?? event.promoter?.avatar_url ?? null;
 
@@ -165,6 +166,32 @@ export default async function EventDetailPage({
           copiedLabel={t("linkCopied")}
         />
       </div>
+
+      {shows.length > 1 && (
+        <section>
+          <h2 className="text-lg font-semibold mb-2">{tDetail("allDates")}</h2>
+          <ul className="divide-y divide-[var(--color-border)] rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)]">
+            {shows.map((s) => (
+              <li key={s.starts_at} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                <span className="inline-flex items-center gap-2">
+                  <Calendar size={14} aria-hidden className="text-[var(--color-muted)]" />
+                  {formatDateRange(s.starts_at, null, locale, event.timezone)}
+                </span>
+                {s.ticket_url && (
+                  <a
+                    href={s.ticket_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 inline-flex items-center gap-1 font-medium text-[var(--color-primary)] hover:underline"
+                  >
+                    <Ticket size={14} aria-hidden />{t("getTickets")}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {description && (
         <section>

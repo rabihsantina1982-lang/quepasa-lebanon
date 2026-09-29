@@ -43,6 +43,14 @@ export function formatDateRange(
   return `${left} – ${dateFmt.format(end)}`;
 }
 
+// Performances of a multi-date show that haven't finished yet, soonest first.
+export function upcomingShowtimes<T extends { starts_at: string; ends_at: string | null }>(
+  showtimes: T[] | null | undefined
+): T[] {
+  const now = Date.now();
+  return (showtimes ?? []).filter((s) => new Date(s.ends_at ?? s.starts_at).getTime() > now);
+}
+
 export function formatPrice(
   min: number | null,
   max: number | null,
