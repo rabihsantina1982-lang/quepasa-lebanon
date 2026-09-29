@@ -100,9 +100,9 @@ export function EventFilters({
           </button>
         ))}
       </div>
-      {/* Category row — single select. One swipeable row on phones (wrapping
-          took up half the screen), wraps into rows on wider screens. */}
-      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap sm:overflow-visible sm:pb-0">
+      {/* Category row — single select. Two swipeable rows on phones (fully
+          wrapping took up half the screen), wraps freely on wider screens. */}
+      <div className="grid grid-rows-2 grid-flow-col auto-cols-max gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex sm:flex-wrap sm:overflow-visible sm:pb-0">
         {categories.map((c) => {
           const active = activeCategory === c.slug;
           return (
