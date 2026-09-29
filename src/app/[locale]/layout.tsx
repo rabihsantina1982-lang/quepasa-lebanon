@@ -1,6 +1,7 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Inter, Noto_Naskh_Arabic } from "next/font/google";
 import { routing, isRtl } from "@/i18n/routing";
 import { Header } from "@/components/Header";
@@ -34,6 +35,12 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const dir = isRtl(locale) ? "rtl" : "ltr";
+
+  // Every page depends on the signed-in session (read below) and on the
+  // ?signin= query read by SignInAutoOpen, so render per request. Without
+  // this, the session lookup's dynamic-usage error is swallowed by the catch
+  // below and pages with no data of their own fail at build time.
+  await connection();
 
   let isPromoter = false;
   let shouldPromptOnboarding = false;

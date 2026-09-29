@@ -54,7 +54,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
             </span>
           )}
         </div>
-        <PromoterQueue items={(pendingApplications ?? []) as Parameters<typeof PromoterQueue>[0]["items"]} />
+        <PromoterQueue items={(pendingApplications ?? []) as unknown as Parameters<typeof PromoterQueue>[0]["items"]} />
       </section>
 
       {/* Event submissions */}
