@@ -7,11 +7,11 @@ import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { Provider } from "@supabase/supabase-js";
 
-const providers: { id: Provider; key: string; icon: string }[] = [
-  { id: "google",   key: "google",   icon: "G" },
-  { id: "facebook", key: "facebook", icon: "f" },
-  { id: "apple",    key: "apple",    icon: "" },
-];
+// Only list providers that are actually enabled in this app's Supabase
+// project (Authentication -> Providers); a listed-but-disabled one fails
+// with "provider is not enabled". None are set up for Lebanon yet, so
+// sign-in is email-only until Google/Facebook/Apple are configured.
+const providers: { id: Provider; key: string; icon: string }[] = [];
 
 export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: () => void; next?: string }) {
   const t = useTranslations("Auth");
@@ -87,14 +87,16 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
           </form>
 
           {/* Divider */}
-          <div className="mt-5 flex items-center gap-3">
-            <div className="flex-1 h-px bg-[var(--color-border)]" />
-            <span className="text-xs text-[var(--color-muted)]">{t("orContinueWith")}</span>
-            <div className="flex-1 h-px bg-[var(--color-border)]" />
-          </div>
+          {providers.length > 0 && (
+            <div className="mt-5 flex items-center gap-3">
+              <div className="flex-1 h-px bg-[var(--color-border)]" />
+              <span className="text-xs text-[var(--color-muted)]">{t("orContinueWith")}</span>
+              <div className="flex-1 h-px bg-[var(--color-border)]" />
+            </div>
+          )}
 
           {/* Social providers */}
-          <div className="mt-3 grid gap-2">
+          <div className="mt-3 grid gap-2 empty:hidden">
             {providers.map((p) => (
               <Button
                 key={p.id}
