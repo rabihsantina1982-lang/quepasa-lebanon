@@ -1,15 +1,12 @@
--- Migration 0009 tried to block self role-escalation via an RLS WITH CHECK
--- that re-read the row's role from inside the same UPDATE. Verified live
--- that this does NOT work: a WITH CHECK subquery sees the row AFTER the
--- update has already been applied within that same command, so it ended up
--- comparing the new role against itself and always passed. Confirmed by
--- directly testing a self-escalation attempt after running 0009 -- it
--- still succeeded.
+-- Fix a real privilege-escalation gap: profiles_self_update (0001_init.sql)
+-- had no restriction on which columns a user could change on their own
+-- profile, including role -- any signed-in user could set their own role to
+-- admin/promoter via a direct client-side call, bypassing approval.
 --
--- RLS policies can't reference the pre-update row at all; only a trigger's
--- OLD/NEW pseudo-rows can. This migration replaces that approach with a
--- BEFORE UPDATE trigger, which is the correct tool for "this column can't
--- change except by an admin".
+-- Ported from QuePasa UAE, where an RLS WITH CHECK approach was tried first
+-- and proven not to work (a WITH CHECK subquery sees the row AFTER the
+-- update, so it compares the new role against itself and always passes).
+-- RLS can't see the pre-update row; a BEFORE UPDATE trigger's OLD/NEW can.
 
 -- Revert profiles_self_update to a plain, symmetrical policy -- it no
 -- longer needs to (and cannot correctly) encode the role rule itself.
