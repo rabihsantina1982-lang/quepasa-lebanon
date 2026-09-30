@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminQueue } from "./AdminQueue";
 import { PromoterQueue } from "./PromoterQueue";
 
@@ -31,7 +32,8 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     .order("created_at", { ascending: false });
 
   // Pending promoter applications
-  const { data: pendingApplications } = await supabase
+  // Service-role client: the embedded profiles.email is a private column.
+  const { data: pendingApplications } = await createAdminClient()
     .from("promoter_applications")
     .select("id, user_id, business_name, business_type, instagram, website, description, created_at, profiles(display_name, email)")
     .eq("status", "pending")

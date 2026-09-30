@@ -40,7 +40,8 @@
     "admin": "Admin",
     "promoter": "Mon tableau de bord",
     "becomePromoter": "Publier des événements",
-    "premium": "Premium"
+    "premium": "Premium",
+    "connect": "Réseau"
   },
   "Filters": {
     "category": "Catégorie",
@@ -127,5 +128,31 @@
     "interestsLabel": "Qu'est-ce qui vous intéresse ?",
     "save": "Enregistrer",
     "skip": "Passer pour l'instant"
+  },
+  "Connect": {
+    "title": "Réseau",
+    "subtitle": "Découvrez les artistes, DJ, organisateurs, lieux et entreprises derrière les événements.",
+    "all": "Tous",
+    "types": {
+      "artist": "Artiste",
+      "dj": "DJ",
+      "organizer": "Organisateur",
+      "venue": "Lieu",
+      "business": "Entreprise",
+      "promoter": "Promoteur"
+    },
+    "empty": "Personne n'est encore inscrit.",
+    "joinCta": "Inscrivez votre activité sur QuePasa →",
+    "contact": "Contact",
+    "signInForContacts": "Connectez-vous pour voir les coordonnées.",
+    "signInButton": "Se connecter",
+    "noContacts": "Aucune coordonnée partagée pour l'instant.",
+    "contactLabels": {
+      "phone": "Téléphone",
+      "whatsapp": "WhatsApp",
+      "email": "E-mail",
+      "instagram": "Instagram",
+      "website": "Site web"
+    }
   }
 }

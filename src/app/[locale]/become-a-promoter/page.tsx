@@ -121,12 +121,12 @@ export default function BecomeAPromoterPage() {
         <Field label="I am a…" required>
           <select value={form.business_type} onChange={(e) => set("business_type", e.target.value)} className={inputCls} required>
             <option value="">— select one —</option>
-            <option value="promoter">Event Promoter</option>
-            <option value="venue">Venue</option>
             <option value="artist">Artist / Performer</option>
-            <option value="agency">Talent Agency</option>
-            <option value="brand">Brand / Sponsor</option>
-            <option value="other">Other</option>
+            <option value="dj">DJ</option>
+            <option value="organizer">Event Organizer</option>
+            <option value="venue">Venue</option>
+            <option value="business">Business / Brand</option>
+            <option value="promoter">Promoter / Agency</option>
           </select>
         </Field>
 

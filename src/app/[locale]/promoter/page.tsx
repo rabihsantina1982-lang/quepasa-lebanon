@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { BusinessProfileForm } from "@/components/BusinessProfileForm";
+import { toProfileType } from "@/lib/profileTypes";
 import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
@@ -17,7 +18,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   // Check profile role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, business_name, logo_url")
+    .select("role, business_name, logo_url, profile_type, bio")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -56,6 +57,21 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
       </div>
     );
   }
+
+  // Own contact details (profile_contacts) for the business profile form.
+  const { data: contactsRow } = await supabase
+    .from("profile_contacts")
+    .select("phone, whatsapp, email, instagram, website")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const c = (contactsRow ?? {}) as Record<string, string | null>;
+  const initialContacts = {
+    phone: c.phone ?? "",
+    whatsapp: c.whatsapp ?? "",
+    email: c.email ?? "",
+    instagram: c.instagram ?? "",
+    website: c.website ?? "",
+  };
 
   // Get subscription
   const { data: subscription } = await supabase
@@ -106,6 +122,9 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
       <BusinessProfileForm
         initialBusinessName={profile?.business_name ?? application?.business_name ?? null}
         initialLogoUrl={profile?.logo_url ?? null}
+        initialType={toProfileType(profile?.profile_type)}
+        initialBio={profile?.bio ?? null}
+        initialContacts={initialContacts}
       />
 
       {/* Premium add-ons teaser */}

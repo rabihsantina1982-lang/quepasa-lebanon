@@ -40,7 +40,8 @@
     "admin": "Admin",
     "promoter": "My Dashboard",
     "becomePromoter": "Post Events",
-    "premium": "Premium"
+    "premium": "Premium",
+    "connect": "Connect"
   },
   "Filters": {
     "category": "Category",
@@ -127,5 +128,31 @@
     "interestsLabel": "What are you into?",
     "save": "Save",
     "skip": "Skip for now"
+  },
+  "Connect": {
+    "title": "Connect",
+    "subtitle": "Meet the artists, DJs, organizers, venues and businesses behind the events.",
+    "all": "All",
+    "types": {
+      "artist": "Artist",
+      "dj": "DJ",
+      "organizer": "Event Organizer",
+      "venue": "Venue",
+      "business": "Business",
+      "promoter": "Promoter"
+    },
+    "empty": "No one is listed yet.",
+    "joinCta": "List your business on QuePasa →",
+    "contact": "Contact",
+    "signInForContacts": "Sign in to see contact details.",
+    "signInButton": "Sign in",
+    "noContacts": "No contact details shared yet.",
+    "contactLabels": {
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "instagram": "Instagram",
+      "website": "Website"
+    }
   }
 }

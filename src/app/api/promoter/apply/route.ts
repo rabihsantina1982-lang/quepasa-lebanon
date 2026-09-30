@@ -40,12 +40,11 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Save basic profile info
-  await supabase.from("profiles").upsert({
-    id: user.id,
-    email: user.email,
-    display_name: body.full_name || null,
-  }, { onConflict: "id" });
+  // Save the applicant's name (the profile row and email already exist,
+  // created by the signup trigger).
+  if (body.full_name) {
+    await supabase.from("profiles").update({ display_name: body.full_name }).eq("id", user.id);
+  }
 
   return NextResponse.json({ success: true });
 }

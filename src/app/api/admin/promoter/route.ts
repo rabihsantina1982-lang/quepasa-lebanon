@@ -6,6 +6,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { toProfileType } from "@/lib/profileTypes";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   // Get the application
   const { data: application } = await supabase
     .from("promoter_applications")
-    .select("user_id, business_name")
+    .select("user_id, business_name, business_type")
     .eq("id", applicationId)
     .single();
 
@@ -47,7 +48,12 @@ export async function POST(req: NextRequest) {
     // profile so it's ready to show on their events without re-entering it.
     await supabase
       .from("profiles")
-      .upsert({ id: application.user_id, role: "promoter", business_name: application.business_name }, { onConflict: "id" });
+      .update({
+        role: "promoter",
+        business_name: application.business_name,
+        profile_type: toProfileType(application.business_type),
+      })
+      .eq("id", application.user_id);
 
     // Create 3-month free trial subscription
     const trialEnd = new Date();

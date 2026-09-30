@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Home, Compass, Map, Heart, User, LayoutDashboard, Shield, Sparkles, LogOut } from "lucide-react";
+import { Users, Compass, Map, Heart, User, LayoutDashboard, Shield, Sparkles, LogOut } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -24,8 +24,9 @@ export function BottomNav({
   const t = useTranslations("Nav");
   const tCommon = useTranslations("Common");
   const items = [
-    { href: "/", labelKey: "home", Icon: Home },
+    // "Home" only redirected to Browse, so its slot now goes to Connect.
     { href: "/events", labelKey: "browse", Icon: Compass },
+    { href: "/connect", labelKey: "connect", Icon: Users },
     { href: "/map", labelKey: "map", Icon: Map },
     { href: "/favorites", labelKey: "favorites", Icon: Heart },
   ] as const;
@@ -33,7 +34,7 @@ export function BottomNav({
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur">
       <ul className="grid grid-cols-5">
         {items.map(({ href, labelKey, Icon }) => {
-          const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+          const active = pathname.startsWith(href);
           return (
             <li key={href}>
               <Link

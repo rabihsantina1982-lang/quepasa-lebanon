@@ -40,7 +40,8 @@
     "admin": "الإدارة",
     "promoter": "لوحتي",
     "becomePromoter": "انشر فعالياتك",
-    "premium": "مميز"
+    "premium": "مميز",
+    "connect": "تواصل"
   },
   "Filters": {
     "category": "الفئة",
@@ -127,5 +128,31 @@
     "interestsLabel": "ما الذي يثير اهتمامك؟",
     "save": "حفظ",
     "skip": "تخطي الآن"
+  },
+  "Connect": {
+    "title": "تواصل",
+    "subtitle": "تعرّف على الفنانين ومنسقي الأغاني والمنظمين والأماكن والشركات وراء الفعاليات.",
+    "all": "الكل",
+    "types": {
+      "artist": "فنان",
+      "dj": "دي جي",
+      "organizer": "منظم فعاليات",
+      "venue": "مكان",
+      "business": "شركة",
+      "promoter": "مروّج"
+    },
+    "empty": "لا يوجد أحد مُدرج بعد.",
+    "joinCta": "أدرج نشاطك التجاري على QuePasa ←",
+    "contact": "التواصل",
+    "signInForContacts": "سجّل الدخول لرؤية معلومات التواصل.",
+    "signInButton": "تسجيل الدخول",
+    "noContacts": "لم تتم مشاركة معلومات تواصل بعد.",
+    "contactLabels": {
+      "phone": "الهاتف",
+      "whatsapp": "واتساب",
+      "email": "البريد الإلكتروني",
+      "instagram": "إنستغرام",
+      "website": "الموقع الإلكتروني"
+    }
   }
 }
