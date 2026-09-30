@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Link2, Check } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface ShareMenuProps {
   eventId: string;
@@ -28,6 +28,7 @@ export function ShareMenu({
   trigger,
 }: ShareMenuProps) {
   const locale = useLocale();
+  const t = useTranslations("Common");
 
   function trackShare(channel: "whatsapp" | "copy_link") {
     fetch("/api/share/track", {
@@ -60,7 +61,9 @@ export function ShareMenu({
   function shareWhatsApp(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    const text = `${title} ${url}`;
+    // Promo line, then the title, then the link on its own line so
+    // WhatsApp shows the event's photo preview under the message.
+    const text = `${t("shareMessage")}\n${title}\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
     trackShare("whatsapp");
     setOpen(false);
