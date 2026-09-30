@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "./supabase/server";
 import { startOfDay, endOfDay, addDays, nextSaturday, nextSunday, endOfWeek } from "date-fns";
 import type { EventWithRelations, CategoryRow } from "./supabase/types";
@@ -92,7 +93,9 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
   return rows;
 }
 
-export async function fetchEventBySlug(slug: string): Promise<EventWithRelations | null> {
+// cache(): generateMetadata and the page both call this for the same slug in
+// one request; only query once.
+export const fetchEventBySlug = cache(async function fetchEventBySlug(slug: string): Promise<EventWithRelations | null> {
   let supabase;
   try {
     supabase = await createClient();
@@ -107,7 +110,7 @@ export async function fetchEventBySlug(slug: string): Promise<EventWithRelations
     .maybeSingle();
   if (error || !data) return null;
   return data as unknown as EventWithRelations;
-}
+});
 
 export async function fetchCategories(): Promise<CategoryRow[]> {
   try {

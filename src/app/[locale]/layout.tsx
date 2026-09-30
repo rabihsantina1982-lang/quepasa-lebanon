@@ -20,6 +20,9 @@ export function generateStaticParams() {
 }
 
 export const metadata = {
+  // Link previews (WhatsApp, iMessage, ...) need absolute URLs.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  openGraph: { siteName: "QuePasa Lebanon", type: "website" },
   title: { default: "QuePasa Lebanon", template: "%s · QuePasa Lebanon" },
   description: "Everything happening in Lebanon — concerts, festivals, exhibitions, sports, family days out.",
 };

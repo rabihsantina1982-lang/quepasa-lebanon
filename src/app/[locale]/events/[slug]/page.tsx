@@ -14,6 +14,47 @@ import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-r
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+// Link preview for WhatsApp/iMessage/Facebook etc. These "HTML-limited" bots
+// get the tags in <head> (Next detects them by user agent).
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const event = await fetchEventBySlug(slug);
+  if (!event) return {};
+
+  const title = pickLocalized(event.title_i18n, locale);
+  const shows = upcomingShowtimes(event.showtimes);
+  const when = shows.length > 1
+    ? formatDateRange(shows[0].starts_at, null, locale, event.timezone)
+    : formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
+  const where = event.venue ? [event.venue.name, event.venue.area].filter(Boolean).join(", ") : "";
+  const about = pickLocalized(event.description_i18n, locale).replace(/\s+/g, " ").trim();
+  const summary = [when, where].filter(Boolean).join(" · ");
+  const description = about ? `${summary} — ${about}`.slice(0, 200) : summary;
+
+  // Resize through the image optimizer: some source photos are several MB,
+  // and WhatsApp drops preview images that are too large.
+  const photo = event.media.find((m) => m.kind === "image")?.url ?? event.cover_image;
+  const image = photo ? `/_next/image?url=${encodeURIComponent(photo)}&w=1200&q=75` : null;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/${locale}/events/${slug}`,
+      locale,
+      ...(image ? { images: [{ url: image, width: 1200, alt: title }] } : {}),
+    },
+    twitter: { card: image ? "summary_large_image" : "summary", title, description },
+  };
+}
 
 export default async function EventDetailPage({
   params,
