@@ -158,6 +158,10 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
           </div>
         )}
 
+        {!subscription && profile?.role === "admin" && (
+          <p className="text-sm text-[var(--color-muted)]">Admin account: no subscription needed.</p>
+        )}
+
         {subscription?.plan === "pro" && (
           <div className="flex items-center justify-between">
             <span className="rounded-full bg-[var(--color-primary)] text-white text-xs font-bold px-3 py-1">PRO · $80/mo</span>
@@ -198,7 +202,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="font-medium">{(ev.title_i18n as Record<string, string>).en ?? ev.slug}</div>
-                      <div className="text-xs text-[var(--color-muted)]">{new Date(ev.starts_at).toLocaleDateString()}</div>
+                      <div className="text-xs text-[var(--color-muted)]">{new Date(ev.starts_at).toLocaleDateString("en-GB", { timeZone: "Asia/Beirut" })}</div>
                     </div>
                     <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
                       ev.status === "published" ? "bg-green-100 text-green-700" :
