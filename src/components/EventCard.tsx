@@ -51,7 +51,7 @@ export async function EventCard({
             </span>
           )}
           {event.category && (
-            <span className="absolute top-2 end-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-medium text-[var(--color-fg)]">
+            <span className="absolute top-2 end-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-medium text-neutral-900">
               {pickLocalized(event.category.name_i18n, locale)}
             </span>
           )}
