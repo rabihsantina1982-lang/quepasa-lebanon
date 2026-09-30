@@ -19,8 +19,12 @@ const TM_SEGMENT_MAP: Record<string, string> = {
 };
 
 const TM_GENRE_MAP: Record<string, string> = {
-  "KnvZfZ7vAvF": "dj_performance",   // Electronic
-  "KnvZfZ7vAeA": "dj_performance",   // Dance/Electronic
+  "KnvZfZ7vAvF": "dj_performance",   // Dance/Electronic
+  "KnvZfZ7vAeA": "live_music",       // Rock
+  "KnvZfZ7v7l1": "theater",          // Theatre
+  "KnvZfZ7v7nI": "theater",          // Dance (e.g. Riverdance)
+  "KnvZfZ7vAe1": "theater",          // Comedy (Arts & Theatre segment)
+  "KnvZfZ7vAA1": "theater",          // Comedy (Miscellaneous segment)
   "KnvZfZ7vAv1": "live_music",       // Pop
   "KnvZfZ7vAeI": "live_music",       // Rock
   "KnvZfZ7vAev": "live_music",       // R&B
@@ -28,7 +32,6 @@ const TM_GENRE_MAP: Record<string, string> = {
   "KnvZfZ7vAJ6": "live_music",       // Classical
   "KnvZfZ7vAaa": "live_music",       // Jazz
   "KnvZfZ7vAF6": "live_music",       // World
-  "KnvZfZ7vAe6": "nightlife",        // Comedy/Cabaret
   "KnvZfZ7vAaA": "wellness",         // Health/Wellness
   "KnvZfZ7vAeJ": "outdoor",          // Outdoor
 };
@@ -108,13 +111,24 @@ function pickBestImage(images: TMEvent["images"]): string | null {
 // ---------------------------------------------------------------------------
 // Resolve category
 // ---------------------------------------------------------------------------
+const THEATRE_GENRE_ID = "KnvZfZ7v7l1";
+const THEATER_TITLE_RE = /\b(musical|ballet|theatre|theater)\b/i;
+const CONCERT_TITLE_RE = /\b(concert|orchestra|symphony|live)\b/i;
+
 function resolveCategory(
   event: TMEvent,
   categorySlugToId: Map<string, number>
 ): number | null {
   const cls = event.classifications?.[0];
-  // Genre-level first (more specific)
-  const genreSlug = cls?.genre?.id ? TM_GENRE_MAP[cls.genre.id] : null;
+  // Ticketmaster's labels are loose (Chicago the Musical is filed under
+  // "Comedy"; Hans Zimmer and Andrea Bocelli concerts under "Theatre"), so
+  // a few title checks come first.
+  if (THEATER_TITLE_RE.test(event.name)) return categorySlugToId.get("theater") ?? null;
+  // Genre-level next (more specific than segment)
+  let genreSlug = cls?.genre?.id ? TM_GENRE_MAP[cls.genre.id] : null;
+  if (genreSlug === "theater" && cls?.genre?.id === THEATRE_GENRE_ID && CONCERT_TITLE_RE.test(event.name)) {
+    genreSlug = "live_music";
+  }
   if (genreSlug) return categorySlugToId.get(genreSlug) ?? null;
   // Segment-level fallback
   const segSlug = cls?.segment?.id ? TM_SEGMENT_MAP[cls.segment.id] : null;
