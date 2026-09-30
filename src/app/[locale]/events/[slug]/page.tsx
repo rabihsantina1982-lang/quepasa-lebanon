@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/SaveButton";
 import { RemindButton } from "@/components/RemindButton";
 import { ShareButton } from "@/components/ShareButton";
+import { TrackEventView } from "@/components/TrackEventView";
+import { TrackedTicketLink } from "@/components/TrackedTicketLink";
 import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
@@ -81,6 +83,8 @@ export default async function EventDetailPage({
   const date = formatDateRange(event.starts_at, event.ends_at, locale, event.timezone);
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
   const shows = upcomingShowtimes(event.showtimes);
+  // The promoter's own visits and clicks shouldn't count in their stats.
+  const isOwner = !!userId && userId === event.user_id;
   const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;
   const publisherLogo = event.promoter?.logo_url ?? event.promoter?.avatar_url ?? null;
 
@@ -102,6 +106,7 @@ export default async function EventDetailPage({
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 space-y-6">
+      <TrackEventView eventId={event.id} skip={isOwner} />
       {media.length > 0 && <EventMediaCarousel media={media} alt={title} />}
 
       <header className="space-y-2">
@@ -135,13 +140,13 @@ export default async function EventDetailPage({
 
       <div className="flex flex-wrap gap-2">
         {event.ticket_url ? (
-          <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
+          <TrackedTicketLink eventId={event.id} href={event.ticket_url} skip={isOwner}>
             <Button size="lg" variant="primary"><Ticket size={16} />{t("getTickets")}</Button>
-          </a>
+          </TrackedTicketLink>
         ) : event.booking_phone ? (
-          <a href={`tel:${event.booking_phone}`}>
+          <TrackedTicketLink eventId={event.id} href={`tel:${event.booking_phone}`} skip={isOwner}>
             <Button size="lg" variant="primary"><Phone size={16} />{t("callToBook")}</Button>
-          </a>
+          </TrackedTicketLink>
         ) : null}
         <SaveButton eventId={event.id} initialSaved={initialSaved} isSignedIn={!!userId} />
         {directionsUrl && (
@@ -183,14 +188,14 @@ export default async function EventDetailPage({
                   </span>
                 </span>
                 {s.ticket_url && (
-                  <a
+                  <TrackedTicketLink
+                    eventId={event.id}
                     href={s.ticket_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    skip={isOwner}
                     className="shrink-0 inline-flex items-center gap-1 font-medium text-[var(--color-primary)] hover:underline"
                   >
                     <Ticket size={14} aria-hidden />{t("getTickets")}
-                  </a>
+                  </TrackedTicketLink>
                 )}
               </li>
             ))}

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { BusinessProfileForm } from "@/components/BusinessProfileForm";
-import { Calendar, Plus, Star, Sparkles } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -80,6 +80,14 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(20);
+
+  // Per-event stats (views, ticket clicks, saves, reminders, shares) for this
+  // promoter's own events — aggregated in the database by my_event_stats().
+  type EventStats = { event_id: string; views: number; views_7d: number; ticket_clicks: number; saves: number; reminders: number; shares: number };
+  const { data: statsRows } = await supabase.rpc("my_event_stats");
+  const statsById = new Map(((statsRows ?? []) as EventStats[]).map((r) => [r.event_id, r]));
+  const listed = (myEvents ?? []).map((ev) => statsById.get(ev.id));
+  const total = (k: keyof Omit<EventStats, "event_id">) => listed.reduce((sum, r) => sum + Number(r?.[k] ?? 0), 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-8">
@@ -173,25 +181,71 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
             )}
           </div>
         ) : (
-          <div className="space-y-2">
-            {myEvents.map((ev) => (
-              <div key={ev.id} className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] px-4 py-3">
-                <div>
-                  <div className="font-medium">{(ev.title_i18n as Record<string, string>).en ?? ev.slug}</div>
-                  <div className="text-xs text-[var(--color-muted)]">{new Date(ev.starts_at).toLocaleDateString()}</div>
+          <div className="space-y-3">
+            {/* Totals across the listed events */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <StatTile icon={<Eye size={14} />} label="Views" value={total("views")} sub={`${total("views_7d")} this week`} />
+              <StatTile icon={<Ticket size={14} />} label="Ticket clicks" value={total("ticket_clicks")} />
+              <StatTile icon={<Heart size={14} />} label="Saves" value={total("saves")} />
+              <StatTile icon={<Bell size={14} />} label="Reminders" value={total("reminders")} />
+              <StatTile icon={<Share2 size={14} />} label="Shares" value={total("shares")} />
+            </div>
+
+            {myEvents.map((ev) => {
+              const st = statsById.get(ev.id);
+              return (
+                <div key={ev.id} className="rounded-[var(--radius-card)] border border-[var(--color-border)] px-4 py-3 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-medium">{(ev.title_i18n as Record<string, string>).en ?? ev.slug}</div>
+                      <div className="text-xs text-[var(--color-muted)]">{new Date(ev.starts_at).toLocaleDateString()}</div>
+                    </div>
+                    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
+                      ev.status === "published" ? "bg-green-100 text-green-700" :
+                      ev.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {ev.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--color-muted)]">
+                    <span className="inline-flex items-center gap-1" title="Page views (views this week)"><Eye size={12} aria-hidden /> {st?.views ?? 0} views <span className="opacity-70">({st?.views_7d ?? 0} this week)</span></span>
+                    <span className="inline-flex items-center gap-1" title="Clicks on Get tickets / Call to book"><Ticket size={12} aria-hidden /> {st?.ticket_clicks ?? 0} ticket clicks</span>
+                    <span className="inline-flex items-center gap-1"><Heart size={12} aria-hidden /> {st?.saves ?? 0} saves</span>
+                    <span className="inline-flex items-center gap-1"><Bell size={12} aria-hidden /> {st?.reminders ?? 0} reminders</span>
+                    <span className="inline-flex items-center gap-1"><Share2 size={12} aria-hidden /> {st?.shares ?? 0} shares</span>
+                  </div>
+                  <div className="flex gap-4 text-xs font-medium">
+                    {ev.status === "published" && (
+                      <Link href={`/events/${ev.slug}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">
+                        <ExternalLink size={12} aria-hidden /> View
+                      </Link>
+                    )}
+                    {canPost && (
+                      <Link href={`/promoter/new-event?copy=${ev.id}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">
+                        <Copy size={12} aria-hidden /> Duplicate
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                  ev.status === "published" ? "bg-green-100 text-green-700" :
-                  ev.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                  "bg-red-100 text-red-700"
-                }`}>
-                  {ev.status}
-                </span>
-              </div>
-            ))}
+              );
+            })}
+            <p className="text-xs text-[var(--color-muted)]">
+              Views count once per visitor session. Your own visits and clicks aren&apos;t counted.
+            </p>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function StatTile({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: number; sub?: string }) {
+  return (
+    <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-3">
+      <div className="flex items-center gap-1 text-xs text-[var(--color-muted)]">{icon} {label}</div>
+      <div className="mt-1 text-xl font-bold">{value}</div>
+      {sub && <div className="text-[11px] text-[var(--color-muted)]">{sub}</div>}
     </div>
   );
 }

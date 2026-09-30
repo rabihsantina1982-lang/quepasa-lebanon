@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
-import { Upload, X, Video } from "lucide-react";
+import { Upload, X, Video, Plus } from "lucide-react";
 import Image from "next/image";
 import { DatePicker, TimePicker } from "@/components/ui/DateTimePicker";
 
@@ -24,6 +24,19 @@ function Field({ label, required, hint, children }: { label: string; required?: 
 }
 
 type MediaFile = { file: File; preview: string; type: "image" | "video" };
+type ExistingMedia = { url: string; kind: "image" | "video" };
+
+// Pre-fill values when duplicating an existing event (dates excluded).
+export type NewEventInitial = {
+  title: string; description: string; category_id: string; governorate: string;
+  ticket_url: string; booking_phone: string; price_min: string; price_max: string;
+  venue_name: string; venue_area: string; media: ExistingMedia[];
+};
+
+// single = one day; range = one continuous run (e.g. a 3-day festival);
+// dates = separate performances on several dates (e.g. every Friday), saved
+// as ONE event with each date in `showtimes`.
+type DurationMode = "single" | "range" | "dates";
 type Category = { id: string; slug: string; name_i18n: Record<string, string> };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -34,20 +47,24 @@ const CATEGORY_LABELS: Record<string, string> = {
   exhibitions: "Exhibitions", outdoor: "Outdoor", religious: "Religious", charity: "Charity",
 };
 
-export function NewEventForm() {
+export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [media, setMedia] = useState<MediaFile[]>([]);
+  // Photos/video carried over from a duplicated event (already uploaded).
+  const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>(initial?.media ?? []);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isMultiDay, setIsMultiDay] = useState(false);
+  const [mode, setMode] = useState<DurationMode>("single");
+  const isMultiDay = mode === "range";
+  const [showDates, setShowDates] = useState<string[]>(["", ""]);
 
   const [form, setForm] = useState({
-    title: "", description: "", starts_at: "", ends_at: "",
-    venue_name: "", venue_area: "", governorate: "", category_id: "",
-    ticket_url: "", booking_phone: "", price_min: "", price_max: "",
+    title: initial?.title ?? "", description: initial?.description ?? "", starts_at: "", ends_at: "",
+    venue_name: initial?.venue_name ?? "", venue_area: initial?.venue_area ?? "", governorate: initial?.governorate ?? "", category_id: initial?.category_id ?? "",
+    ticket_url: initial?.ticket_url ?? "", booking_phone: initial?.booking_phone ?? "", price_min: initial?.price_min ?? "", price_max: initial?.price_max ?? "",
   });
 
   useEffect(() => {
@@ -75,9 +92,9 @@ export function NewEventForm() {
     }));
   }
 
-  function toggleMultiDay(next: boolean) {
-    setIsMultiDay(next);
-    if (!next) {
+  function chooseMode(next: DurationMode) {
+    setMode(next);
+    if (next === "single") {
       setForm((prev) => {
         if (!prev.starts_at) return prev;
         const datePart = prev.starts_at.slice(0, 10);
@@ -91,16 +108,18 @@ export function NewEventForm() {
     if (!files.length) return;
     setError("");
 
-    const currentHasVideo = media.some((m) => m.type === "video");
+    const currentHasVideo = media.some((m) => m.type === "video") || existingMedia.some((m) => m.kind === "video");
+    const existingImages = existingMedia.filter((m) => m.kind === "image").length;
+    const existingCount = existingMedia.length;
     const newMedia: MediaFile[] = [];
 
     for (const file of files) {
       const isVideo = file.type.startsWith("video/");
-      if (isVideo && (currentHasVideo || media.length > 0 || newMedia.length > 0)) {
+      if (isVideo && (currentHasVideo || existingCount > 0 || media.length > 0 || newMedia.length > 0)) {
         setError("Upload 1 video OR up to 3 photos — not both.");
         return;
       }
-      if (!isVideo && media.filter((m) => m.type === "image").length + newMedia.filter(m => m.type === "image").length >= 3) {
+      if (!isVideo && existingImages + media.filter((m) => m.type === "image").length + newMedia.filter(m => m.type === "image").length >= 3) {
         setError("Maximum 3 photos allowed.");
         return;
       }
@@ -122,6 +141,20 @@ export function NewEventForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    // "Several dates": every row needs a date; at least two dates.
+    const pickedDates = mode === "dates"
+      ? [...new Set(showDates.filter(Boolean))].sort()
+      : [];
+    if (mode === "dates" && pickedDates.length < 2) {
+      setError("Pick at least two dates, or choose \"Single day\" instead.");
+      return;
+    }
+    if (mode !== "dates" && !form.starts_at) {
+      setError("Please pick the event date.");
+      return;
+    }
+
     setSubmitting(true);
 
     const supabase = createClient();
@@ -130,7 +163,7 @@ export function NewEventForm() {
 
     try {
       // 1. Upload media
-      const uploaded: { url: string; kind: "image" | "video" }[] = [];
+      const uploaded: { url: string; kind: "image" | "video" }[] = [...existingMedia];
       for (const m of media) {
         const ext = m.file.name.split(".").pop();
         const path = `events/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -157,8 +190,20 @@ export function NewEventForm() {
         venue_id: (venue as { id: string }).id,
         governorate: form.governorate || null,
         category_id: form.category_id || null,
-        starts_at: new Date(form.starts_at).toISOString(),
-        ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+        ...(mode === "dates"
+          ? {
+              starts_at: new Date(pickedDates[0]).toISOString(),
+              ends_at: new Date(pickedDates[pickedDates.length - 1]).toISOString(),
+              showtimes: pickedDates.map((d) => ({
+                starts_at: new Date(d).toISOString(),
+                ends_at: null,
+                ticket_url: form.ticket_url || null,
+              })),
+            }
+          : {
+              starts_at: new Date(form.starts_at).toISOString(),
+              ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+            }),
         ticket_url: form.ticket_url || null,
         booking_phone: form.booking_phone || null,
         price_min: form.price_min ? Number(form.price_min) : null,
@@ -195,18 +240,23 @@ export function NewEventForm() {
         <p className="mt-3 text-[var(--color-muted)]">Your event is under review and will be published within 24 hours.</p>
         <div className="mt-6 flex gap-3 justify-center">
           <Button variant="primary" onClick={() => router.push("/promoter")}>Back to dashboard</Button>
-          <Button variant="outline" onClick={() => { setSubmitted(false); setMedia([]); }}>Post another</Button>
+          <Button variant="outline" onClick={() => { setSubmitted(false); setMedia([]); setExistingMedia([]); }}>Post another</Button>
         </div>
       </div>
     );
   }
 
-  const hasVideo = media.some((m) => m.type === "video");
-  const canAddMore = !hasVideo && media.length < 3;
+  const hasVideo = media.some((m) => m.type === "video") || existingMedia.some((m) => m.kind === "video");
+  const canAddMore = !hasVideo && existingMedia.length + media.length < 3;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Post a new event</h1>
+      <h1 className="text-2xl font-bold mb-2">{initial ? "Duplicate event" : "Post a new event"}</h1>
+      <p className="mb-6 text-sm text-[var(--color-muted)]">
+        {initial
+          ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
+          : "Fill in the details below. Your event is reviewed before it goes live."}
+      </p>
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* Media upload */}
@@ -214,6 +264,17 @@ export function NewEventForm() {
           <span className="text-sm font-medium">Photos or video</span>
           <p className="text-xs text-[var(--color-muted)]">Up to 3 photos OR 1 short video (max 100MB)</p>
           <div className="flex flex-wrap gap-3">
+            {existingMedia.map((m, i) => (
+              <div key={m.url} className="relative w-28 h-28 rounded-lg overflow-hidden border border-[var(--color-border)]">
+                {m.kind === "image"
+                  ? <Image src={m.url} alt="" fill className="object-cover" sizes="112px" />
+                  : <div className="w-full h-full bg-black flex items-center justify-center"><Video size={24} className="text-white" /></div>
+                }
+                <button type="button" onClick={() => setExistingMedia((prev) => prev.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 text-white">
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
             {media.map((m, i) => (
               <div key={i} className="relative w-28 h-28 rounded-lg overflow-hidden border border-[var(--color-border)]">
                 {m.type === "image"
@@ -256,27 +317,50 @@ export function NewEventForm() {
         </Field>
 
         <Field label="Event duration" required>
-          <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => toggleMultiDay(false)}
-              className={`h-11 rounded-md border text-sm font-medium transition-colors ${
-                !isMultiDay
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-fg)]"
-                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-bg)]"
-              }`}>
-              Single day
-            </button>
-            <button type="button" onClick={() => toggleMultiDay(true)}
-              className={`h-11 rounded-md border text-sm font-medium transition-colors ${
-                isMultiDay
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-fg)]"
-                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-bg)]"
-              }`}>
-              Multiple days
-            </button>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              ["single", "Single day"],
+              ["range", "Multiple days"],
+              ["dates", "Several dates"],
+            ] as const).map(([value, label]) => (
+              <button key={value} type="button" onClick={() => chooseMode(value)}
+                className={`h-11 rounded-md border text-sm font-medium transition-colors ${
+                  mode === value
+                    ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-fg)]"
+                    : "border-[var(--color-border)] bg-[var(--color-card)] hover:bg-[var(--color-bg)]"
+                }`}>
+                {label}
+              </button>
+            ))}
           </div>
+          {mode !== "single" && (
+            <span className="text-xs text-[var(--color-muted)]">
+              {mode === "range"
+                ? "One continuous run, e.g. a 3-day festival."
+                : "Separate dates, e.g. every Friday or a run of shows. Listed as one event with all its dates."}
+            </span>
+          )}
         </Field>
 
-        {isMultiDay ? (
+        {mode === "dates" ? (
+          <div className="space-y-2">
+            <span className="text-sm font-medium">Dates &amp; start times <span className="text-[var(--color-danger)]">*</span></span>
+            {showDates.map((d, i) => (
+              <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                <DatePicker value={d} onChange={(v) => setShowDates((prev) => prev.map((x, j) => (j === i ? v : x)))} />
+                <TimePicker value={d} onChange={(v) => setShowDates((prev) => prev.map((x, j) => (j === i ? v : x)))} />
+                <button type="button" aria-label="Remove date" disabled={showDates.length <= 2}
+                  onClick={() => setShowDates((prev) => prev.filter((_, j) => j !== i))}
+                  className="h-11 w-11 inline-flex items-center justify-center rounded-md border border-[var(--color-border)] text-[var(--color-muted)] disabled:opacity-30">
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => setShowDates((prev) => [...prev, ""])}>
+              <Plus size={14} /> Add another date
+            </Button>
+          </div>
+        ) : isMultiDay ? (
           <div className="grid grid-cols-2 gap-3">
             <Field label="Start date" required>
               <div className="grid grid-cols-2 gap-2">
