@@ -114,6 +114,8 @@ function pickBestImage(images: TMEvent["images"]): string | null {
 const THEATRE_GENRE_ID = "KnvZfZ7v7l1";
 const THEATER_TITLE_RE = /\b(musical|ballet|theatre|theater)\b/i;
 const CONCERT_TITLE_RE = /\b(concert|orchestra|symphony|live)\b/i;
+// Combat sports are sometimes filed under "Arts & Theatre" (e.g. PFL Dubai).
+const FIGHT_TITLE_RE = /\b(UFC|PFL|MMA|boxing|fight night|power slap)\b/i;
 
 function resolveCategory(
   event: TMEvent,
@@ -123,6 +125,7 @@ function resolveCategory(
   // Ticketmaster's labels are loose (Chicago the Musical is filed under
   // "Comedy"; Hans Zimmer and Andrea Bocelli concerts under "Theatre"), so
   // a few title checks come first.
+  if (FIGHT_TITLE_RE.test(event.name)) return categorySlugToId.get("sports") ?? null;
   if (THEATER_TITLE_RE.test(event.name)) return categorySlugToId.get("theater") ?? null;
   // Genre-level next (more specific than segment)
   let genreSlug = cls?.genre?.id ? TM_GENRE_MAP[cls.genre.id] : null;
@@ -395,7 +398,12 @@ async function processTMShow(
   const existing = matches?.[0];
 
   if (existing) {
-    await supabase.from("events").update({ ...payload, slug: existing.slug }).eq("id", existing.id);
+    // Keep the category of events we already have, so manual corrections in
+    // the database aren't overwritten on the next run. New events still get
+    // one from resolveCategory().
+    const { category_id: _keepExistingCategory, ...updatePayload } = payload;
+    void _keepExistingCategory;
+    await supabase.from("events").update({ ...updatePayload, slug: existing.slug }).eq("id", existing.id);
     // Hide (not delete) any leftover per-performance duplicates.
     const extraIds = (matches ?? []).slice(1).filter((m) => m.status === "published").map((m) => m.id);
     if (extraIds.length) await supabase.from("events").update({ status: "draft" }).in("id", extraIds);
