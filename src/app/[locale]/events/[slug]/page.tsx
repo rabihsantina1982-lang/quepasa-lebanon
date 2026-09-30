@@ -45,7 +45,11 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // Nested objects replace (not merge with) the layout's openGraph, so
+    // repeat the site-wide fields here.
     openGraph: {
+      siteName: "QuePasa Lebanon",
+      type: "website",
       title,
       description,
       url: `/${locale}/events/${slug}`,
