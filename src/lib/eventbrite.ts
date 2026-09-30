@@ -12,7 +12,7 @@ import { createAdminClient } from "./supabase/admin";
 // ---------------------------------------------------------------------------
 const EB_CATEGORY_MAP: Record<string, string> = {
   "103": "live_music",       // Music
-  "104": "business",         // Business & Professional
+  "104": "conferences",         // Business & Professional
   "105": "food_drink",       // Food & Drink
   "106": "arts_culture",     // Community & Culture
   "107": "arts_culture",     // Performing & Visual Arts
@@ -25,7 +25,7 @@ const EB_CATEGORY_MAP: Record<string, string> = {
   "114": "religious",        // Religion & Spirituality
   "115": "family_kids",      // Family & Education
   "116": "festivals",        // Seasonal & Holiday
-  "117": "business",         // Government & Politics
+  "117": "conferences",         // Government & Politics
   "118": "arts_culture",     // Fashion & Beauty
   "119": "wellness",         // Home & Lifestyle
   "199": "festivals",        // Other

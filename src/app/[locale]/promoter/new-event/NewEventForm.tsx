@@ -42,8 +42,8 @@ type Category = { id: string; slug: string; name_i18n: Record<string, string> };
 const CATEGORY_LABELS: Record<string, string> = {
   live_music: "Live Music", dj_performance: "DJ Performance", sports: "Sports",
   food_drink: "Food & Drink", arts_culture: "Arts & Culture", family_kids: "Family & Kids",
-  nightlife: "Nightlife", business: "Business", wellness: "Wellness",
-  festivals: "Festivals", conferences: "Conferences", workshops: "Workshops",
+  nightlife: "Nightlife", wellness: "Wellness",
+  festivals: "Festivals", conferences: "Conferences & Expos", workshops: "Workshops",
   exhibitions: "Exhibitions", outdoor: "Outdoor", religious: "Religious", charity: "Charity",
 };
 
