@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Upload, X, Video, Plus } from "lucide-react";
 import Image from "next/image";
 import { DatePicker, TimePicker } from "@/components/ui/DateTimePicker";
+import { CATEGORY_TAGS, tagLabel } from "@/lib/tags";
 
 const inputCls = "w-full h-11 px-3 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors";
 const textareaCls = "w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors resize-none";
@@ -30,7 +31,7 @@ type ExistingMedia = { url: string; kind: "image" | "video" };
 export type NewEventInitial = {
   title: string; description: string; category_id: string; governorate: string;
   ticket_url: string; booking_phone: string; price_min: string; price_max: string;
-  venue_name: string; venue_area: string; media: ExistingMedia[];
+  venue_name: string; venue_area: string; media: ExistingMedia[]; tags: string[];
 };
 
 // single = one day; range = one continuous run (e.g. a 3-day festival);
@@ -60,6 +61,7 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
   const [mode, setMode] = useState<DurationMode>("single");
   const isMultiDay = mode === "range";
   const [showDates, setShowDates] = useState<string[]>(["", ""]);
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
 
   const [form, setForm] = useState({
     title: initial?.title ?? "", description: initial?.description ?? "", starts_at: "", ends_at: "",
@@ -209,6 +211,7 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
         price_min: form.price_min ? Number(form.price_min) : null,
         price_max: form.price_max ? Number(form.price_max) : null,
         cover_image: uploaded.find((m) => m.kind === "image")?.url ?? null,
+        tags,
         status: "pending",
         source: "promoter",
       }).select().single();
@@ -306,7 +309,7 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
         </Field>
 
         <Field label="Category" required>
-          <select value={form.category_id} onChange={(e) => set("category_id", e.target.value)} className={inputCls} required>
+          <select value={form.category_id} onChange={(e) => { set("category_id", e.target.value); setTags([]); }} className={inputCls} required>
             <option value="">— select a category —</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -315,6 +318,36 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
             ))}
           </select>
         </Field>
+
+        {(() => {
+          const slug = categories.find((c) => String(c.id) === String(form.category_id))?.slug;
+          const options = slug ? CATEGORY_TAGS[slug] ?? [] : [];
+          if (!options.length) return null;
+          return (
+            <div className="space-y-2">
+              <span className="text-sm font-medium">Type <span className="text-xs font-normal text-[var(--color-muted)]">(pick all that fit; helps people find your event)</span></span>
+              <div className="flex flex-wrap gap-2">
+                {options.map((tag) => {
+                  const on = tags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setTags((prev) => (on ? prev.filter((x) => x !== tag) : [...prev, tag]))}
+                      className={`h-9 rounded-full border px-3 text-sm transition-colors ${
+                        on
+                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-fg)]"
+                          : "border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-primary)]"
+                      }`}
+                    >
+                      {tagLabel(tag, "en")}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         <Field label="Event duration" required>
           <div className="grid grid-cols-3 gap-2">

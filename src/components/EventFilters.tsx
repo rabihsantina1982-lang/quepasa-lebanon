@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
+import { X, Search } from "lucide-react";
+import { tagLabel } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import type { CategoryRow } from "@/lib/supabase/types";
 
@@ -23,9 +24,12 @@ const governorateChips = [
 export function EventFilters({
   categories,
   locale,
+  availableTags = [],
 }: {
   categories: CategoryRow[];
   locale: string;
+  // Sub-filters that have events in the selected category (in display order).
+  availableTags?: string[];
 }) {
   const t = useTranslations("Filters");
   const tCat = useTranslations("Categories");
@@ -37,6 +41,12 @@ export function EventFilters({
 
   const activeCategory = params.get("category") ?? "";
   const activeDate = params.get("when") ?? "";
+  const activeTag = params.get("tag") ?? "";
+  const urlQuery = params.get("q") ?? "";
+  const [query, setQuery] = useState(urlQuery);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Keep the box in sync when the URL changes (e.g. "Clear all").
+  useEffect(() => setQuery(urlQuery), [urlQuery]);
   const activeGovernorate = params.get("governorate") ?? "";
 
   function update(next: URLSearchParams) {
@@ -47,7 +57,23 @@ export function EventFilters({
   function setCategory(slug: string) {
     const next = new URLSearchParams(params);
     activeCategory === slug ? next.delete("category") : next.set("category", slug);
+    next.delete("tag"); // sub-filters belong to one category
     update(next);
+  }
+  function setTag(tag: string) {
+    const next = new URLSearchParams(params);
+    activeTag === tag || !tag ? next.delete("tag") : next.set("tag", tag);
+    update(next);
+  }
+  function runSearch(value: string) {
+    const next = new URLSearchParams(params);
+    value.trim() ? next.set("q", value.trim()) : next.delete("q");
+    update(next);
+  }
+  function onQueryChange(value: string) {
+    setQuery(value);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => runSearch(value), 450);
   }
   function setDate(preset: string) {
     const next = new URLSearchParams(params);
@@ -63,7 +89,7 @@ export function EventFilters({
     update(new URLSearchParams());
   }
 
-  const anyActive = activeCategory || activeDate || activeGovernorate;
+  const anyActive = activeTag || urlQuery || activeCategory || activeDate || activeGovernorate;
 
   return (
     <div
@@ -72,6 +98,23 @@ export function EventFilters({
         hidden && "-translate-y-full opacity-0 pointer-events-none"
       )}
     >
+      {/* Search */}
+      <form
+        role="search"
+        onSubmit={(e) => { e.preventDefault(); if (searchTimer.current) clearTimeout(searchTimer.current); runSearch(query); }}
+        className="relative"
+      >
+        <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]" aria-hidden />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+          placeholder={t("searchPlaceholder")}
+          aria-label={t("searchPlaceholder")}
+          enterKeyHint="search"
+          className="w-full h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] ps-9 pe-4 text-sm outline-none focus:border-[var(--color-primary)] transition-colors"
+        />
+      </form>
       {/* Governorate row */}
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
@@ -122,6 +165,36 @@ export function EventFilters({
           );
         })}
       </div>
+      {/* Sub-filters for the selected category (e.g. Live Music -> Jazz) */}
+      {activeCategory && availableTags.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap sm:overflow-visible sm:pb-0">
+          <button
+            onClick={() => setTag("")}
+            className={cn(
+              "shrink-0 rounded-full px-3 h-8 text-xs border transition-colors",
+              !activeTag
+                ? "bg-[var(--color-primary)] text-[var(--color-primary-fg)] border-[var(--color-primary)]"
+                : "bg-transparent border-[var(--color-primary)]/40 text-[var(--color-primary)]"
+            )}
+          >
+            {t("allInCategory")}
+          </button>
+          {availableTags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setTag(tag)}
+              className={cn(
+                "shrink-0 rounded-full px-3 h-8 text-xs border transition-colors",
+                activeTag === tag
+                  ? "bg-[var(--color-primary)] text-[var(--color-primary-fg)] border-[var(--color-primary)]"
+                  : "bg-transparent border-[var(--color-primary)]/40 text-[var(--color-primary)]"
+              )}
+            >
+              {tagLabel(tag, locale)}
+            </button>
+          ))}
+        </div>
+      )}
       {/* Date + clear row */}
       <div className="flex gap-2 items-center overflow-x-auto no-scrollbar sm:flex-wrap sm:overflow-visible">
         {datePresets.map((p) => (

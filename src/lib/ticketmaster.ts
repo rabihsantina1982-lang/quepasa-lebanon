@@ -6,6 +6,7 @@
  */
 
 import { createAdminClient } from "./supabase/admin";
+import { inferTags } from "./tags";
 
 // ---------------------------------------------------------------------------
 // Ticketmaster segment/genre → our category slug
@@ -111,6 +112,23 @@ function pickBestImage(images: TMEvent["images"]): string | null {
 // ---------------------------------------------------------------------------
 // Resolve category
 // ---------------------------------------------------------------------------
+// Ticketmaster genre/sub-genre names -> our sub-filter tags.
+const TM_TAG_BY_NAME: Record<string, string> = {
+  rock: "rock", metal: "rock", "alternative rock": "rock", pop: "pop", "hip-hop/rap": "hip_hop",
+  "r&b": "rnb", soul: "rnb", jazz: "jazz", blues: "blues", classical: "classical", latin: "latin",
+  "middle eastern": "arabic", arabic: "arabic", comedy: "comedy", dance: "ballet_dance", ballet: "ballet_dance",
+  musical: "musical", opera: "opera", basketball: "basketball", soccer: "football", football: "football",
+  "motorsports/racing": "motorsport", boxing: "combat", "mixed martial arts": "combat", wrestling: "combat",
+  tennis: "tennis_padel", golf: "golf", cycling: "cycling", "fine art": "art", "film": "film",
+};
+function tmTags(ev: TMEvent, categorySlug: string | undefined): string[] {
+  const cls = ev.classifications?.[0];
+  const fromGenres = [cls?.genre?.name, cls?.subGenre?.name]
+    .map((n) => (n ? TM_TAG_BY_NAME[n.toLowerCase()] : undefined))
+    .filter((x): x is string => !!x);
+  return inferTags(`${ev.name} ${ev.info ?? ""}`, categorySlug, fromGenres);
+}
+
 const THEATRE_GENRE_ID = "KnvZfZ7v7l1";
 const THEATER_TITLE_RE = /\b(musical|ballet|theatre|theater)\b/i;
 const CONCERT_TITLE_RE = /\b(concert|orchestra|symphony|live)\b/i;
@@ -391,11 +409,16 @@ async function processTMShow(
   // before shows were grouped (one per performance) get merged into one.
   const { data: matches } = await supabase
     .from("events")
-    .select("id, slug, status")
+    .select("id, slug, status, category_id, tags")
     .eq("source", "ticketmaster")
     .in("source_url", [seriesKey, ...performances.map((p) => p.url)])
     .order("created_at");
   const existing = matches?.[0];
+  // Sub-filters: use the existing (possibly hand-corrected) category, keep any
+  // tags already on the event and add what Ticketmaster's genres suggest.
+  const slugById = new Map([...categorySlugToId].map(([slug, id]) => [id, slug]));
+  const categorySlug = slugById.get(existing?.category_id ?? payload.category_id ?? -1);
+  const tags = [...new Set([...((existing?.tags as string[] | null) ?? []), ...performances.flatMap((p) => tmTags(p, categorySlug))])];
 
   if (existing) {
     // Keep the category of events we already have, so manual corrections in
@@ -403,15 +426,15 @@ async function processTMShow(
     // one from resolveCategory().
     const { category_id: _keepExistingCategory, ...updatePayload } = payload;
     void _keepExistingCategory;
-    await supabase.from("events").update({ ...updatePayload, slug: existing.slug }).eq("id", existing.id);
+    await supabase.from("events").update({ ...updatePayload, tags, slug: existing.slug }).eq("id", existing.id);
     // Hide (not delete) any leftover per-performance duplicates.
     const extraIds = (matches ?? []).slice(1).filter((m) => m.status === "published").map((m) => m.id);
     if (extraIds.length) await supabase.from("events").update({ status: "draft" }).in("id", extraIds);
     result.updated++;
   } else {
-    const { error } = await supabase.from("events").insert(payload);
+    const { error } = await supabase.from("events").insert({ ...payload, tags });
     if (error?.code === "23505") {
-      await supabase.from("events").insert({ ...payload, slug: `${baseSlug}-${ev.id}` });
+      await supabase.from("events").insert({ ...payload, tags, slug: `${baseSlug}-${ev.id}` });
     } else if (error) {
       throw new Error(error.message);
     }

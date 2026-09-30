@@ -110,6 +110,7 @@ export interface Database {
           created_by: string | null;
           user_id: string | null;
           showtimes: Showtime[];
+          tags: string[];
           created_at: string;
           updated_at: string;
         };

@@ -12,6 +12,7 @@ import { TrackEventView } from "@/components/TrackEventView";
 import { TrackedTicketLink } from "@/components/TrackedTicketLink";
 import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
+import { isTagForCategory, tagLabel } from "@/lib/tags";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -155,8 +156,19 @@ export default async function EventDetailPage({
       {media.length > 0 && <EventMediaCarousel media={media} alt={title} />}
 
       <header className="space-y-2">
-        <div className="text-sm text-[var(--color-muted)]">
-          {event.category && pickLocalized(event.category.name_i18n, locale)}
+        <div className="flex flex-wrap items-center gap-1.5 text-sm text-[var(--color-muted)]">
+          {event.category && <span className="me-1">{pickLocalized(event.category.name_i18n, locale)}</span>}
+          {(event.tags ?? [])
+            .filter((tag) => isTagForCategory(tag, event.category?.slug))
+            .map((tag) => (
+              <Link
+                key={tag}
+                href={`/events?category=${event.category?.slug}&tag=${tag}`}
+                className="rounded-full border border-[var(--color-primary)]/40 px-2 py-0.5 text-xs text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
+              >
+                {tagLabel(tag, locale)}
+              </Link>
+            ))}
         </div>
         <h1 className="text-2xl md:text-4xl font-bold leading-tight">{title}</h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--color-muted)]">

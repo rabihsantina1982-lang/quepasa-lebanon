@@ -2,6 +2,7 @@ import { cache } from "react";
 import { createClient } from "./supabase/server";
 import { startOfDay, endOfDay, addDays, nextSaturday, nextSunday, endOfWeek } from "date-fns";
 import type { EventWithRelations, CategoryRow } from "./supabase/types";
+import { TAG_LABELS } from "./tags";
 
 const FALLBACK_CATEGORIES: CategoryRow[] = [
   { id: 1,  slug: "live_music",    name_i18n: { en: "Live Music" },     icon: "🎸" },
@@ -32,6 +33,7 @@ const SELECT = `
 
 export interface FetchEventsParams {
   category?: string;
+  tag?: string;
   when?: string;
   search?: string;
   governorate?: string;
@@ -80,17 +82,49 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
     const now = new Date().toISOString();
     q = q.or(`ends_at.gte.${now},and(ends_at.is.null,starts_at.gte.${now})`);
   }
-  if (params.search) {
-    // search across English title — Postgres ilike against jsonb text
-    q = q.ilike("title_i18n->>en", `%${params.search}%`);
+  if (params.tag) {
+    q = q.contains("tags", [params.tag]);
   }
 
   const { data, error } = await q;
   if (error || !data) return [];
-  const rows = (data as unknown as EventWithRelations[]).filter(
+  let rows = (data as unknown as EventWithRelations[]).filter(
     (r) => !params.category || r.category?.slug === params.category
   );
+  if (params.search?.trim()) {
+    const words = normalize(params.search).split(/\s+/).filter(Boolean);
+    rows = rows.filter((r) => {
+      const hay = searchText(r);
+      return words.every((w) => hay.includes(w));
+    });
+  }
   return rows;
+}
+
+// Combining accents (U+0300-036F) and Arabic harakat (U+064B-065F).
+const DIACRITICS = new RegExp(
+  `[${String.fromCharCode(0x300)}-${String.fromCharCode(0x36f)}${String.fromCharCode(0x64b)}-${String.fromCharCode(0x65f)}]`,
+  "g"
+);
+
+// Lowercase, strip accents/diacritics (incl. Arabic harakat) for matching.
+function normalize(s: string): string {
+  return s.toLowerCase().normalize("NFKD").replace(DIACRITICS, "");
+}
+
+// Everything a visitor might type to find an event: title and description in
+// every language, venue, area, category name and sub-filter labels.
+function searchText(e: EventWithRelations): string {
+  const parts: string[] = [
+    ...Object.values(e.title_i18n ?? {}),
+    ...Object.values(e.description_i18n ?? {}),
+    e.venue?.name ?? "",
+    e.venue?.area ?? "",
+    e.venue?.city ?? "",
+    ...Object.values((e.category?.name_i18n as Record<string, string> | undefined) ?? {}),
+    ...(e.tags ?? []).flatMap((tag) => Object.values(TAG_LABELS[tag] ?? {})),
+  ];
+  return normalize(parts.join(" "));
 }
 
 // cache(): generateMetadata and the page both call this for the same slug in

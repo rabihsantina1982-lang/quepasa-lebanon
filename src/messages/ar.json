@@ -44,6 +44,8 @@
     "connect": "تواصل"
   },
   "Filters": {
+    "searchPlaceholder": "ابحث عن فعاليات، فنانين، أماكن…",
+    "allInCategory": "الكل",
     "category": "الفئة",
     "date": "التاريخ",
     "area": "المنطقة",

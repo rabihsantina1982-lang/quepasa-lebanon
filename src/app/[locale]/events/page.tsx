@@ -3,6 +3,7 @@ import { EventCard } from "@/components/EventCard";
 import { EventFilters } from "@/components/EventFilters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchCategories, fetchEvents } from "@/lib/queries";
+import { CATEGORY_TAGS } from "@/lib/tags";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function EventsPage({
@@ -18,12 +19,18 @@ export default async function EventsPage({
   const t = await getTranslations("Empty");
 
   const categories = await fetchCategories();
-  const events = await fetchEvents({
+  const inCategory = await fetchEvents({
     category: sp.category,
     when: sp.when,
     search: sp.q,
     governorate: sp.governorate,
   });
+
+  // Sub-filters offered = those actually used by events in this category.
+  const usedTags = new Set(inCategory.flatMap((e) => e.tags ?? []));
+  const availableTags = sp.category ? (CATEGORY_TAGS[sp.category] ?? []).filter((tag) => usedTags.has(tag)) : [];
+  const activeTag = sp.tag && availableTags.includes(sp.tag) ? sp.tag : null;
+  const events = activeTag ? inCategory.filter((e) => (e.tags ?? []).includes(activeTag)) : inCategory;
 
   // Check auth and fetch saved events for the current user
   let userId: string | null = null;
@@ -46,7 +53,7 @@ export default async function EventsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-12">
-      <EventFilters categories={categories} locale={locale} />
+      <EventFilters categories={categories} locale={locale} availableTags={availableTags} />
       {events.length === 0 ? (
         <div className="py-16 text-center">
           <h2 className="text-xl font-semibold">{t("noEvents")}</h2>

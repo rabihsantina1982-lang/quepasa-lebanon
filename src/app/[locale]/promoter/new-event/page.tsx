@@ -30,7 +30,7 @@ export default async function NewEventPage({
   if (copy) {
     const { data: src } = await supabase
       .from("events")
-      .select("title_i18n, description_i18n, category_id, governorate, ticket_url, booking_phone, price_min, price_max, venue:venues(name, area), media:event_media(url, kind, position)")
+      .select("title_i18n, description_i18n, category_id, governorate, ticket_url, booking_phone, price_min, price_max, tags, venue:venues(name, area), media:event_media(url, kind, position)")
       .eq("id", copy)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -44,6 +44,7 @@ export default async function NewEventPage({
         booking_phone: string | null;
         price_min: number | null;
         price_max: number | null;
+        tags: string[] | null;
         venue: { name: string; area: string | null } | null;
         media: { url: string; kind: "image" | "video"; position: number }[];
       };
@@ -58,6 +59,7 @@ export default async function NewEventPage({
         price_max: ev.price_max != null ? String(ev.price_max) : "",
         venue_name: ev.venue?.name ?? "",
         venue_area: ev.venue?.area ?? "",
+        tags: ev.tags ?? [],
         media: [...(ev.media ?? [])].sort((a, b) => a.position - b.position).map((m) => ({ url: m.url, kind: m.kind })),
       };
     }

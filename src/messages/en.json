@@ -44,6 +44,8 @@
     "connect": "Connect"
   },
   "Filters": {
+    "searchPlaceholder": "Search events, artists, venues…",
+    "allInCategory": "All",
     "category": "Category",
     "date": "Date",
     "area": "Area",

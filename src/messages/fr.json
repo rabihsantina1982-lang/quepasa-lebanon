@@ -44,6 +44,8 @@
     "connect": "Réseau"
   },
   "Filters": {
+    "searchPlaceholder": "Rechercher événements, artistes, lieux…",
+    "allInCategory": "Tout",
     "category": "Catégorie",
     "date": "Date",
     "area": "Zone",
