@@ -35,9 +35,9 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/85 backdrop-blur">
-      <div className="mx-auto max-w-7xl px-4 h-16 flex items-center gap-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2 sm:gap-4">
         <Link href="/" className="flex items-baseline gap-2 tracking-tight">
-          <span className="text-3xl font-bold" style={{ letterSpacing: "0.02em" }}>
+          <span className="text-2xl sm:text-3xl font-bold" style={{ letterSpacing: "0.02em" }}>
             <span
               style={{
                 color: "var(--color-primary)",
@@ -52,7 +52,7 @@ export async function Header() {
             >Pasa</span>
           </span>
           <span
-            className="text-sm font-semibold"
+            className="text-xs sm:text-sm font-semibold"
             style={{
               color: "var(--color-muted)",
               textShadow: "0 0 4px var(--color-muted), 0 0 12px var(--color-muted)",
@@ -79,20 +79,28 @@ export async function Header() {
             <Link href="/admin" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm text-[var(--color-accent)] font-medium">{tNav("admin")}</Link>
           )}
         </nav>
-        <div className="ms-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-1.5 sm:gap-2">
           <LocaleSwitcher />
-          {signedIn ? (
-            <>
-              {firstName && (
-                <span className="hidden sm:inline text-sm text-[var(--color-muted)]">
-                  {t("greeting", { name: firstName })}
-                </span>
-              )}
-              <SignOutButton label={t("signOut")} />
-            </>
-          ) : (
-            <SignInButton label={t("signIn")} />
-          )}
+          <Link
+            href={isPromoter ? "/promoter/new-event" : "/become-a-promoter"}
+            className="lg:hidden inline-flex items-center h-9 px-2.5 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-fg)] text-xs font-semibold whitespace-nowrap"
+          >
+            {tNav("submit")}
+          </Link>
+          <div className="hidden lg:flex items-center gap-2">
+            {signedIn ? (
+              <>
+                {firstName && (
+                  <span className="text-sm text-[var(--color-muted)]">
+                    {t("greeting", { name: firstName })}
+                  </span>
+                )}
+                <SignOutButton label={t("signOut")} />
+              </>
+            ) : (
+              <SignInButton label={t("signIn")} />
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -46,18 +46,24 @@ export default async function LocaleLayout({
   await connection();
 
   let isPromoter = false;
+  let isAdmin = false;
+  let signedIn = false;
+  let firstName: string | null = null;
   let shouldPromptOnboarding = false;
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
+    signedIn = Boolean(data.user);
     if (data.user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role, onboarding_completed_at")
+        .select("role, display_name, onboarding_completed_at")
         .eq("id", data.user.id)
         .maybeSingle();
       const role = (profile as { role: string } | null)?.role ?? null;
       isPromoter = role === "promoter" || role === "admin";
+      isAdmin = role === "admin";
+      firstName = (profile as { display_name: string | null } | null)?.display_name?.trim().split(/\s+/)[0] ?? null;
       // Demographics onboarding is for consumer ("user") accounts only —
       // promoters/admins are businesses with their own profile flow.
       shouldPromptOnboarding = role === "user" && !(profile as { onboarding_completed_at: string | null } | null)?.onboarding_completed_at;
@@ -73,7 +79,7 @@ export default async function LocaleLayout({
         <div className={`min-h-screen flex flex-col pb-16 lg:pb-0 ${inter.variable} ${arabic.variable}`}>
           <Header />
           <main className="flex-1">{children}</main>
-          <BottomNav isPromoter={isPromoter} />
+          <BottomNav isPromoter={isPromoter} isAdmin={isAdmin} signedIn={signedIn} firstName={firstName} />
           <SignInAutoOpen />
           {shouldPromptOnboarding && <CompleteProfileDialog categories={await fetchCategories()} />}
         </div>
