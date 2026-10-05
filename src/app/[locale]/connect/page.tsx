@@ -1,11 +1,12 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
-import { Building2, ChevronRight } from "lucide-react";
+import { Building2, ChevronRight, BadgeCheck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { PROFILE_TYPES, isProfileType } from "@/lib/profileTypes";
 import { ProfileTypeTag } from "@/components/ProfileTypeTag";
+import { isPro } from "@/lib/promotions";
 
 type Listing = {
   id: string;
@@ -15,6 +16,7 @@ type Listing = {
   avatar_url: string | null;
   profile_type: string | null;
   bio: string | null;
+  pro_until: string | null;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -37,6 +39,7 @@ export default async function ConnectPage({
   const { type } = await searchParams;
   const activeType = isProfileType(type) ? type : null;
   const t = await getTranslations("Connect");
+  const tc = await getTranslations("Common");
 
   let listings: Listing[] = [];
   try {
@@ -46,13 +49,17 @@ export default async function ConnectPage({
     // a type chip is active.
     let q = supabase
       .from("profiles")
-      .select("id, business_name, display_name, logo_url, avatar_url, profile_type, bio")
+      .select("id, business_name, display_name, logo_url, avatar_url, profile_type, bio, pro_until")
       .or("role.eq.promoter,profile_type.not.is.null");
     if (activeType) q = q.eq("profile_type", activeType);
     const { data } = await q;
     listings = ((data ?? []) as Listing[])
       .filter((l) => l.business_name || l.display_name)
-      .sort((a, b) => (a.business_name ?? a.display_name ?? "").localeCompare(b.business_name ?? b.display_name ?? ""));
+      // Verified (Pro) businesses first, then alphabetical.
+      .sort((a, b) =>
+        Number(isPro(b)) - Number(isPro(a)) ||
+        (a.business_name ?? a.display_name ?? "").localeCompare(b.business_name ?? b.display_name ?? "")
+      );
   } catch {
     // Supabase unreachable — show the empty state.
   }
@@ -106,6 +113,7 @@ export default async function ConnectPage({
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold truncate">{name}</span>
+                      {isPro(l) && <BadgeCheck size={16} className="shrink-0 text-[var(--color-primary)]" aria-label={tc("verified")} />}
                       {isProfileType(l.profile_type) && (
                         <ProfileTypeTag type={l.profile_type} label={t(`types.${l.profile_type}`)} />
                       )}

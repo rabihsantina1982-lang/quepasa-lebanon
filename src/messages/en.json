@@ -1,5 +1,7 @@
 {
   "Common": {
+    "featured": "Featured",
+    "verified": "Verified business",
     "appName": "QuePasa Lebanon",
     "tagline": "Everything happening in Lebanon.",
     "search": "Search events…",

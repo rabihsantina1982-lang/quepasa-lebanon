@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
+import { PRICING, price } from "@/lib/pricing";
 
 const inputCls = "w-full h-11 px-3 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors";
 const textareaCls = "w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors resize-none";
@@ -74,7 +75,7 @@ export default function BecomeAPromoterPage() {
         <div className="text-5xl mb-4">🎉</div>
         <h1 className="text-2xl font-bold">Application submitted!</h1>
         <p className="mt-3 text-[var(--color-muted)]">
-          We&apos;ll review your application and get back to you shortly. Once approved, you&apos;ll get a 3-month free trial to start posting your events.
+          We&apos;ll review your application and get back to you shortly. Once approved, you can post as many events as you like for free, and you&apos;ll get Pro free for your first {PRICING.proWelcomeMonths} months.
         </p>
         <Button className="mt-6" onClick={() => router.push("/events")}>Browse events</Button>
       </div>
@@ -87,24 +88,26 @@ export default function BecomeAPromoterPage() {
         <h1 className="text-3xl font-bold">Become a Promoter</h1>
         <p className="mt-2 text-[var(--color-muted)]">
           List your events on QuePasa and reach thousands of people across Lebanon.
-          Apply below — approved promoters get a <strong>3-month free trial</strong>.
+          Listing is <strong>free and unlimited</strong>, with your ticket or booking link.
         </p>
 
         {/* Pricing cards */}
         <div className="mt-6 grid grid-cols-2 gap-3">
           <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-4">
-            <div className="text-sm font-semibold text-[var(--color-muted)]">STANDARD</div>
-            <div className="mt-1 text-2xl font-bold">$40<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
-            <div className="mt-2 text-sm text-[var(--color-muted)]">Up to 5 events per month</div>
+            <div className="text-sm font-semibold text-[var(--color-muted)]">FREE</div>
+            <div className="mt-1 text-2xl font-bold">$0</div>
+            <div className="mt-2 text-sm text-[var(--color-muted)]">Unlimited events, views and saves</div>
           </div>
           <div className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] p-4">
             <div className="text-sm font-semibold text-[var(--color-primary)]">PRO</div>
-            <div className="mt-1 text-2xl font-bold">$80<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
-            <div className="mt-2 text-sm text-[var(--color-muted)]">Unlimited events per month</div>
+            <div className="mt-1 text-2xl font-bold">{price(PRICING.proPerMonth)}<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
+            <div className="mt-2 text-sm text-[var(--color-muted)]">Ticket-click and audience stats, Verified badge, a free boost every month</div>
           </div>
         </div>
         <p className="mt-3 text-center text-xs text-[var(--color-muted)]">
-          ✨ First 3 months completely free — no credit card required
+          ✨ Pro is free for your first {PRICING.proWelcomeMonths} months. Want more reach? Boost an event from{" "}
+          {price(PRICING.boostPerWeek)}/week.{" "}
+          <Link href="/premium" className="text-[var(--color-primary)] underline">See all plans</Link>
         </p>
       </div>
 
@@ -132,7 +135,7 @@ export default function BecomeAPromoterPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Phone number" required>
-            <input type="tel" placeholder="+971…" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} required />
+            <input type="tel" placeholder="+961…" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} required />
           </Field>
           <Field label="Instagram handle">
             <input placeholder="@yourhandle" value={form.instagram} onChange={(e) => set("instagram", e.target.value)} className={inputCls} />

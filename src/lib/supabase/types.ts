@@ -43,6 +43,7 @@ export interface Database {
           gender: Gender | null;
           interests: string[];
           onboarding_completed_at: string | null;
+          pro_until: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -199,6 +200,13 @@ export interface PromoterProfile {
   logo_url: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  pro_until: string | null;
+}
+
+export interface EventPromotion {
+  kind: "boost" | "spotlight";
+  starts_at: string;
+  ends_at: string;
 }
 
 export interface EventWithRelations extends EventRow {
@@ -206,4 +214,5 @@ export interface EventWithRelations extends EventRow {
   venue: VenueRow | null;
   media: EventMediaRow[];
   promoter: PromoterProfile | null;
+  promotions: EventPromotion[];
 }

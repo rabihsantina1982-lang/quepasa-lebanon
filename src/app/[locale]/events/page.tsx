@@ -1,9 +1,11 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { EventCard } from "@/components/EventCard";
 import { EventFilters } from "@/components/EventFilters";
+import { SpotlightBanner } from "@/components/SpotlightBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchCategories, fetchEvents } from "@/lib/queries";
 import { CATEGORY_TAGS } from "@/lib/tags";
+import { isPromoted } from "@/lib/promotions";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function EventsPage({
@@ -32,6 +34,10 @@ export default async function EventsPage({
   const activeTag = sp.tag && availableTags.includes(sp.tag) ? sp.tag : null;
   const events = activeTag ? inCategory.filter((e) => (e.tags ?? []).includes(activeTag)) : inCategory;
 
+  // Homepage spotlight: only on the unfiltered browse page.
+  const unfiltered = !sp.category && !sp.when && !sp.q && !sp.governorate && !sp.tag;
+  const spotlight = unfiltered ? events.filter((e) => isPromoted(e, "spotlight")).slice(0, 5) : [];
+
   // Check auth and fetch saved events for the current user
   let userId: string | null = null;
   const savedIds = new Set<string>();
@@ -54,6 +60,7 @@ export default async function EventsPage({
   return (
     <div className="mx-auto max-w-7xl px-4 pb-12">
       <EventFilters categories={categories} locale={locale} availableTags={availableTags} />
+      <SpotlightBanner events={spotlight} locale={locale} />
       {events.length === 0 ? (
         <div className="py-16 text-center">
           <h2 className="text-xl font-semibold">{t("noEvents")}</h2>

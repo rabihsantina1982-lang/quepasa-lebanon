@@ -3,6 +3,7 @@ import { createClient } from "./supabase/server";
 import { startOfDay, endOfDay, addDays, nextSaturday, nextSunday, endOfWeek } from "date-fns";
 import type { EventWithRelations, CategoryRow } from "./supabase/types";
 import { TAG_LABELS } from "./tags";
+import { isPromoted } from "./promotions";
 
 const FALLBACK_CATEGORIES: CategoryRow[] = [
   { id: 1,  slug: "live_music",    name_i18n: { en: "Live Music" },     icon: "🎸" },
@@ -28,7 +29,8 @@ const SELECT = `
   category:categories(*),
   venue:venues(*),
   media:event_media(*),
-  promoter:profiles!events_user_id_fkey(business_name,logo_url,display_name,avatar_url)
+  promoter:profiles!events_user_id_fkey(business_name,logo_url,display_name,avatar_url,pro_until),
+  promotions:event_promotions(kind,starts_at,ends_at)
 `;
 
 export interface FetchEventsParams {
@@ -98,7 +100,8 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
       return words.every((w) => hay.includes(w));
     });
   }
-  return rows;
+  // Boosted / spotlighted events first; otherwise keep date order (stable sort).
+  return rows.sort((a, b) => Number(isPromoted(b)) - Number(isPromoted(a)));
 }
 
 // Combining accents (U+0300-036F) and Arabic harakat (U+064B-065F).

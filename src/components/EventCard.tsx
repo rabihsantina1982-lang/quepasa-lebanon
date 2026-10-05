@@ -1,5 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import { Video, MapPin, Building2 } from "lucide-react";
+import { Video, MapPin, Building2, Sparkles, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { MediaTile } from "./MediaTile";
@@ -7,6 +7,7 @@ import { CardSaveButton } from "./CardSaveButton";
 import { CardShareButton } from "./CardShareButton";
 import type { EventWithRelations } from "@/lib/supabase/types";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
+import { isPromoted, isPro } from "@/lib/promotions";
 
 export async function EventCard({
   event,
@@ -35,9 +36,10 @@ export async function EventCard({
   const price = formatPrice(event.price_min, event.price_max, event.currency, locale);
   const publisherName = event.promoter?.business_name ?? event.promoter?.display_name ?? null;
   const publisherLogo = event.promoter?.logo_url ?? event.promoter?.avatar_url ?? null;
+  const featured = isPromoted(event);
 
   return (
-    <div className="group rounded-[var(--radius-card)] overflow-hidden bg-[var(--color-card)] border border-[var(--color-border)] hover:shadow-lg transition-shadow">
+    <div className={`group rounded-[var(--radius-card)] overflow-hidden bg-[var(--color-card)] border hover:shadow-lg transition-shadow ${featured ? "border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/40" : "border-[var(--color-border)]"}`}>
       <Link href={`/events/${event.slug}`} className="block">
         <div className="relative aspect-[4/3] bg-[var(--color-border)]">
           {hero ? (
@@ -46,8 +48,13 @@ export async function EventCard({
             <Image src={event.cover_image} alt={title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
           ) : null}
           {hasVideo && (
-            <span className="absolute top-2 start-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] text-white">
+            <span className={`absolute ${featured ? "top-10" : "top-2"} start-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] text-white`}>
               <Video size={12} aria-hidden /> video
+            </span>
+          )}
+          {featured && (
+            <span className="absolute top-2 start-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-primary)] px-2 py-1 text-[11px] font-semibold text-white">
+              <Sparkles size={12} aria-hidden /> {t("featured")}
             </span>
           )}
           {event.category && (
@@ -94,6 +101,9 @@ export async function EventCard({
             )}
           </span>
           {publisherName}
+          {isPro(event.promoter) && (
+            <BadgeCheck size={13} className="text-[var(--color-primary)] shrink-0" aria-label={t("verified")} />
+          )}
         </Link>
       )}
     </div>

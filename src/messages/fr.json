@@ -1,5 +1,7 @@
 {
   "Common": {
+    "featured": "À la une",
+    "verified": "Entreprise vérifiée",
     "appName": "QuePasa Lebanon",
     "tagline": "Tout ce qui se passe au Liban.",
     "search": "Rechercher des événements…",

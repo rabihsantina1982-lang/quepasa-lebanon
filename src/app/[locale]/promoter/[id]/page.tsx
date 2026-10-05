@@ -3,11 +3,12 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { fetchEvents } from "@/lib/queries";
 import { EventCard } from "@/components/EventCard";
-import { Building2, Phone, MessageCircle, Mail, AtSign, Globe } from "lucide-react";
+import { Building2, Phone, MessageCircle, Mail, AtSign, Globe, BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import { ProfileTypeTag } from "@/components/ProfileTypeTag";
 import { SignInButton } from "@/components/SignInButton";
 import { isProfileType } from "@/lib/profileTypes";
+import { isPro } from "@/lib/promotions";
 
 type Contacts = {
   phone: string | null;
@@ -42,7 +43,7 @@ export default async function PromoterProfilePage({
   const supabase = await createClient();
   const { data: promoter } = await supabase
     .from("profiles")
-    .select("business_name, logo_url, display_name, avatar_url, role, profile_type, bio")
+    .select("business_name, logo_url, display_name, avatar_url, role, profile_type, bio, pro_until")
     .eq("id", id)
     .maybeSingle();
 
@@ -74,6 +75,7 @@ export default async function PromoterProfilePage({
 
   const t = await getTranslations("PromoterProfile");
   const tc = await getTranslations("Connect");
+  const tcommon = await getTranslations("Common");
 
   // Contact details are readable by signed-in users only (RLS on
   // profile_contacts); guests get a sign-in prompt instead.
@@ -98,7 +100,14 @@ export default async function PromoterProfilePage({
           )}
         </span>
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">{name}</h1>
+          <h1 className="text-2xl font-bold inline-flex items-center gap-2">
+            {name}
+            {isPro(promoter) && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)]">
+                <BadgeCheck size={18} aria-hidden /> {tcommon("verified")}
+              </span>
+            )}
+          </h1>
           {isProfileType(promoter.profile_type) && (
             <ProfileTypeTag type={promoter.profile_type} label={tc(`types.${promoter.profile_type}`)} />
           )}

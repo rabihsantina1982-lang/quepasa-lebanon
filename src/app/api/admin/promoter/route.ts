@@ -2,11 +2,13 @@
  * POST /api/admin/promoter
  * Body: { applicationId: string, action: "approve" | "reject" }
  * Admin only — approves or rejects a promoter application.
- * On approval: sets profile role to "promoter" and creates a 3-month trial subscription.
+ * On approval: sets profile role to "promoter" and gives them Pro free for
+ * PRICING.proWelcomeMonths months. Listing events is free for every promoter.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { toProfileType } from "@/lib/profileTypes";
+import { PRICING } from "@/lib/pricing";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -44,29 +46,19 @@ export async function POST(req: NextRequest) {
     .eq("id", applicationId);
 
   if (action === "approve") {
-    // Set user role to promoter, and carry their business name onto the
-    // profile so it's ready to show on their events without re-entering it.
+    // Set user role to promoter, carry their business name onto the profile
+    // so it's ready to show on their events, and start their free Pro months.
+    const proUntil = new Date();
+    proUntil.setMonth(proUntil.getMonth() + PRICING.proWelcomeMonths);
     await supabase
       .from("profiles")
       .update({
         role: "promoter",
         business_name: application.business_name,
         profile_type: toProfileType(application.business_type),
+        pro_until: proUntil.toISOString(),
       })
       .eq("id", application.user_id);
-
-    // Create 3-month free trial subscription
-    const trialEnd = new Date();
-    trialEnd.setMonth(trialEnd.getMonth() + 3);
-
-    await supabase.from("subscriptions").upsert({
-      user_id: application.user_id,
-      plan: "trial",
-      status: "active",
-      trial_ends_at: trialEnd.toISOString(),
-      posts_used_this_month: 0,
-      period_start: new Date().toISOString(),
-    }, { onConflict: "user_id" });
   }
 
   return NextResponse.json({ success: true });

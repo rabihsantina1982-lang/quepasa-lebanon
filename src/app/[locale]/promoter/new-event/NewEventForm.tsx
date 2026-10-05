@@ -224,9 +224,6 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
         );
       }
 
-      // 5. Track post usage (for Standard plan limit)
-      await supabase.rpc("increment_posts_used", { p_user_id: user.id });
-
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
