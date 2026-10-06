@@ -58,7 +58,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   exhibitions: "Exhibitions", outdoor: "Outdoor", religious: "Religious", charity: "Charity",
 };
 
-export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
+export function NewEventForm({ initial, autofillEnabled = false }: { initial?: NewEventInitial; autofillEnabled?: boolean }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -336,7 +336,7 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
           ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
           : "Fill in the details below. Your event is reviewed before it goes live."}
       </p>
-      {!initial && (
+      {!initial && autofillEnabled && (
         <div className="mb-6 rounded-[var(--radius-card)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 p-4 space-y-3">
           <div className="flex items-center gap-2 font-semibold">
             <Sparkles size={16} className="text-[var(--color-primary)]" aria-hidden /> Paste from Instagram

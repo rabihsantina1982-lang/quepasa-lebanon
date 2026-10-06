@@ -65,5 +65,6 @@ export default async function NewEventPage({
     }
   }
 
-  return <NewEventForm initial={initial} />;
+  // The "Paste from Instagram" box only appears once the AI key is configured.
+  return <NewEventForm initial={initial} autofillEnabled={!!process.env.ANTHROPIC_API_KEY} />;
 }
