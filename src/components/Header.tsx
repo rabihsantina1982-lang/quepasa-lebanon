@@ -64,6 +64,7 @@ export async function Header() {
         </Link>
         <nav className="hidden lg:flex items-center gap-1 ms-4">
           <Link href="/events" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("browse")}</Link>
+          <Link href="/weekend" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("weekend")}</Link>
           <Link href="/map" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("map")}</Link>
           <Link href="/favorites" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("favorites")}</Link>
           <Link href="/connect" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)] text-sm">{tNav("connect")}</Link>

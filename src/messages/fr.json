@@ -43,7 +43,8 @@
     "promoter": "Mon tableau de bord",
     "becomePromoter": "Publier des événements",
     "premium": "Premium",
-    "connect": "Réseau"
+    "connect": "Réseau",
+    "weekend": "Ce week-end"
   },
   "Filters": {
     "searchPlaceholder": "Rechercher événements, artistes, lieux…",
@@ -179,5 +180,14 @@
     "already": "Vous avez déjà signalé cet événement. Notre équipe va l'examiner.",
     "error": "Une erreur s'est produite. Veuillez réessayer.",
     "close": "Fermer"
+  },
+  "Weekend": {
+    "eventsCount": "{count, plural, =0 {Aucun événement} one {# événement} other {# événements}}",
+    "share": "Partager",
+    "shareText": "Ce qui se passe ce week-end 👇",
+    "empty": "Rien de prévu ce week-end pour l'instant — revenez bientôt.",
+    "browseAll": "Voir tous les événements à venir",
+    "allWeekend": "Tout le week-end",
+    "allWeekendHint": "Expositions, festivals et plus, à visiter n'importe quel jour."
   }
 }

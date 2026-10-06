@@ -6,20 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { X, Search } from "lucide-react";
 import { tagLabel } from "@/lib/tags";
 import { cn } from "@/lib/utils";
+import { governorateChips } from "@/lib/regions";
 import type { CategoryRow } from "@/lib/supabase/types";
 
 const datePresets = ["today", "tomorrow", "thisWeekend", "thisWeek"] as const;
-
-const governorateChips = [
-  { slug: "beirut", key: "governorateBeirut" },
-  { slug: "mount_lebanon", key: "governorateMountLebanon" },
-  { slug: "north_lebanon", key: "governorateNorthLebanon" },
-  { slug: "south_lebanon", key: "governorateSouthLebanon" },
-  { slug: "bekaa", key: "governorateBekaa" },
-  { slug: "nabatieh", key: "governorateNabatieh" },
-  { slug: "akkar", key: "governorateAkkar" },
-  { slug: "baalbek_hermel", key: "governorateBaalbekHermel" },
-] as const;
 
 export function EventFilters({
   categories,

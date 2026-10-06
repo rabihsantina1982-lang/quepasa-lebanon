@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { createClient } from "./supabase/server";
-import { startOfDay, endOfDay, addDays, nextSaturday, nextSunday, endOfWeek } from "date-fns";
 import type { EventWithRelations, CategoryRow } from "./supabase/types";
 import { TAG_LABELS } from "./tags";
 import { isPromoted } from "./promotions";
+import { presetRange, happensDuring, APP_TIMEZONE } from "./dates";
 
 const FALLBACK_CATEGORIES: CategoryRow[] = [
   { id: 1,  slug: "live_music",    name_i18n: { en: "Live Music" },     icon: "🎸" },
@@ -43,17 +43,6 @@ export interface FetchEventsParams {
   limit?: number;
 }
 
-function dateRangeForPreset(preset: string | undefined, tz = "Asia/Beirut"): { from: Date; to: Date } | null {
-  const now = new Date();
-  switch (preset) {
-    case "today": return { from: startOfDay(now), to: endOfDay(now) };
-    case "tomorrow": return { from: startOfDay(addDays(now, 1)), to: endOfDay(addDays(now, 1)) };
-    case "thisWeekend": return { from: startOfDay(nextSaturday(now)), to: endOfDay(nextSunday(now)) };
-    case "thisWeek": return { from: now, to: endOfWeek(now, { weekStartsOn: 1 }) };
-    default: return null;
-  }
-}
-
 export async function fetchEvents(params: FetchEventsParams = {}): Promise<EventWithRelations[]> {
   let supabase;
   try {
@@ -74,16 +63,15 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
   if (params.promoterId) {
     q = q.eq("user_id", params.promoterId);
   }
-  const range = dateRangeForPreset(params.when);
-  if (range) {
-    q = q.gte("starts_at", range.from.toISOString()).lte("starts_at", range.to.toISOString());
-  } else {
-    // Still relevant = hasn't ended yet. Events without an end time fall
-    // back to filtering on start time, so a single instant in time doesn't
-    // hide an event the moment its start time passes.
-    const now = new Date().toISOString();
-    q = q.or(`ends_at.gte.${now},and(ends_at.is.null,starts_at.gte.${now})`);
-  }
+  // Still relevant = hasn't ended yet. Events without an end time fall
+  // back to filtering on start time, so a single instant in time doesn't
+  // hide an event the moment its start time passes.
+  const range = presetRange(params.when, APP_TIMEZONE);
+  const now = new Date();
+  const from = (range && range.from > now ? range.from : now).toISOString();
+  q = q.or(`ends_at.gte.${from},and(ends_at.is.null,starts_at.gte.${from})`);
+  // Anything on during the range, incl. exhibitions that opened earlier.
+  if (range) q = q.lte("starts_at", range.to.toISOString());
   if (params.tag) {
     q = q.contains("tags", [params.tag]);
   }
@@ -91,7 +79,7 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
   const { data, error } = await q;
   if (error || !data) return [];
   let rows = (data as unknown as EventWithRelations[]).filter(
-    (r) => !params.category || r.category?.slug === params.category
+    (r) => (!params.category || r.category?.slug === params.category) && (!range || happensDuring(r, { from: new Date(from), to: range.to }))
   );
   if (params.search?.trim()) {
     const words = normalize(params.search).split(/\s+/).filter(Boolean);
