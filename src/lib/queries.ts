@@ -29,7 +29,7 @@ const SELECT = `
   category:categories(*),
   venue:venues(*),
   media:event_media(*),
-  promoter:profiles!events_user_id_fkey(business_name,logo_url,display_name,avatar_url,pro_until),
+  promoter:profiles!events_user_id_fkey(business_name,logo_url,display_name,avatar_url,pro_until,verified_at),
   promotions:event_promotions(kind,starts_at,ends_at)
 `;
 

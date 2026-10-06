@@ -21,6 +21,11 @@ export function promotedUntil(event: { promotions?: EventPromotion[] | null }, k
   return ends.length ? new Date(Math.max(...ends)) : null;
 }
 
+// Identity checked by an admin (separate from paid Pro).
+export function isVerified(profile: { verified_at?: string | null } | null | undefined): boolean {
+  return !!profile?.verified_at;
+}
+
 export function isPro(profile: { pro_until?: string | null } | null | undefined): boolean {
   return !!profile?.pro_until && new Date(profile.pro_until).getTime() > Date.now();
 }

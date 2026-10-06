@@ -5,10 +5,11 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { BusinessProfileForm } from "@/components/BusinessProfileForm";
 import { PromotionRequest } from "@/components/PromotionRequest";
+import { VerificationSteps } from "@/components/VerificationSteps";
 import { toProfileType } from "@/lib/profileTypes";
-import { isPro } from "@/lib/promotions";
+import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
-import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,14 +22,14 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   // Check profile role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, business_name, logo_url, profile_type, bio, pro_until")
+    .select("role, business_name, logo_url, profile_type, bio, pro_until, verified_at, suspended_at")
     .eq("id", user.id)
     .maybeSingle();
 
   // Check application status
   const { data: application } = await supabase
     .from("promoter_applications")
-    .select("status, business_name, created_at")
+    .select("status, business_name, created_at, verification_code, instagram")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -43,6 +44,9 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
             Your application for <strong>{application.business_name}</strong> is being reviewed.
             We&apos;ll notify you within 2 business days.
           </p>
+          {application.verification_code && (
+            <VerificationSteps code={application.verification_code} instagram={application.instagram} />
+          )}
         </div>
       );
     }
@@ -78,6 +82,8 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
 
   // Pro: full stats, Verified badge, free boost weeks. Admins see everything.
   const pro = isPro(profile);
+  const verified = isVerified(profile);
+  const suspended = !!profile?.suspended_at;
   const fullStats = pro || profile?.role === "admin";
   const proUntil = profile?.pro_until ? new Date(profile.pro_until) : null;
 
@@ -135,10 +141,34 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
           <h1 className="text-2xl font-bold">Promoter Dashboard</h1>
           <p className="text-sm text-[var(--color-muted)]">{profile?.business_name ?? application?.business_name}</p>
         </div>
-        <Link href="/promoter/new-event">
-          <Button size="lg" variant="primary"><Plus size={16} /> New event</Button>
-        </Link>
+        {!suspended && (
+          <Link href="/promoter/new-event">
+            <Button size="lg" variant="primary"><Plus size={16} /> New event</Button>
+          </Link>
+        )}
       </div>
+
+      {suspended && (
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-danger)] bg-[var(--color-danger)]/10 p-4 text-sm flex items-start gap-2">
+          <Ban size={16} className="mt-0.5 shrink-0 text-[var(--color-danger)]" aria-hidden />
+          <span>
+            <strong>Your account is suspended.</strong> Your events and profile are hidden from the site, and you can&apos;t
+            post new events. If you think this is a mistake, please contact us.
+          </span>
+        </div>
+      )}
+
+      {/* Verification */}
+      {!suspended && profile?.role !== "admin" && (
+        verified ? (
+          <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-sm flex items-center gap-2">
+            <BadgeCheck size={16} className="text-[var(--color-primary)]" aria-hidden />
+            <span><strong>Verified business.</strong> Your events and profile show the ✓ badge.</span>
+          </div>
+        ) : application?.verification_code ? (
+          <VerificationSteps code={application.verification_code} instagram={application.instagram} />
+        ) : null
+      )}
 
       {/* Plan */}
       <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5 space-y-3">
@@ -161,7 +191,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
             <span className="rounded-full bg-[var(--color-border)] text-xs font-bold px-3 py-1">FREE</span>
             <p className="text-sm text-[var(--color-muted)]">
               Unlimited events, always free. Upgrade to Pro ({price(PRICING.proPerMonth)}/month) for full stats including
-              ticket clicks and your audience, a Verified badge, and a free boost every month.
+              ticket clicks and your audience, a top spot in the Connect directory, and a free boost every month.
             </p>
             {proUntil && proUntil < now && (
               <p className="text-xs text-[var(--color-muted)]">Your Pro ended on {fmtDate(proUntil)}.</p>
@@ -204,9 +234,11 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
         {(!myEvents || myEvents.length === 0) ? (
           <div className="rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] p-8 text-center">
             <p className="text-[var(--color-muted)]">You haven&apos;t posted any events yet.</p>
-            <Link href="/promoter/new-event">
-              <Button size="sm" variant="primary" className="mt-3"><Plus size={14} /> Post your first event</Button>
-            </Link>
+            {!suspended && (
+              <Link href="/promoter/new-event">
+                <Button size="sm" variant="primary" className="mt-3"><Plus size={14} /> Post your first event</Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
@@ -279,10 +311,12 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                         <ExternalLink size={12} aria-hidden /> View
                       </Link>
                     )}
+                    {!suspended && (
                     <Link href={`/promoter/new-event?copy=${ev.id}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">
                       <Copy size={12} aria-hidden /> Duplicate
                     </Link>
-                    {canPromote && (
+                    )}
+                    {canPromote && !suspended && (
                       <>
                         <PromotionRequest
                           kind="boost"

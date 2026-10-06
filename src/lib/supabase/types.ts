@@ -44,6 +44,8 @@ export interface Database {
           interests: string[];
           onboarding_completed_at: string | null;
           pro_until: string | null;
+          verified_at: string | null;
+          suspended_at: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -201,6 +203,7 @@ export interface PromoterProfile {
   display_name: string | null;
   avatar_url: string | null;
   pro_until: string | null;
+  verified_at: string | null;
 }
 
 export interface EventPromotion {

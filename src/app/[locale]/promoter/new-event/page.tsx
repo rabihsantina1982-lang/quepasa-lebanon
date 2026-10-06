@@ -18,9 +18,9 @@ export default async function NewEventPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}?signin=1&next=/${locale}/promoter/new-event`);
 
-  const { data: profileRaw } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  const profile = profileRaw as { role: string } | null;
-  if (profile?.role !== "promoter" && profile?.role !== "admin") {
+  const { data: profileRaw } = await supabase.from("profiles").select("role, suspended_at").eq("id", user.id).single();
+  const profile = profileRaw as { role: string; suspended_at: string | null } | null;
+  if ((profile?.role !== "promoter" && profile?.role !== "admin") || profile?.suspended_at) {
     redirect(`/${locale}/promoter`);
   }
 

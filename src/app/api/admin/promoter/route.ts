@@ -1,9 +1,10 @@
 /**
  * POST /api/admin/promoter
- * Body: { applicationId: string, action: "approve" | "reject" }
+ * Body: { applicationId: string, action: "approve" | "reject", verify?: boolean }
  * Admin only — approves or rejects a promoter application.
  * On approval: sets profile role to "promoter" and gives them Pro free for
- * PRICING.proWelcomeMonths months. Listing events is free for every promoter.
+ * PRICING.proWelcomeMonths months. verify: also give the Verified badge (the
+ * admin has seen the application's code in the applicant's Instagram bio). Listing events is free for every promoter.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Admin only" }, { status: 403 });
   }
 
-  const { applicationId, action } = await req.json();
+  const { applicationId, action, verify } = await req.json();
   if (!applicationId || !["approve", "reject"].includes(action)) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
         business_name: application.business_name,
         profile_type: toProfileType(application.business_type),
         pro_until: proUntil.toISOString(),
+        ...(verify === true ? { verified_at: new Date().toISOString() } : {}),
       })
       .eq("id", application.user_id);
   }

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { PROFILE_TYPES, isProfileType } from "@/lib/profileTypes";
 import { ProfileTypeTag } from "@/components/ProfileTypeTag";
-import { isPro } from "@/lib/promotions";
+import { isPro, isVerified } from "@/lib/promotions";
 
 type Listing = {
   id: string;
@@ -17,6 +17,7 @@ type Listing = {
   profile_type: string | null;
   bio: string | null;
   pro_until: string | null;
+  verified_at: string | null;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -49,14 +50,15 @@ export default async function ConnectPage({
     // a type chip is active.
     let q = supabase
       .from("profiles")
-      .select("id, business_name, display_name, logo_url, avatar_url, profile_type, bio, pro_until")
+      .select("id, business_name, display_name, logo_url, avatar_url, profile_type, bio, pro_until, verified_at")
       .or("role.eq.promoter,profile_type.not.is.null");
     if (activeType) q = q.eq("profile_type", activeType);
     const { data } = await q;
     listings = ((data ?? []) as Listing[])
       .filter((l) => l.business_name || l.display_name)
-      // Verified (Pro) businesses first, then alphabetical.
+      // Verified businesses first, then Pro, then alphabetical.
       .sort((a, b) =>
+        Number(isVerified(b)) - Number(isVerified(a)) ||
         Number(isPro(b)) - Number(isPro(a)) ||
         (a.business_name ?? a.display_name ?? "").localeCompare(b.business_name ?? b.display_name ?? "")
       );
@@ -113,7 +115,7 @@ export default async function ConnectPage({
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold truncate">{name}</span>
-                      {isPro(l) && <BadgeCheck size={16} className="shrink-0 text-[var(--color-primary)]" aria-label={tc("verified")} />}
+                      {isVerified(l) && <BadgeCheck size={16} className="shrink-0 text-[var(--color-primary)]" aria-label={tc("verified")} />}
                       {isProfileType(l.profile_type) && (
                         <ProfileTypeTag type={l.profile_type} label={t(`types.${l.profile_type}`)} />
                       )}

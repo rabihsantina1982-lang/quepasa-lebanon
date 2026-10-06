@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter, Link } from "@/i18n/navigation";
 import { PRICING, price } from "@/lib/pricing";
+import { VerificationSteps } from "@/components/VerificationSteps";
 
 const inputCls = "w-full h-11 px-3 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors";
 const textareaCls = "w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors resize-none";
@@ -23,7 +24,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
 export default function BecomeAPromoterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<{ code: string; instagram: string } | null>(null);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -66,7 +67,7 @@ export default function BecomeAPromoterPage() {
       return;
     }
 
-    setSubmitted(true);
+    setSubmitted({ code: data.code, instagram: data.instagram });
   }
 
   if (submitted) {
@@ -74,8 +75,10 @@ export default function BecomeAPromoterPage() {
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <div className="text-5xl mb-4">🎉</div>
         <h1 className="text-2xl font-bold">Application submitted!</h1>
-        <p className="mt-3 text-[var(--color-muted)]">
-          We&apos;ll review your application and get back to you shortly. Once approved, you can post as many events as you like for free, and you&apos;ll get Pro free for your first {PRICING.proWelcomeMonths} months.
+        <VerificationSteps code={submitted.code} instagram={submitted.instagram} />
+        <p className="mt-4 text-sm text-[var(--color-muted)]">
+          Once approved, you can post as many events as you like for free, and you&apos;ll get Pro free for your first {PRICING.proWelcomeMonths} months.
+          You can find this code again on your promoter dashboard.
         </p>
         <Button className="mt-6" onClick={() => router.push("/events")}>Browse events</Button>
       </div>
@@ -101,7 +104,7 @@ export default function BecomeAPromoterPage() {
           <div className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] p-4">
             <div className="text-sm font-semibold text-[var(--color-primary)]">PRO</div>
             <div className="mt-1 text-2xl font-bold">{price(PRICING.proPerMonth)}<span className="text-sm font-normal text-[var(--color-muted)]">/mo</span></div>
-            <div className="mt-2 text-sm text-[var(--color-muted)]">Ticket-click and audience stats, Verified badge, a free boost every month</div>
+            <div className="mt-2 text-sm text-[var(--color-muted)]">Ticket-click and audience stats, a free boost every month</div>
           </div>
         </div>
         <p className="mt-3 text-center text-xs text-[var(--color-muted)]">
@@ -137,8 +140,8 @@ export default function BecomeAPromoterPage() {
           <Field label="Phone number" required>
             <input type="tel" placeholder="+961…" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} required />
           </Field>
-          <Field label="Instagram handle">
-            <input placeholder="@yourhandle" value={form.instagram} onChange={(e) => set("instagram", e.target.value)} className={inputCls} />
+          <Field label="Instagram handle" required>
+            <input placeholder="@yourhandle" value={form.instagram} onChange={(e) => set("instagram", e.target.value)} className={inputCls} required />
           </Field>
         </div>
 

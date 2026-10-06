@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminQueue } from "./AdminQueue";
 import { PromoterQueue } from "./PromoterQueue";
+import { PromoterList, type PromoterRow } from "./PromoterList";
+import { impersonationWarnings, type NameSource } from "@/lib/impersonation";
 import { PromotionQueue, ActivePromotions, type PromotionRequestItem, type ActivePromotion, type ProMember } from "./PromotionQueue";
 
 export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -32,16 +34,59 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
-  // Pending promoter applications
-  // Service-role client: the embedded profiles.email is a private column.
-  const { data: pendingApplications } = await createAdminClient()
-    .from("promoter_applications")
-    .select("id, user_id, business_name, business_type, instagram, website, description, created_at, profiles(display_name, email)")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false });
+  // Service-role client: profiles.email and other private columns.
+  const admin = createAdminClient();
+
+  // All promoter applications (pending ones for the queue; the rest supply
+  // codes/Instagram for the promoter list and the impersonation check).
+  type AppRow = {
+    id: string; user_id: string; business_name: string; business_type: string; instagram: string | null;
+    phone: string | null; website: string | null; description: string; verification_code: string | null;
+    status: string; created_at: string; profiles: { display_name: string | null; email: string | null } | null;
+  };
+  const [{ data: appRows }, { data: promoterRows }, { data: venueRows }, { data: contactRows }] = await Promise.all([
+    admin
+      .from("promoter_applications")
+      .select("id, user_id, business_name, business_type, instagram, phone, website, description, verification_code, status, created_at, profiles(display_name, email)")
+      .order("created_at", { ascending: false }),
+    admin
+      .from("profiles")
+      .select("id, business_name, display_name, email, pro_until, verified_at, suspended_at")
+      .eq("role", "promoter")
+      .order("business_name", { ascending: true }),
+    admin.from("venues").select("name"),
+    admin.from("profile_contacts").select("user_id, instagram"),
+  ]);
+  const applications = (appRows ?? []) as unknown as AppRow[];
+  const promoters = (promoterRows ?? []) as Omit<PromoterRow, "instagram" | "verification_code">[];
+  const latestApp = new Map<string, AppRow>();
+  for (const a of applications) if (!latestApp.has(a.user_id)) latestApp.set(a.user_id, a);
+  const contactIg = new Map(((contactRows ?? []) as { user_id: string; instagram: string | null }[]).map((c) => [c.user_id, c.instagram]));
+
+  const promoterList: PromoterRow[] = promoters.map((p) => ({
+    ...p,
+    instagram: contactIg.get(p.id) || latestApp.get(p.id)?.instagram || null,
+    verification_code: latestApp.get(p.id)?.verification_code ?? null,
+  }));
+
+  // Who a new applicant might be pretending to be.
+  const knownNames: NameSource[] = [
+    ...promoterList.map((p) => ({ label: "approved promoter", name: p.business_name ?? p.display_name ?? "", instagram: p.instagram })),
+    ...[...new Set(((venueRows ?? []) as { name: string }[]).map((v) => v.name))].map((name) => ({ label: "venue", name })),
+  ];
+  const pendingApplications = applications
+    .filter((a) => a.status === "pending")
+    .map((a) => ({
+      ...a,
+      warnings: impersonationWarnings(a, [
+        ...knownNames.filter((n) => !(n.label === "approved promoter" && promoterList.some((p) => p.id === a.user_id && (p.business_name ?? p.display_name) === n.name))),
+        ...applications
+          .filter((o) => o.id !== a.id && o.user_id !== a.user_id && o.status !== "rejected")
+          .map((o) => ({ label: `another ${o.status} application`, name: o.business_name, instagram: o.instagram })),
+      ]),
+    }));
 
   // Boost / spotlight / Pro requests, plus what's currently running.
-  const admin = createAdminClient();
   const nowIso = new Date().toISOString();
   const [{ data: promotionRequests }, { data: activePromotions }, { data: proMembers }] = await Promise.all([
     admin
@@ -78,7 +123,16 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
             </span>
           )}
         </div>
-        <PromoterQueue items={(pendingApplications ?? []) as unknown as Parameters<typeof PromoterQueue>[0]["items"]} />
+        <PromoterQueue items={pendingApplications} />
+      </section>
+
+      {/* Approved promoters: verify / suspend */}
+      <section>
+        <h2 className="text-2xl font-bold mb-1">Promoters</h2>
+        <p className="text-sm text-[var(--color-muted)] mb-4">
+          Verify ✓ only after seeing their code in their Instagram bio. Suspend hides all their events and profile and stops them posting.
+        </p>
+        <PromoterList items={promoterList} />
       </section>
 
       {/* Event submissions */}

@@ -7,7 +7,7 @@ import { CardSaveButton } from "./CardSaveButton";
 import { CardShareButton } from "./CardShareButton";
 import type { EventWithRelations } from "@/lib/supabase/types";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
-import { isPromoted, isPro } from "@/lib/promotions";
+import { isPromoted, isVerified } from "@/lib/promotions";
 
 export async function EventCard({
   event,
@@ -101,7 +101,7 @@ export async function EventCard({
             )}
           </span>
           {publisherName}
-          {isPro(event.promoter) && (
+          {isVerified(event.promoter) && (
             <BadgeCheck size={13} className="text-[var(--color-primary)] shrink-0" aria-label={t("verified")} />
           )}
         </Link>

@@ -8,7 +8,7 @@ import Image from "next/image";
 import { ProfileTypeTag } from "@/components/ProfileTypeTag";
 import { SignInButton } from "@/components/SignInButton";
 import { isProfileType } from "@/lib/profileTypes";
-import { isPro } from "@/lib/promotions";
+import { isVerified } from "@/lib/promotions";
 
 type Contacts = {
   phone: string | null;
@@ -43,7 +43,7 @@ export default async function PromoterProfilePage({
   const supabase = await createClient();
   const { data: promoter } = await supabase
     .from("profiles")
-    .select("business_name, logo_url, display_name, avatar_url, role, profile_type, bio, pro_until")
+    .select("business_name, logo_url, display_name, avatar_url, role, profile_type, bio, verified_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -102,7 +102,7 @@ export default async function PromoterProfilePage({
         <div className="space-y-1">
           <h1 className="text-2xl font-bold inline-flex items-center gap-2">
             {name}
-            {isPro(promoter) && (
+            {isVerified(promoter) && (
               <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)]">
                 <BadgeCheck size={18} aria-hidden /> {tcommon("verified")}
               </span>

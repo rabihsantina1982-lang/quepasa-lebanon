@@ -86,6 +86,7 @@ export default async function PremiumPage({ params }: { params: Promise<{ locale
             "Unlimited events",
             "Your ticket or booking link",
             "Business profile in the Connect directory",
+            "Free ✓ Verified badge once we confirm it's really you",
             "Views and saves for every event",
           ]}
         />
@@ -120,7 +121,7 @@ export default async function PremiumPage({ params }: { params: Promise<{ locale
           points={[
             "Ticket clicks: exactly how many people we send to your ticket page",
             "Reminders, shares, and your audience's age and gender",
-            "Verified badge, listed first in Connect",
+            "Listed near the top of the Connect directory",
             `${PRICING.proFreeBoostsPerMonth} free boost week every month`,
           ]}
         />
