@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
-import { Upload, X, Video, Plus } from "lucide-react";
+import { Upload, X, Video, Plus, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { DatePicker, TimePicker } from "@/components/ui/DateTimePicker";
 import { CATEGORY_TAGS, tagLabel } from "@/lib/tags";
@@ -40,6 +40,16 @@ export type NewEventInitial = {
 type DurationMode = "single" | "range" | "dates";
 type Category = { id: string; slug: string; name_i18n: Record<string, string> };
 
+// What /api/promoter/parse-caption returns.
+type ParsedPost = {
+  is_event: boolean; title: string; description: string; category: string; tags: string[];
+  performances: { date: string; start_time: string | null }[];
+  end_date: string | null; end_time: string | null;
+  venue_name: string | null; area: string | null; region: string | null;
+  price_min: number | null; price_max: number | null;
+  ticket_url: string | null; booking_phone: string | null; missing: string[];
+};
+
 const CATEGORY_LABELS: Record<string, string> = {
   live_music: "Live Music", dj_performance: "DJ Performance", sports: "Sports",
   food_drink: "Food & Drink", arts_culture: "Arts & Culture", theater: "Theater", family_kids: "Family & Kids",
@@ -62,6 +72,9 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
   const isMultiDay = mode === "range";
   const [showDates, setShowDates] = useState<string[]>(["", ""]);
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
+  const [caption, setCaption] = useState("");
+  const [filling, setFilling] = useState(false);
+  const [fillNote, setFillNote] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [form, setForm] = useState({
     title: initial?.title ?? "", description: initial?.description ?? "", starts_at: "", ends_at: "",
@@ -134,6 +147,72 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
 
     setMedia((prev) => [...prev, ...newMedia]);
     e.target.value = "";
+  }
+
+  // "Paste from Instagram": let Claude read the caption and pre-fill the form.
+  async function autofill() {
+    setFilling(true);
+    setFillNote(null);
+    try {
+      const res = await fetch("/api/promoter/parse-caption", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ caption }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFillNote({ ok: false, text: data.error || "Couldn't read this post. Please fill in the form by hand." });
+        return;
+      }
+      applyParsed(data as ParsedPost);
+    } finally {
+      setFilling(false);
+    }
+  }
+
+  function applyParsed(p: ParsedPost) {
+    const at = (date: string, time: string | null) => `${date}T${time ?? "12:00"}`;
+    const perfs = p.performances.filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x.date));
+    const first = perfs[0];
+    let starts_at = "";
+    let ends_at = "";
+    if (perfs.length > 1) {
+      setMode("dates");
+      setShowDates(perfs.map((x) => at(x.date, x.start_time)));
+    } else if (first && p.end_date && p.end_date !== first.date) {
+      setMode("range");
+      starts_at = at(first.date, first.start_time);
+      ends_at = at(p.end_date, p.end_time ?? first.start_time);
+    } else if (first) {
+      setMode("single");
+      starts_at = at(first.date, first.start_time);
+      ends_at = at(first.date, p.end_time ?? first.start_time);
+    }
+    const num = (n: number | null) => (n == null ? "" : String(n));
+    setForm((prev) => ({
+      ...prev,
+      title: p.title || prev.title,
+      description: p.description || prev.description,
+      category_id: categories.find((c) => c.slug === p.category)?.id ?? prev.category_id,
+      starts_at: starts_at || prev.starts_at,
+      ends_at: ends_at || prev.ends_at,
+      venue_name: p.venue_name ?? prev.venue_name,
+      venue_area: p.area ?? prev.venue_area,
+      governorate: p.region ?? prev.governorate,
+      price_min: p.price_min != null ? num(p.price_min) : prev.price_min,
+      price_max: p.price_max != null ? num(p.price_max) : prev.price_max,
+      ticket_url: p.ticket_url ?? prev.ticket_url,
+      booking_phone: p.booking_phone ?? prev.booking_phone,
+    }));
+    setTags(p.tags);
+
+    const missing = [...p.missing];
+    if (first && !first.start_time) missing.push("start time (set to 12:00, please change it)");
+    const notes = [
+      !p.is_event ? "This post doesn't look like a specific event, so double-check everything." : "",
+      missing.length ? `Not in the post: ${missing.join(", ")}.` : "",
+    ].filter(Boolean).join(" ");
+    setFillNote({ ok: true, text: `Filled in from the post. Please check every field before submitting. ${notes}`.trim() });
   }
 
   function removeMedia(index: number) {
@@ -257,6 +336,32 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
           ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
           : "Fill in the details below. Your event is reviewed before it goes live."}
       </p>
+      {!initial && (
+        <div className="mb-6 rounded-[var(--radius-card)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 p-4 space-y-3">
+          <div className="flex items-center gap-2 font-semibold">
+            <Sparkles size={16} className="text-[var(--color-primary)]" aria-hidden /> Paste from Instagram
+          </div>
+          <p className="text-sm text-[var(--color-muted)]">
+            Already posted it on Instagram? Paste the caption here and we&apos;ll fill in the form for you. Works in Arabic, English and French.
+          </p>
+          <textarea
+            rows={5}
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="Paste your Instagram caption…"
+            className={textareaCls}
+            dir="auto"
+          />
+          <Button type="button" variant="primary" disabled={filling || caption.trim().length < 15} onClick={autofill}>
+            <Sparkles size={14} aria-hidden /> {filling ? "Reading your post…" : "Fill the form"}
+          </Button>
+          {fillNote && (
+            <p className={`text-sm ${fillNote.ok ? "text-[var(--color-fg)]" : "text-[var(--color-danger)]"}`}>{fillNote.text}</p>
+          )}
+          <p className="text-xs text-[var(--color-muted)]">Don&apos;t forget to add your photos or video below. Images aren&apos;t copied from Instagram.</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* Media upload */}
@@ -458,7 +563,7 @@ export function NewEventForm({ initial }: { initial?: NewEventInitial }) {
         </Field>
 
         <Field label="Booking phone">
-          <input type="tel" placeholder="+971…" value={form.booking_phone} onChange={(e) => set("booking_phone", e.target.value)} className={inputCls} />
+          <input type="tel" placeholder="+961…" value={form.booking_phone} onChange={(e) => set("booking_phone", e.target.value)} className={inputCls} />
         </Field>
 
         {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
