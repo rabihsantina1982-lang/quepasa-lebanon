@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { AdminQueue } from "./AdminQueue";
+import { AdminQueue, type SubmissionRow } from "./AdminQueue";
+import { checkTicketLink } from "@/lib/ticketLinks";
+import { ReportQueue, type ReportedEvent } from "./ReportQueue";
 import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
 import { impersonationWarnings, type NameSource } from "@/lib/impersonation";
@@ -27,15 +29,20 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     return <div className="p-8">Admin access required.</div>;
   }
 
-  // Pending event submissions
-  const { data: pendingEvents } = await supabase
-    .from("events")
-    .select("id, slug, title_i18n, starts_at, status, source, created_at")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false });
-
   // Service-role client: profiles.email and other private columns.
   const admin = createAdminClient();
+
+  // Pending event submissions, with who sent them and a check on every ticket link.
+  const { data: pendingRows } = await admin
+    .from("events")
+    .select("id, slug, title_i18n, starts_at, source, created_at, ticket_url, booking_phone, showtimes, submitter:profiles!events_user_id_fkey(business_name, display_name, email, verified_at)")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+  const pendingEvents = ((pendingRows ?? []) as unknown as Omit<SubmissionRow, "links">[]).map((e) => ({
+    ...e,
+    links: [...new Set([e.ticket_url, ...(e.showtimes ?? []).map((s) => s.ticket_url)].filter((u): u is string => !!u))]
+      .map((url) => ({ url, ...checkTicketLink(url) })),
+  }));
 
   // All promoter applications (pending ones for the queue; the rest supply
   // codes/Instagram for the promoter list and the impersonation check).
@@ -106,12 +113,56 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
       .order("pro_until", { ascending: true }),
   ]);
 
+  // Open reports from visitors, grouped by event (most-reported first).
+  type ReportRow = {
+    id: string; event_id: string; user_id: string; reason: ReportedEvent["reports"][number]["reason"]; details: string | null; created_at: string;
+    events: { title_i18n: Record<string, string>; slug: string; status: string; user_id: string | null;
+      promoter: { business_name: string | null; display_name: string | null } | null } | null;
+  };
+  const { data: reportRows } = await admin
+    .from("event_reports")
+    .select("id, event_id, user_id, reason, details, created_at, events(title_i18n, slug, status, user_id, promoter:profiles!events_user_id_fkey(business_name, display_name))")
+    .eq("status", "open")
+    .order("created_at", { ascending: true });
+  const reports = (reportRows ?? []) as unknown as ReportRow[];
+  const reporterIds = [...new Set(reports.map((r) => r.user_id))];
+  const { data: reporterRows } = reporterIds.length
+    ? await admin.from("profiles").select("id, email").in("id", reporterIds)
+    : { data: [] };
+  const reporterEmail = new Map(((reporterRows ?? []) as { id: string; email: string | null }[]).map((p) => [p.id, p.email]));
+  const reportedEvents = new Map<string, ReportedEvent>();
+  for (const r of reports) {
+    const e = r.events;
+    const group = reportedEvents.get(r.event_id) ?? {
+      eventId: r.event_id,
+      title: e?.title_i18n.en ?? e?.slug ?? "Deleted event",
+      slug: e?.slug ?? "",
+      status: e?.status ?? "deleted",
+      promoter: e?.promoter?.business_name ?? e?.promoter?.display_name ?? null,
+      reports: [],
+    };
+    group.reports.push({ id: r.id, reason: r.reason, details: r.details, created_at: r.created_at, reporter: reporterEmail.get(r.user_id) ?? null });
+    reportedEvents.set(r.event_id, group);
+  }
+  const reportQueue = [...reportedEvents.values()].sort((a, b) => b.reports.length - a.reports.length);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 space-y-10">
       <nav className="flex gap-2 text-sm">
         <Link href="/admin" className="px-3 py-1.5 rounded-full bg-[var(--color-card)] font-medium">Queue</Link>
         <Link href="/admin/analytics" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Analytics</Link>
       </nav>
+
+      {/* Visitor reports */}
+      <section>
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-2xl font-bold">Reports</h2>
+          {reportQueue.length > 0 && (
+            <span className="rounded-full bg-[var(--color-danger)] text-white text-xs font-bold px-2 py-0.5">{reportQueue.length}</span>
+          )}
+        </div>
+        <ReportQueue items={reportQueue} />
+      </section>
 
       {/* Promoter applications */}
       <section>
@@ -145,7 +196,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
             </span>
           )}
         </div>
-        <AdminQueue items={(pendingEvents ?? []) as Parameters<typeof AdminQueue>[0]["items"]} />
+        <AdminQueue items={pendingEvents} />
       </section>
 
       {/* Paid visibility */}

@@ -158,5 +158,26 @@
       "instagram": "Instagram",
       "website": "Site web"
     }
+  },
+  "Report": {
+    "button": "Signaler cet événement",
+    "title": "Signaler cet événement",
+    "why": "Quel est le problème ?",
+    "reasons": {
+      "scam": "Faux billets ou arnaque",
+      "wrong_info": "Date, lieu ou prix erroné",
+      "cancelled": "Annulé ou reporté",
+      "impersonation": "Se fait passer pour quelqu'un d'autre",
+      "offensive": "Offensant ou inapproprié",
+      "other": "Autre chose"
+    },
+    "detailsPlaceholder": "Autre chose à nous dire ? (facultatif)",
+    "send": "Envoyer le signalement",
+    "sending": "Envoi…",
+    "cancel": "Annuler",
+    "thanks": "Merci — notre équipe va examiner ce signalement.",
+    "already": "Vous avez déjà signalé cet événement. Notre équipe va l'examiner.",
+    "error": "Une erreur s'est produite. Veuillez réessayer.",
+    "close": "Fermer"
   }
 }

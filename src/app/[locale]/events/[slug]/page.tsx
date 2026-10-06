@@ -10,6 +10,7 @@ import { RemindButton } from "@/components/RemindButton";
 import { ShareButton } from "@/components/ShareButton";
 import { TrackEventView } from "@/components/TrackEventView";
 import { TrackedTicketLink } from "@/components/TrackedTicketLink";
+import { ReportButton } from "@/components/ReportButton";
 import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { isTagForCategory, tagLabel } from "@/lib/tags";
@@ -286,11 +287,14 @@ export default async function EventDetailPage({
         </section>
       )}
 
-      {event.source_url && (
-        <p className="text-xs text-[var(--color-muted)]">
-          {tDetail("source")}: <a href={event.source_url} className="underline" target="_blank" rel="noopener noreferrer">{event.source}</a>
-        </p>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {event.source_url ? (
+          <p className="text-xs text-[var(--color-muted)]">
+            {tDetail("source")}: <a href={event.source_url} className="underline" target="_blank" rel="noopener noreferrer">{event.source}</a>
+          </p>
+        ) : <span />}
+        {!isOwner && <ReportButton eventId={event.id} isSignedIn={!!userId} />}
+      </div>
     </article>
   );
 }

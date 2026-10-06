@@ -158,5 +158,26 @@
       "instagram": "Instagram",
       "website": "Website"
     }
+  },
+  "Report": {
+    "button": "Report this event",
+    "title": "Report this event",
+    "why": "What's wrong?",
+    "reasons": {
+      "scam": "Fake tickets or a scam",
+      "wrong_info": "Wrong date, place or price",
+      "cancelled": "Cancelled or postponed",
+      "impersonation": "Pretending to be someone else",
+      "offensive": "Offensive or inappropriate",
+      "other": "Something else"
+    },
+    "detailsPlaceholder": "Anything else we should know? (optional)",
+    "send": "Send report",
+    "sending": "Sending…",
+    "cancel": "Cancel",
+    "thanks": "Thanks — our team will look into it.",
+    "already": "You've already reported this event. Our team will look into it.",
+    "error": "Something went wrong. Please try again.",
+    "close": "Close"
   }
 }
