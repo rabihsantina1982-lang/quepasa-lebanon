@@ -100,9 +100,11 @@ export async function EventCard({
               <Building2 size={10} aria-hidden />
             )}
           </span>
-          {publisherName}
+          <span className="truncate">{publisherName}</span>
           {isVerified(event.promoter) && (
-            <BadgeCheck size={13} className="text-[var(--color-primary)] shrink-0" aria-label={t("verified")} />
+            <span className="inline-flex items-center gap-0.5 shrink-0 font-semibold text-[var(--color-primary)]" title={t("verifiedHint")}>
+              <BadgeCheck size={14} aria-hidden /> {t("verifiedShort")}
+            </span>
           )}
         </Link>
       )}

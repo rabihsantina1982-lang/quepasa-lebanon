@@ -2,6 +2,8 @@
   "Common": {
     "featured": "À la une",
     "verified": "Entreprise vérifiée",
+    "verifiedShort": "Vérifié",
+    "verifiedHint": "QuePasa a vérifié qui gère cette entreprise.",
     "appName": "QuePasa Lebanon",
     "tagline": "Tout ce qui se passe au Liban.",
     "search": "Rechercher des événements…",

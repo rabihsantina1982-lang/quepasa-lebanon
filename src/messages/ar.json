@@ -2,6 +2,8 @@
   "Common": {
     "featured": "مميّز",
     "verified": "نشاط تجاري موثّق",
+    "verifiedShort": "موثّق",
+    "verifiedHint": "تحققت QuePasa من هوية الجهة المنظمة.",
     "appName": "كيو باسا لبنان",
     "tagline": "كل ما يحدث في لبنان.",
     "search": "ابحث عن فعاليات…",

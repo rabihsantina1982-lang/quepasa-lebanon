@@ -11,7 +11,8 @@ import { ShareButton } from "@/components/ShareButton";
 import { TrackEventView } from "@/components/TrackEventView";
 import { TrackedTicketLink } from "@/components/TrackedTicketLink";
 import { ReportButton } from "@/components/ReportButton";
-import { Calendar, MapPin, Phone, Ticket, Navigation, Building2 } from "lucide-react";
+import { Calendar, MapPin, Phone, Ticket, Navigation, Building2, BadgeCheck } from "lucide-react";
+import { isVerified } from "@/lib/promotions";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { isTagForCategory, tagLabel } from "@/lib/tags";
 import { buildGoogleCalendarUrl } from "@/lib/calendar";
@@ -192,6 +193,14 @@ export default async function EventDetailPage({
               )}
             </span>
             {tDetail("postedBy")} <span className="font-medium text-[var(--color-fg)]">{publisherName}</span>
+            {isVerified(event.promoter) && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary)]/10 px-2 py-0.5 text-xs font-semibold text-[var(--color-primary)]"
+                title={t("verifiedHint")}
+              >
+                <BadgeCheck size={14} aria-hidden /> {t("verified")}
+              </span>
+            )}
           </Link>
         )}
       </header>

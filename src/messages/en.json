@@ -2,6 +2,8 @@
   "Common": {
     "featured": "Featured",
     "verified": "Verified business",
+    "verifiedShort": "Verified",
+    "verifiedHint": "QuePasa has checked who runs this business.",
     "appName": "QuePasa Lebanon",
     "tagline": "Everything happening in Lebanon.",
     "search": "Search events…",

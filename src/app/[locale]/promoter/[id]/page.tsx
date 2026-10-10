@@ -103,7 +103,7 @@ export default async function PromoterProfilePage({
           <h1 className="text-2xl font-bold inline-flex items-center gap-2">
             {name}
             {isVerified(promoter) && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)]">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-primary)]" title={tcommon("verifiedHint")}>
                 <BadgeCheck size={18} aria-hidden /> {tcommon("verified")}
               </span>
             )}
