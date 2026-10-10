@@ -151,6 +151,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
       <nav className="flex gap-2 text-sm">
         <Link href="/admin" className="px-3 py-1.5 rounded-full bg-[var(--color-card)] font-medium">Queue</Link>
         <Link href="/admin/analytics" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Analytics</Link>
+        <Link href="/admin/weekend-post" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Weekly post</Link>
       </nav>
 
       {/* Visitor reports */}
