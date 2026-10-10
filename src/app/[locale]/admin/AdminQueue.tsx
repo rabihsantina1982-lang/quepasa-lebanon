@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, BadgeCheck, CheckCircle2, Phone } from "lucide-react";
 import type { LinkCheck } from "@/lib/ticketLinks";
+import type { ScamSignal } from "@/lib/scamSignals";
 
 export interface SubmissionRow {
   id: string;
@@ -17,6 +18,7 @@ export interface SubmissionRow {
   showtimes: { ticket_url?: string | null }[] | null;
   submitter: { business_name: string | null; display_name: string | null; email: string | null; verified_at: string | null } | null;
   links: (LinkCheck & { url: string })[];
+  signals: ScamSignal[];
 }
 
 const LEVEL_STYLE = {
@@ -28,8 +30,8 @@ const LEVEL_STYLE = {
 export function AdminQueue({ items }: { items: SubmissionRow[] }) {
   const router = useRouter();
   async function setStatus(r: SubmissionRow, status: "published" | "rejected") {
-    if (status === "published" && r.links.some((l) => l.level === "danger")) {
-      if (!confirm("This event has a suspicious ticket link. Publish it anyway?")) return;
+    if (status === "published" && (r.links.some((l) => l.level === "danger") || r.signals.some((s) => s.level === "danger"))) {
+      if (!confirm("This event has scam warning signs. Publish it anyway?")) return;
     }
     const supabase = createClient();
     await supabase.from("events").update({ status }).eq("id", r.id);
@@ -39,7 +41,7 @@ export function AdminQueue({ items }: { items: SubmissionRow[] }) {
   return (
     <div className="space-y-3">
       {items.map((r) => {
-        const danger = r.links.some((l) => l.level === "danger");
+        const danger = r.links.some((l) => l.level === "danger") || r.signals.some((s) => s.level === "danger");
         const who = r.submitter?.business_name ?? r.submitter?.display_name;
         return (
           <div
@@ -82,6 +84,11 @@ export function AdminQueue({ items }: { items: SubmissionRow[] }) {
                     </a>
                     {l.note ? <span className={`block ${LEVEL_STYLE[l.level]}`}>{l.note}</span> : <span className="text-[var(--color-muted)]"> · known ticket seller</span>}
                   </span>
+                </div>
+              ))}
+              {r.signals.map((sig) => (
+                <div key={sig.note} className={`flex items-start gap-1.5 font-medium ${LEVEL_STYLE[sig.level]}`}>
+                  <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden /> {sig.note}
                 </div>
               ))}
               {r.booking_phone && (

@@ -103,6 +103,7 @@
     "privacyNotice": "Nous ne publions jamais en votre nom."
   },
   "EventDetail": {
+    "safetyNote": "Payez uniquement via le lien de billetterie officiel ou sur place. N'envoyez jamais d'argent par virement ou à quelqu'un qui vous contacte par message.",
     "about": "À propos de cet événement",
     "whenWhere": "Quand et où",
     "related": "Vous aimerez peut-être aussi",

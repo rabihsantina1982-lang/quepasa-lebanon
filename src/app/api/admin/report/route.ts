@@ -1,8 +1,9 @@
 /**
  * POST /api/admin/report
- * Body: { eventId: string, action: "hide" | "dismiss" }
+ * Body: { eventId: string, action: "hide" | "dismiss" | "restore" }
  * Admin only. "hide" takes the event off the site (back to draft) and closes
- * its open reports as resolved; "dismiss" closes them with no change.
+ * its open reports as resolved; "dismiss" closes them with no change;
+ * "restore" puts an automatically hidden event back live and dismisses them.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
@@ -16,12 +17,12 @@ export async function POST(req: NextRequest) {
   if (profile?.role !== "admin") return NextResponse.json({ error: "Admin only" }, { status: 403 });
 
   const { eventId, action } = await req.json().catch(() => ({}));
-  if (typeof eventId !== "string" || !["hide", "dismiss"].includes(action)) {
+  if (typeof eventId !== "string" || !["hide", "dismiss", "restore"].includes(action)) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  if (action === "hide") {
-    const { error } = await supabase.from("events").update({ status: "draft" }).eq("id", eventId);
+  if (action === "hide" || action === "restore") {
+    const { error } = await supabase.from("events").update({ status: action === "hide" ? "draft" : "published" }).eq("id", eventId);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

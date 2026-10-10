@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { REPORT_REASON_LABELS, type ReportReason } from "@/lib/reports";
+import { REPORT_REASON_LABELS, AUTO_HIDE_REPORTS, type ReportReason } from "@/lib/reports";
 
 export interface ReportedEvent {
   eventId: string;
@@ -15,12 +15,15 @@ export interface ReportedEvent {
   reports: { id: string; reason: ReportReason; details: string | null; created_at: string; reporter: string | null }[];
 }
 
+// Hidden by the report threshold (an admin "Hide" closes the reports).
+const autoHidden = (e: ReportedEvent) => e.status === "draft" && e.reports.length >= AUTO_HIDE_REPORTS;
+
 export function ReportQueue({ items }: { items: ReportedEvent[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
 
-  async function act(e: ReportedEvent, action: "hide" | "dismiss") {
-    if (action === "hide" && !confirm(`Hide "${e.title}" from the site? It goes back to draft.`)) return;
+  async function act(e: ReportedEvent, action: "hide" | "dismiss" | "restore") {
+    if (action === "hide" && e.status === "published" && !confirm(`Hide "${e.title}" from the site? It goes back to draft.`)) return;
     setBusy(e.eventId);
     const res = await fetch("/api/admin/report", {
       method: "POST",
@@ -51,6 +54,9 @@ export function ReportQueue({ items }: { items: ReportedEvent[] }) {
                   <span>{e.title} <span className="text-xs font-normal text-[var(--color-muted)]">({e.status})</span></span>
                 )}
               </div>
+              {autoHidden(e) && (
+                <div className="font-medium text-[var(--color-danger)]">Hidden automatically after {e.reports.length} reports. Restore it if the reports are wrong.</div>
+              )}
               <div className="text-[var(--color-muted)]">
                 {e.reports.length} report{e.reports.length > 1 ? "s" : ""}
                 {e.promoter && <> · posted by <span className="text-[var(--color-fg)]">{e.promoter}</span></>}
@@ -60,9 +66,16 @@ export function ReportQueue({ items }: { items: ReportedEvent[] }) {
               {e.status === "published" && (
                 <Button size="sm" variant="primary" disabled={busy === e.eventId} onClick={() => act(e, "hide")}>Hide event</Button>
               )}
-              <Button size="sm" variant="outline" disabled={busy === e.eventId} onClick={() => act(e, "dismiss")}>
-                {e.status === "published" ? "Dismiss" : "Close reports"}
-              </Button>
+              {autoHidden(e) ? (
+                <>
+                  <Button size="sm" variant="primary" disabled={busy === e.eventId} onClick={() => act(e, "hide")}>Keep hidden</Button>
+                  <Button size="sm" variant="outline" disabled={busy === e.eventId} onClick={() => act(e, "restore")}>Restore event</Button>
+                </>
+              ) : (
+                <Button size="sm" variant="outline" disabled={busy === e.eventId} onClick={() => act(e, "dismiss")}>
+                  {e.status === "published" ? "Dismiss" : "Close reports"}
+                </Button>
+              )}
             </div>
           </div>
           <ul className="mt-3 space-y-2 border-t border-[var(--color-border)] pt-3">

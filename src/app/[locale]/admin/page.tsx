@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminQueue, type SubmissionRow } from "./AdminQueue";
 import { checkTicketLink } from "@/lib/ticketLinks";
+import { scamSignals } from "@/lib/scamSignals";
 import { ReportQueue, type ReportedEvent } from "./ReportQueue";
 import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
@@ -35,14 +36,16 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
   // Pending event submissions, with who sent them and a check on every ticket link.
   const { data: pendingRows } = await admin
     .from("events")
-    .select("id, slug, title_i18n, starts_at, source, created_at, ticket_url, booking_phone, showtimes, submitter:profiles!events_user_id_fkey(business_name, display_name, email, verified_at)")
+    .select("id, slug, title_i18n, description_i18n, starts_at, source, created_at, ticket_url, booking_phone, showtimes, submitter:profiles!events_user_id_fkey(business_name, display_name, email, verified_at)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
-  const pendingEvents = ((pendingRows ?? []) as unknown as Omit<SubmissionRow, "links">[]).map((e) => ({
-    ...e,
-    links: [...new Set([e.ticket_url, ...(e.showtimes ?? []).map((s) => s.ticket_url)].filter((u): u is string => !!u))]
-      .map((url) => ({ url, ...checkTicketLink(url) })),
-  }));
+  type PendingRow = Omit<SubmissionRow, "links" | "signals"> & { description_i18n: Record<string, string> | null };
+  const pendingEvents = ((pendingRows ?? []) as unknown as PendingRow[]).map(({ description_i18n, ...e }) => {
+    const links = [...new Set([e.ticket_url, ...(e.showtimes ?? []).map((s) => s.ticket_url)].filter((u): u is string => !!u))]
+      .map((url) => ({ url, ...checkTicketLink(url) }));
+    const text = [...Object.values(e.title_i18n ?? {}), ...Object.values(description_i18n ?? {})].join(" ");
+    return { ...e, links, signals: scamSignals(text, links.length > 0) };
+  });
 
   // All promoter applications (pending ones for the queue; the rest supply
   // codes/Instagram for the promoter list and the impersonation check).
