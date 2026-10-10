@@ -6,6 +6,7 @@ import { Dialog } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { Provider } from "@supabase/supabase-js";
+import { Turnstile, TURNSTILE_SITE_KEY } from "./Turnstile";
 
 // Only list providers that are actually enabled in this app's Supabase
 // project (Authentication -> Providers); a listed-but-disabled one fails
@@ -19,6 +20,11 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
   const [email, setEmail]   = useState("");
   const [sent, setSent]     = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  // Bot check before an email link is sent (only when a site key is set).
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const needsCaptcha = !!TURNSTILE_SITE_KEY;
 
   const currentPath =
     next ??
@@ -38,16 +44,24 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
+    if (!email || (needsCaptcha && !captchaToken)) return;
     setLoading(true);
+    setError("");
     const supabase = createClient();
-    await supabase.auth.signInWithOtp({
+    const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(currentPath)}`,
+        captchaToken: captchaToken ?? undefined,
       },
     });
     setLoading(false);
+    // A token works once: get a fresh one for any retry.
+    setCaptchaReset((n) => n + 1);
+    if (otpError) {
+      setError(/captcha/i.test(otpError.message) ? t("captchaError") : t("sendError"));
+      return;
+    }
     setSent(true);
   }
 
@@ -82,9 +96,12 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
               required
               className="w-full rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] transition-colors"
             />
-            <Button type="submit" size="lg" variant="primary" disabled={loading || !email}>
+            {/* Only while open: every event card has its own (closed) dialog. */}
+            {open && <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />}
+            <Button type="submit" size="lg" variant="primary" disabled={loading || !email || (needsCaptcha && !captchaToken)}>
               {loading ? t("sending") : t("emailButton")}
             </Button>
+            {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
           </form>
 
           {/* Divider */}

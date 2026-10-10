@@ -88,6 +88,8 @@
     "charity": "Charity"
   },
   "Auth": {
+    "captchaError": "Couldn't confirm you're human. Please try again.",
+    "sendError": "Couldn't send the link. Please try again in a moment.",
     "dialogTitle": "Sign in to QuePasa",
     "dialogBody": "Sign in to see full details, save events, and get reminders.",
     "emailPlaceholder": "Your email address",
