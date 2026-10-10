@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { eventQuality } from "@/lib/eventQuality";
+import { EventQuality } from "@/components/EventQuality";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
@@ -326,6 +328,18 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
   }
 
   const hasVideo = media.some((m) => m.type === "video") || existingMedia.some((m) => m.kind === "video");
+  const quality = eventQuality({
+    media: existingMedia.length + media.length,
+    description: form.description,
+    ticketUrl: form.ticket_url,
+    bookingPhone: form.booking_phone,
+    priceKnown: form.price_min !== "" || form.price_max !== "",
+    venueName: form.venue_name,
+    area: form.venue_area,
+    hasCategory: !!form.category_id,
+    hasEnd: mode === "dates" ? showDates.filter(Boolean).length > 1 : !!form.ends_at,
+    tags: tags.length,
+  });
   const canAddMore = !hasVideo && existingMedia.length + media.length < 3;
 
   return (
@@ -565,6 +579,10 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         <Field label="Booking phone">
           <input type="tel" placeholder="+961…" value={form.booking_phone} onChange={(e) => set("booking_phone", e.target.value)} className={inputCls} />
         </Field>
+
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-3">
+          <EventQuality result={quality} />
+        </div>
 
         {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 

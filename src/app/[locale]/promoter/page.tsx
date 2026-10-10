@@ -9,6 +9,8 @@ import { VerificationSteps } from "@/components/VerificationSteps";
 import { toProfileType } from "@/lib/profileTypes";
 import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
+import { eventQuality } from "@/lib/eventQuality";
+import { EventQuality } from "@/components/EventQuality";
 import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
@@ -90,7 +92,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   // Get their events
   const { data: myEvents } = await supabase
     .from("events")
-    .select("id, slug, title_i18n, starts_at, ends_at, status, created_at")
+    .select("id, slug, title_i18n, description_i18n, starts_at, ends_at, status, created_at, cover_image, ticket_url, booking_phone, price_min, price_max, category_id, showtimes, tags, venue:venues(name, area), media:event_media(id)")
     .eq("source", "promoter")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
@@ -265,6 +267,19 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
               const spotlightUntil = promotedUntil(ev.id, "spotlight");
               const over = new Date(ev.ends_at ?? ev.starts_at) < now;
               const canPromote = ev.status === "published" && !over;
+              const venue = ev.venue as unknown as { name: string; area: string | null } | null;
+              const quality = eventQuality({
+                media: Math.max((ev.media as unknown as { id: string }[] | null)?.length ?? 0, ev.cover_image ? 1 : 0),
+                description: (ev.description_i18n as Record<string, string> | null)?.en ?? "",
+                ticketUrl: ev.ticket_url,
+                bookingPhone: ev.booking_phone,
+                priceKnown: ev.price_min != null || ev.price_max != null,
+                venueName: venue?.name,
+                area: venue?.area,
+                hasCategory: ev.category_id != null,
+                hasEnd: !!ev.ends_at || ((ev.showtimes as unknown[] | null)?.length ?? 0) > 1,
+                tags: (ev.tags as string[] | null)?.length ?? 0,
+              });
               return (
                 <div key={ev.id} className="rounded-[var(--radius-card)] border border-[var(--color-border)] px-4 py-3 space-y-2">
                   <div className="flex items-start justify-between gap-3">
@@ -280,6 +295,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                       {ev.status}
                     </span>
                   </div>
+                  {!over && <EventQuality result={quality} collapsed />}
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--color-muted)]">
                     <span className="inline-flex items-center gap-1" title="Page views (views this week)"><Eye size={12} aria-hidden /> {st?.views ?? 0} views <span className="opacity-70">({st?.views_7d ?? 0} this week)</span></span>
                     <span className="inline-flex items-center gap-1"><Heart size={12} aria-hidden /> {st?.saves ?? 0} saves</span>
