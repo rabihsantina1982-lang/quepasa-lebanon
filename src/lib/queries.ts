@@ -81,6 +81,8 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
   let rows = (data as unknown as EventWithRelations[]).filter(
     (r) => (!params.category || r.category?.slug === params.category) && (!range || happensDuring(r, { from: new Date(from), to: range.to }))
   );
+  // "Coming soon" = events that start after this week, not ones already running.
+  if (params.when === "comingSoon" && range) rows = rows.filter((r) => new Date(r.starts_at) >= range.from);
   if (params.search?.trim()) {
     const words = normalize(params.search).split(/\s+/).filter(Boolean);
     rows = rows.filter((r) => {

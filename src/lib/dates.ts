@@ -75,6 +75,12 @@ export function presetRange(preset: string | undefined, tz = APP_TIMEZONE, now =
       const { weekday } = localDate(now, tz);
       return days(now, tz, 0, weekday === 0 ? 1 : 8 - weekday); // through Sunday
     }
+    // Announced in advance: starts after this week (next Monday onwards), no end limit.
+    case "comingSoon": {
+      const { weekday } = localDate(now, tz);
+      const nextMonday = weekday === 0 ? 1 : 8 - weekday;
+      return { from: startOfLocalDay(now, tz, nextMonday), to: startOfLocalDay(now, tz, nextMonday + 3650) };
+    }
     default: return null;
   }
 }

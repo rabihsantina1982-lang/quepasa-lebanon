@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { governorateChips } from "@/lib/regions";
 import type { CategoryRow } from "@/lib/supabase/types";
 
-const datePresets = ["today", "tomorrow", "thisWeekend", "thisWeek"] as const;
+const datePresets = ["today", "tomorrow", "thisWeekend", "thisWeek", "comingSoon"] as const;
 
 export function EventFilters({
   categories,
