@@ -5,7 +5,7 @@ import { MapView } from "./MapView";
 export default async function MapPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const events = await fetchEvents({ limit: 200 });
+  const events = await fetchEvents();
   const pins = events
     .filter((e) => e.venue?.lat != null && e.venue?.lng != null)
     .map((e) => ({

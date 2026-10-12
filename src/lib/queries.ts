@@ -56,7 +56,7 @@ export async function fetchEvents(params: FetchEventsParams = {}): Promise<Event
     .select(SELECT)
     .eq("status", "published")
     .order("starts_at", { ascending: true })
-    .limit(params.limit ?? 200); // high limit — client-side category filter handles the rest
+    .limit(params.limit ?? 1000); // high limit — client-side category filter and search handle the rest (Supabase caps responses at 1000 rows)
   if (params.governorate) {
     q = q.eq("governorate", params.governorate);
   }
