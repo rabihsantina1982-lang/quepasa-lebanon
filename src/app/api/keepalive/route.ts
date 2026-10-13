@@ -10,10 +10,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withCronAlert } from "@/lib/alerts";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
+async function handler(req: NextRequest): Promise<Response> {
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret) {
     const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
@@ -26,3 +27,6 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, at: new Date().toISOString() });
 }
+
+// A crash or failure emails the admins.
+export const GET = withCronAlert("keepalive", handler);

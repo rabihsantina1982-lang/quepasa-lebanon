@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAuthorizedCron } from "@/lib/cronAuth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildWeekendPost } from "@/lib/weekendPost";
+import { withCronAlert } from "@/lib/alerts";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,7 +20,7 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-export async function GET(req: NextRequest) {
+async function handler(req: NextRequest): Promise<Response> {
   if (!isAuthorizedCron(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const resendKey = process.env.RESEND_API_KEY;
@@ -61,3 +62,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
+
+// A crash or failure emails the admins.
+export const GET = withCronAlert("weekend-post", handler);

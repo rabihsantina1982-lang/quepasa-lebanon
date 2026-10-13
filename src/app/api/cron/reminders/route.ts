@@ -10,11 +10,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendDueReminders } from "@/lib/reminders";
 import { isAuthorizedCron } from "@/lib/cronAuth";
+import { withCronAlert } from "@/lib/alerts";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-export async function GET(req: NextRequest) {
+async function handler(req: NextRequest): Promise<Response> {
   if (!isAuthorizedCron(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const result = await sendDueReminders();
@@ -23,3 +24,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
+
+// A crash or failure emails the admins.
+export const GET = withCronAlert("reminders", handler);
