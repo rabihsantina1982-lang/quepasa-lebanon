@@ -12,7 +12,7 @@ import { PRICING, price } from "@/lib/pricing";
 import { eventQuality } from "@/lib/eventQuality";
 import { EventQuality } from "@/components/EventQuality";
 import { DeleteEventButton } from "@/components/DeleteEventButton";
-import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban, Pencil } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -327,6 +327,11 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                       <Link href={`/events/${ev.slug}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">
                         <ExternalLink size={12} aria-hidden /> View
                       </Link>
+                    )}
+                    {!suspended && (
+                    <Link href={`/promoter/new-event?edit=${ev.id}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">
+                      <Pencil size={12} aria-hidden /> Edit
+                    </Link>
                     )}
                     {!suspended && (
                     <Link href={`/promoter/new-event?copy=${ev.id}`} className="inline-flex items-center gap-1 text-[var(--color-primary)] hover:underline">

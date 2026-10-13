@@ -95,9 +95,15 @@ export async function deleteEventFully(admin: SupabaseClient, eventId: string): 
   const { error } = await admin.from("events").delete().eq("id", eventId);
   if (error) return { error: error.message };
 
-  // "Duplicate" on the dashboard reuses the same files, so keep any still in use.
+  await removeUnusedFiles(admin, urls);
+  return {};
+}
+
+// Remove uploaded files (event-media bucket) that no event uses any more.
+// "Duplicate" on the dashboard reuses the same files, so keep any still in use.
+export async function removeUnusedFiles(admin: SupabaseClient, urls: string[]) {
   const unused: string[] = [];
-  for (const url of urls) {
+  for (const url of new Set(urls.filter((u) => u.includes("/event-media/")))) {
     const [{ count: m }, { count: c }] = await Promise.all([
       admin.from("event_media").select("id", { count: "exact", head: true }).eq("url", url),
       admin.from("events").select("id", { count: "exact", head: true }).eq("cover_image", url),
@@ -105,5 +111,4 @@ export async function deleteEventFully(admin: SupabaseClient, eventId: string): 
     if (!m && !c) unused.push(url.split("/event-media/")[1]);
   }
   if (unused.length) await admin.storage.from("event-media").remove(unused).catch(() => {});
-  return {};
 }

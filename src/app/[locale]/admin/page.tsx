@@ -11,6 +11,8 @@ import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
 import { impersonationWarnings, type NameSource } from "@/lib/impersonation";
 import { DuplicateQueue, type DuplicateSide } from "./DuplicateQueue";
+import { EventStatusButton } from "@/components/EventStatusButton";
+import { DeleteEventButton } from "@/components/DeleteEventButton";
 import { findDuplicates, type DupEvent } from "@/lib/duplicateCheck";
 import { PromotionQueue, ActivePromotions, type PromotionRequestItem, type ActivePromotion, type ProMember } from "./PromotionQueue";
 
@@ -157,6 +159,17 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     starts_at: e.starts_at, ends_at: e.ends_at, status: e.status, source: e.source, posted_by: e.posted_by,
     venue_name: e.venue_name, cover_image: e.cover_image, created_at: e.created_at,
   });
+  // Upcoming events taken off the site (not the Ticketmaster import's own leftovers).
+  const { data: hiddenRows } = await admin
+    .from("events")
+    .select("id, title_i18n, slug, starts_at, ends_at, source, updated_at")
+    .eq("status", "draft")
+    .neq("source", "ticketmaster")
+    .or(`ends_at.gte.${nowIso},and(ends_at.is.null,starts_at.gte.${nowIso})`)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+  const hidden = (hiddenRows ?? []) as { id: string; title_i18n: Record<string, string>; slug: string; starts_at: string; source: string }[];
+
   const duplicatePairs = (await findDuplicates(admin)).map(([a, b]): [DuplicateSide, DuplicateSide] => [side(a), side(b)]);
 
   return (
@@ -176,6 +189,31 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
           )}
         </div>
         <DuplicateQueue pairs={duplicatePairs} />
+      </section>
+
+      {/* Hidden events */}
+      <section id="hidden">
+        <h2 className="text-2xl font-bold mb-1">Hidden Events</h2>
+        <p className="text-sm text-[var(--color-muted)] mb-4">Upcoming events taken off the site. Show one again, fix it first, or delete it.</p>
+        {hidden.length === 0 ? (
+          <p className="text-[var(--color-muted)]">No hidden events.</p>
+        ) : (
+          <ul className="divide-y divide-[var(--color-border)] rounded-[var(--radius-card)] border border-[var(--color-border)]">
+            {hidden.map((e) => (
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+                <span className="min-w-0">
+                  <span className="font-medium">{e.title_i18n?.en ?? Object.values(e.title_i18n ?? {})[0] ?? e.slug}</span>
+                  <span className="text-[var(--color-muted)]"> · {new Date(e.starts_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · {e.source}</span>
+                </span>
+                <span className="flex items-center gap-4 text-xs font-medium">
+                  <EventStatusButton eventId={e.id} action="show" label="Show again" />
+                  <Link href={`/promoter/new-event?edit=${e.id}`} className="text-[var(--color-primary)] hover:underline">Edit</Link>
+                  <DeleteEventButton eventId={e.id} label="Delete" confirmText="Delete this event permanently? This can't be undone." />
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* Visitor reports */}

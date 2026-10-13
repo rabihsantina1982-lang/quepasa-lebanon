@@ -108,6 +108,9 @@
     "privacyNotice": "We never post on your behalf."
   },
   "EventDetail": {
+    "editEvent": "Edit event",
+    "hideEvent": "Hide from site",
+    "hideConfirm": "Hide this event from the site? You can show it again from Admin, Hidden events.",
     "deleteEvent": "Delete event",
     "deleteConfirm": "Delete \"{title}\" permanently? It disappears from the site with its photos and stats. This can't be undone.",
     "deleteError": "Couldn't delete the event. Please try again.",

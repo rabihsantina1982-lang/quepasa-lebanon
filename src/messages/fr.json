@@ -108,6 +108,9 @@
     "privacyNotice": "Nous ne publions jamais en votre nom."
   },
   "EventDetail": {
+    "editEvent": "Modifier l'événement",
+    "hideEvent": "Masquer du site",
+    "hideConfirm": "Masquer cet événement du site ? Vous pourrez le réafficher depuis Admin, Événements masqués.",
     "deleteEvent": "Supprimer l'événement",
     "deleteConfirm": "Supprimer définitivement « {title} » ? Il disparaîtra du site avec ses photos et ses statistiques. Action irréversible.",
     "deleteError": "Impossible de supprimer l'événement. Veuillez réessayer.",

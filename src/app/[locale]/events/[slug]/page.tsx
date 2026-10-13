@@ -12,7 +12,8 @@ import { TrackEventView } from "@/components/TrackEventView";
 import { TrackedTicketLink } from "@/components/TrackedTicketLink";
 import { ReportButton } from "@/components/ReportButton";
 import { DeleteEventButton } from "@/components/DeleteEventButton";
-import { Calendar, MapPin, Phone, Ticket, Navigation, Building2, BadgeCheck, ShieldAlert } from "lucide-react";
+import { EventStatusButton } from "@/components/EventStatusButton";
+import { Calendar, MapPin, Phone, Ticket, Navigation, Building2, BadgeCheck, ShieldAlert, Pencil } from "lucide-react";
 import { isVerified } from "@/lib/promotions";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
 import { isTagForCategory, tagLabel } from "@/lib/tags";
@@ -315,6 +316,21 @@ export default async function EventDetailPage({
           </p>
         ) : <span />}
         <div className="flex items-center gap-4">
+          {(isOwner || isAdmin) && (
+            <Link href={`/promoter/new-event?edit=${event.id}`} className="inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline">
+              <Pencil size={12} aria-hidden /> {tDetail("editEvent")}
+            </Link>
+          )}
+          {isAdmin && (
+            <EventStatusButton
+              eventId={event.id}
+              action="hide"
+              label={tDetail("hideEvent")}
+              confirmText={tDetail("hideConfirm")}
+              redirectTo="/admin#hidden"
+              className="text-xs"
+            />
+          )}
           {(isOwner || isAdmin) && (
             <DeleteEventButton
               eventId={event.id}

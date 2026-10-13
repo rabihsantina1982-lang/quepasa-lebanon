@@ -29,12 +29,23 @@ function Field({ label, required, hint, children }: { label: string; required?: 
 type MediaFile = { file: File; preview: string; type: "image" | "video" };
 type ExistingMedia = { url: string; kind: "image" | "video" };
 
-// Pre-fill values when duplicating an existing event (dates excluded).
+// Pre-fill values when duplicating an existing event (dates excluded), or
+// the full event when editing it (edit set: dates included, saved through
+// /api/events/update).
 export type NewEventInitial = {
   title: string; description: string; category_id: string; governorate: string;
   ticket_url: string; booking_phone: string; price_min: string; price_max: string;
   venue_name: string; venue_area: string; media: ExistingMedia[]; tags: string[];
+  edit?: { id: string; slug: string; status: string; byAdmin: boolean; starts_at: string; ends_at: string | null; dates: string[] };
 };
+
+// ISO time -> "YYYY-MM-DDTHH:mm" in the browser's time zone (what the pickers use).
+function toLocalInput(isoTime: string | null): string {
+  if (!isoTime) return "";
+  const d = new Date(isoTime);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
 // single = one day; range = one continuous run (e.g. a 3-day festival);
 // dates = separate performances on several dates (e.g. every Friday), saved
@@ -65,6 +76,9 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const editing = initial?.edit;
+  // After saving an edit: the event's status (live, or back in review).
+  const [savedStatus, setSavedStatus] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [media, setMedia] = useState<MediaFile[]>([]);
   // Photos/video carried over from a duplicated event (already uploaded).
@@ -83,6 +97,19 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
     venue_name: initial?.venue_name ?? "", venue_area: initial?.venue_area ?? "", governorate: initial?.governorate ?? "", category_id: initial?.category_id ?? "",
     ticket_url: initial?.ticket_url ?? "", booking_phone: initial?.booking_phone ?? "", price_min: initial?.price_min ?? "", price_max: initial?.price_max ?? "",
   });
+
+  // Editing: fill in the dates once in the browser (its time zone, like the pickers).
+  useEffect(() => {
+    if (!editing) return;
+    if (editing.dates.length > 1) {
+      setMode("dates");
+      setShowDates(editing.dates.map(toLocalInput));
+    } else {
+      const s = toLocalInput(editing.starts_at), e = toLocalInput(editing.ends_at);
+      setMode(e && e.slice(0, 10) !== s.slice(0, 10) ? "range" : "single");
+      setForm((prev) => ({ ...prev, starts_at: s, ends_at: e }));
+    }
+  }, [editing]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -256,6 +283,29 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         uploaded.push({ url: publicUrl, kind: m.type });
       }
 
+      // Editing: the server checks who may edit and whether it needs a new review.
+      if (editing) {
+        const res = await fetch("/api/events/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventId: editing.id,
+            title: form.title, description: form.description, category_id: form.category_id,
+            region: form.governorate, venue_name: form.venue_name, venue_area: form.venue_area,
+            starts_at: mode === "dates" ? null : new Date(form.starts_at).toISOString(),
+            ends_at: mode !== "dates" && form.ends_at ? new Date(form.ends_at).toISOString() : null,
+            dates: mode === "dates" ? pickedDates.map((d) => new Date(d).toISOString()) : [],
+            ticket_url: form.ticket_url, booking_phone: form.booking_phone,
+            price_min: form.price_min, price_max: form.price_max, tags, media: uploaded,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Couldn't save your changes.");
+        setSavedStatus(data.status);
+        setSubmitted(true);
+        return;
+      }
+
       // 2. Upsert venue
       const { data: venue, error: venueErr } = await supabase
         .from("venues").insert({ name: form.venue_name, area: form.venue_area || null, city: form.governorate || "Beirut" })
@@ -320,6 +370,31 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
     }
   }
 
+  if (submitted && editing) {
+    const live = savedStatus === "published";
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+        <div className="text-5xl mb-4">{live ? "✅" : "🕑"}</div>
+        <h1 className="text-2xl font-bold">Changes saved</h1>
+        <p className="mt-3 text-[var(--color-muted)]">
+          {live
+            ? "Your changes are live now."
+            : savedStatus === "pending" && editing.status === "published"
+            ? "Because the ticket link or booking details changed, we'll check the event before it goes live again (usually within 24 hours)."
+            : savedStatus === "pending"
+            ? "Your event is under review and will be published within 24 hours."
+            : "Your changes are saved."}
+        </p>
+        <div className="mt-6 flex gap-3 justify-center">
+          {live && <Button variant="primary" onClick={() => router.push(`/events/${editing.slug}`)}>View event</Button>}
+          <Button variant={live ? "outline" : "primary"} onClick={() => router.push(editing.byAdmin ? "/admin" : "/promoter")}>
+            {editing.byAdmin ? "Back to admin" : "Back to dashboard"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
@@ -351,9 +426,15 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">{initial ? "Duplicate event" : "Post a new event"}</h1>
+      <h1 className="text-2xl font-bold mb-2">{editing ? "Edit event" : initial ? "Duplicate event" : "Post a new event"}</h1>
       <p className="mb-6 text-sm text-[var(--color-muted)]">
-        {initial
+        {editing
+          ? editing.byAdmin
+            ? "Admin edit: changes go live straight away and don't change the event's status."
+            : editing.status === "published"
+            ? "Fix anything that's wrong and save. Changes to the ticket link or booking phone are checked by our team before they go live."
+            : "Fix anything that's wrong and save."
+          : initial
           ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
           : "Fill in the details below. Your event is reviewed before it goes live."}
       </p>
@@ -598,7 +679,7 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
           <Link href="/legal/organiser-terms" target="_blank" className="underline">Organiser Terms</Link>.
         </p>
         <Button type="submit" size="lg" variant="primary" disabled={submitting} className="w-full">
-          {submitting ? "Uploading & submitting…" : "Submit event for review"}
+          {editing ? (submitting ? "Saving…" : "Save changes") : submitting ? "Uploading & submitting…" : "Submit event for review"}
         </Button>
       </form>
     </div>
