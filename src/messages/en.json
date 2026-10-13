@@ -35,6 +35,7 @@
     "moreDates": "{count, plural, one {+# more date} other {+# more dates}}"
   },
   "Nav": {
+    "account": "My account",
     "home": "Home",
     "browse": "Browse",
     "map": "Map",
@@ -89,6 +90,7 @@
     "charity": "Charity"
   },
   "Auth": {
+    "agreeTerms": "By continuing you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
     "captchaError": "Couldn't confirm you're human. Please try again.",
     "sendError": "Couldn't send the link. Please try again in a moment.",
     "dialogTitle": "Sign in to QuePasa",
@@ -198,5 +200,30 @@
     "browseAll": "Browse all upcoming events",
     "allWeekend": "On all weekend",
     "allWeekendHint": "Exhibitions, festivals and more you can visit any day."
+  },
+  "Footer": {
+    "terms": "Terms of use",
+    "privacy": "Privacy",
+    "cookies": "Cookies",
+    "guidelines": "Community guidelines",
+    "organiserTerms": "Organiser terms",
+    "promotionTerms": "Paid promotion terms"
+  },
+  "Legal": {
+    "draftBanner": "Draft, under review: this text may still change before the official launch.",
+    "englishOnly": "This page is available in English only for now."
+  },
+  "Account": {
+    "title": "My account",
+    "signedInAs": "Signed in as {email}",
+    "policies": "Terms & policies",
+    "deleteTitle": "Delete my account",
+    "deleteBody": "This permanently deletes your account, profile, saved events and reminders.",
+    "deleteBodyOrganiser": "All the events you posted on QuePasa, with their photos and stats, will be deleted too.",
+    "deleteButton": "Delete my account",
+    "deleting": "Deleting…",
+    "deleteConfirm": "Delete your account permanently? This can't be undone.",
+    "deleteError": "Couldn't delete your account. Please try again.",
+    "adminNote": "Admin accounts can't be deleted here."
   }
 }

@@ -6,6 +6,7 @@ import { Inter, Noto_Naskh_Arabic } from "next/font/google";
 import { routing, isRtl } from "@/i18n/routing";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
+import { Footer } from "@/components/Footer";
 import { HtmlAttributes } from "@/components/HtmlAttributes";
 import { SignInAutoOpen } from "@/components/SignInAutoOpen";
 import { CompleteProfileDialog } from "@/components/CompleteProfileDialog";
@@ -79,6 +80,7 @@ export default async function LocaleLayout({
         <div className={`min-h-screen flex flex-col pb-16 lg:pb-0 ${inter.variable} ${arabic.variable}`}>
           <Header />
           <main className="flex-1">{children}</main>
+          <Footer />
           <BottomNav isPromoter={isPromoter} isAdmin={isAdmin} signedIn={signedIn} firstName={firstName} />
           <SignInAutoOpen />
           {shouldPromptOnboarding && <CompleteProfileDialog categories={await fetchCategories()} />}

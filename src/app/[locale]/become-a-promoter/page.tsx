@@ -24,6 +24,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
 export default function BecomeAPromoterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState<{ code: string; instagram: string } | null>(null);
   const [error, setError] = useState("");
 
@@ -53,11 +54,16 @@ export default function BecomeAPromoterPage() {
       return;
     }
 
+    if (!agreed) {
+      setError("Please tick the box to agree to the Organiser Terms.");
+      return;
+    }
+
     setLoading(true);
     const res = await fetch("/api/promoter/apply", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, agreed_terms: true }),
     });
     const data = await res.json();
     setLoading(false);
@@ -160,6 +166,23 @@ export default function BecomeAPromoterPage() {
           />
         </Field>
 
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-primary)]"
+            required
+          />
+          <span>
+            I agree to the{" "}
+            <Link href="/legal/organiser-terms" target="_blank" className="underline text-[var(--color-primary)]">Organiser Terms</Link>{" "}
+            and the{" "}
+            <Link href="/legal/guidelines" target="_blank" className="underline text-[var(--color-primary)]">Listing and Community Guidelines</Link>,
+            and confirm the events I post are real and that I&apos;m allowed to promote them.
+          </span>
+        </label>
+
         {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
         <Button type="submit" size="lg" variant="primary" disabled={loading} className="w-full">
@@ -167,7 +190,7 @@ export default function BecomeAPromoterPage() {
         </Button>
 
         <p className="text-center text-xs text-[var(--color-muted)]">
-          By applying you agree to our terms of service. We&apos;ll review and respond within 2 business days.
+          We&apos;ll review and respond within 2 business days.
         </p>
       </form>
     </div>

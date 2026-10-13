@@ -35,6 +35,7 @@
     "moreDates": "{count, plural, one {+# autre date} other {+# autres dates}}"
   },
   "Nav": {
+    "account": "Mon compte",
     "home": "Accueil",
     "browse": "Explorer",
     "map": "Carte",
@@ -89,6 +90,7 @@
     "charity": "Charité"
   },
   "Auth": {
+    "agreeTerms": "En continuant, vous acceptez nos <terms>Conditions</terms> et notre <privacy>Politique de confidentialité</privacy>.",
     "captchaError": "Impossible de confirmer que vous êtes humain. Veuillez réessayer.",
     "sendError": "Impossible d'envoyer le lien. Réessayez dans un instant.",
     "dialogTitle": "Se connecter à QuePasa",
@@ -198,5 +200,30 @@
     "browseAll": "Voir tous les événements à venir",
     "allWeekend": "Tout le week-end",
     "allWeekendHint": "Expositions, festivals et plus, à visiter n'importe quel jour."
+  },
+  "Footer": {
+    "terms": "Conditions d'utilisation",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies",
+    "guidelines": "Règles de la communauté",
+    "organiserTerms": "Conditions organisateurs",
+    "promotionTerms": "Conditions de promotion payante"
+  },
+  "Legal": {
+    "draftBanner": "Brouillon en cours de révision : ce texte peut encore changer avant le lancement officiel.",
+    "englishOnly": "Cette page est disponible en anglais uniquement pour le moment."
+  },
+  "Account": {
+    "title": "Mon compte",
+    "signedInAs": "Connecté en tant que {email}",
+    "policies": "Conditions et politiques",
+    "deleteTitle": "Supprimer mon compte",
+    "deleteBody": "Cela supprime définitivement votre compte, votre profil, vos événements enregistrés et vos rappels.",
+    "deleteBodyOrganiser": "Tous les événements que vous avez publiés sur QuePasa, avec leurs photos et statistiques, seront aussi supprimés.",
+    "deleteButton": "Supprimer mon compte",
+    "deleting": "Suppression…",
+    "deleteConfirm": "Supprimer définitivement votre compte ? Action irréversible.",
+    "deleteError": "Impossible de supprimer votre compte. Veuillez réessayer.",
+    "adminNote": "Les comptes administrateurs ne peuvent pas être supprimés ici."
   }
 }

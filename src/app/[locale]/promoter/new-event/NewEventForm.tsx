@@ -5,7 +5,7 @@ import { eventQuality } from "@/lib/eventQuality";
 import { EventQuality } from "@/components/EventQuality";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { Upload, X, Video, Plus, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { DatePicker, TimePicker } from "@/components/ui/DateTimePicker";
@@ -593,6 +593,10 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
 
         {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
+        <p className="text-xs text-[var(--color-muted)]">
+          By posting you confirm this event is real, the details are accurate and you may use the photos, as set out in the{" "}
+          <Link href="/legal/organiser-terms" target="_blank" className="underline">Organiser Terms</Link>.
+        </p>
         <Button type="submit" size="lg" variant="primary" disabled={submitting} className="w-full">
           {submitting ? "Uploading & submitting…" : "Submit event for review"}
         </Button>

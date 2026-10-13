@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Users, Compass, Map, Heart, User, LayoutDashboard, Shield, Sparkles, LogOut } from "lucide-react";
+import { Users, Compass, Map, Heart, User, LayoutDashboard, Shield, Sparkles, LogOut, UserCog } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -136,6 +136,9 @@ function AccountMenu({ isPromoter, isAdmin, firstName }: { isPromoter: boolean; 
           )}
           <Link href="/premium" className={linkCls}>
             <Sparkles size={16} aria-hidden /> {t("premium")}
+          </Link>
+          <Link href="/account" className={linkCls}>
+            <UserCog size={16} aria-hidden /> {t("account")}
           </Link>
           <button type="button" onClick={signOut} className={cn(linkCls, "w-full border-t border-[var(--color-border)]")}>
             <LogOut size={16} aria-hidden /> {tCommon("signOut")}

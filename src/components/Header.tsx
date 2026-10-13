@@ -92,11 +92,9 @@ export async function Header() {
           <div className="hidden lg:flex items-center gap-2">
             {signedIn ? (
               <>
-                {firstName && (
-                  <span className="text-sm text-[var(--color-muted)]">
-                    {t("greeting", { name: firstName })}
-                  </span>
-                )}
+                <Link href="/account" className="text-sm text-[var(--color-muted)] hover:underline hover:text-[var(--color-fg)]">
+                  {firstName ? t("greeting", { name: firstName }) : tNav("account")}
+                </Link>
                 <SignOutButton label={t("signOut")} />
               </>
             ) : (

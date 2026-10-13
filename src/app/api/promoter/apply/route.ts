@@ -19,6 +19,9 @@ export async function POST(req: NextRequest) {
   if (!business_name || !business_type || !description || !phone || !handle) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+  if (body.agreed_terms !== true) {
+    return NextResponse.json({ error: "Please agree to the Organiser Terms." }, { status: 400 });
+  }
 
   // Check if already applied
   const { data: existing } = await supabase
@@ -39,7 +42,7 @@ export async function POST(req: NextRequest) {
   const code = `QP-${randomInt(1000, 10000)}`;
 
   // Save application
-  const { error } = await supabase.from("promoter_applications").insert({
+  const application = {
     user_id: user.id,
     business_name,
     business_type,
@@ -49,7 +52,14 @@ export async function POST(req: NextRequest) {
     description,
     status: "pending",
     verification_code: code,
-  });
+    terms_accepted_at: new Date().toISOString(), // ticked "I agree to the Organiser Terms" (migration 0024)
+  };
+  let { error } = await supabase.from("promoter_applications").insert(application);
+  // Database without migration 0024 yet: save the application without the date.
+  if (error?.message.includes("terms_accepted_at")) {
+    const { terms_accepted_at: _skip, ...rest } = application;
+    ({ error } = await supabase.from("promoter_applications").insert(rest));
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

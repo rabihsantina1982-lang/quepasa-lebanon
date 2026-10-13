@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { Provider } from "@supabase/supabase-js";
 import { Turnstile, TURNSTILE_SITE_KEY } from "./Turnstile";
+import { Link } from "@/i18n/navigation";
 
 // Only list providers that are actually enabled in this app's Supabase
 // project (Authentication -> Providers); a listed-but-disabled one fails
@@ -132,6 +133,12 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
       )}
 
       <p className="mt-4 text-xs text-[var(--color-muted)] text-center">{t("privacyNotice")}</p>
+      <p className="mt-1 text-xs text-[var(--color-muted)] text-center">
+        {t.rich("agreeTerms", {
+          terms: (c) => <Link href="/legal/terms" onClick={onClose} className="underline">{c}</Link>,
+          privacy: (c) => <Link href="/legal/privacy" onClick={onClose} className="underline">{c}</Link>,
+        })}
+      </p>
     </Dialog>
   );
 }
