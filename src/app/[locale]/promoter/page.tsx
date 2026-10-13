@@ -11,6 +11,7 @@ import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
 import { eventQuality } from "@/lib/eventQuality";
 import { EventQuality } from "@/components/EventQuality";
+import { DeleteEventButton } from "@/components/DeleteEventButton";
 import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban } from "lucide-react";
 
 export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
@@ -349,6 +350,11 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                         />
                       </>
                     )}
+                    <DeleteEventButton
+                      eventId={ev.id}
+                      label="Delete"
+                      confirmText={`Delete "${(ev.title_i18n as Record<string, string>).en ?? ev.slug}" permanently? It disappears from the site with its photos and stats. This can't be undone.`}
+                    />
                   </div>
                   {ev.status === "pending" && (
                     <p className="text-xs text-[var(--color-muted)]">You can boost this event once it&apos;s approved and published.</p>

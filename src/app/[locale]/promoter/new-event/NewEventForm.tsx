@@ -305,6 +305,13 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         );
       }
 
+      // 5. Flag it to admins if it looks like an event already listed (never blocks the submission).
+      await fetch("/api/events/check-duplicates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: (event as { id: string }).id }),
+      }).catch(() => {});
+
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

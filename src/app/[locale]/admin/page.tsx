@@ -10,6 +10,8 @@ import { ReportQueue, type ReportedEvent } from "./ReportQueue";
 import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
 import { impersonationWarnings, type NameSource } from "@/lib/impersonation";
+import { DuplicateQueue, type DuplicateSide } from "./DuplicateQueue";
+import { findDuplicates, type DupEvent } from "@/lib/duplicateCheck";
 import { PromotionQueue, ActivePromotions, type PromotionRequestItem, type ActivePromotion, type ProMember } from "./PromotionQueue";
 
 export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -149,6 +151,14 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
   }
   const reportQueue = [...reportedEvents.values()].sort((a, b) => b.reports.length - a.reports.length);
 
+  // The same event listed twice (imported + posted by the organiser, etc.).
+  const side = (e: DupEvent): DuplicateSide => ({
+    id: e.id, slug: e.slug, title: e.title_i18n?.en ?? Object.values(e.title_i18n ?? {})[0] ?? e.slug,
+    starts_at: e.starts_at, ends_at: e.ends_at, status: e.status, source: e.source, posted_by: e.posted_by,
+    venue_name: e.venue_name, cover_image: e.cover_image, created_at: e.created_at,
+  });
+  const duplicatePairs = (await findDuplicates(admin)).map(([a, b]): [DuplicateSide, DuplicateSide] => [side(a), side(b)]);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 space-y-10">
       <nav className="flex gap-2 text-sm">
@@ -156,6 +166,17 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
         <Link href="/admin/analytics" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Analytics</Link>
         <Link href="/admin/weekend-post" className="px-3 py-1.5 rounded-full hover:bg-[var(--color-card)]">Weekly post</Link>
       </nav>
+
+      {/* Possible duplicates */}
+      <section id="duplicates">
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-2xl font-bold">Possible Duplicates</h2>
+          {duplicatePairs.length > 0 && (
+            <span className="rounded-full bg-[var(--color-accent)] text-white text-xs font-bold px-2 py-0.5">{duplicatePairs.length}</span>
+          )}
+        </div>
+        <DuplicateQueue pairs={duplicatePairs} />
+      </section>
 
       {/* Visitor reports */}
       <section>

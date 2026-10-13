@@ -106,6 +106,9 @@
     "privacyNotice": "Nous ne publions jamais en votre nom."
   },
   "EventDetail": {
+    "deleteEvent": "Supprimer l'événement",
+    "deleteConfirm": "Supprimer définitivement « {title} » ? Il disparaîtra du site avec ses photos et ses statistiques. Action irréversible.",
+    "deleteError": "Impossible de supprimer l'événement. Veuillez réessayer.",
     "safetyNote": "Payez uniquement via le lien de billetterie officiel ou sur place. N'envoyez jamais d'argent par virement ou à quelqu'un qui vous contacte par message.",
     "about": "À propos de cet événement",
     "whenWhere": "Quand et où",

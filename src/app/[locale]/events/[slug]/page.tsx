@@ -11,6 +11,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { TrackEventView } from "@/components/TrackEventView";
 import { TrackedTicketLink } from "@/components/TrackedTicketLink";
 import { ReportButton } from "@/components/ReportButton";
+import { DeleteEventButton } from "@/components/DeleteEventButton";
 import { Calendar, MapPin, Phone, Ticket, Navigation, Building2, BadgeCheck, ShieldAlert } from "lucide-react";
 import { isVerified } from "@/lib/promotions";
 import { formatDateRange, formatPrice, pickLocalized, upcomingShowtimes } from "@/lib/utils";
@@ -99,9 +100,12 @@ export default async function EventDetailPage({
 
   // Now we have the real event UUID — re-check favorites/reminders with the correct ID
   let initialReminded = false;
+  let isAdmin = false;
   if (userId && event) {
     try {
       const supabase = await createClient();
+      const { data: me } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+      isAdmin = me?.role === "admin";
       const { data: fav } = await supabase
         .from("favorites")
         .select("event_id")
@@ -310,7 +314,19 @@ export default async function EventDetailPage({
             {tDetail("source")}: <a href={event.source_url} className="underline" target="_blank" rel="noopener noreferrer">{event.source}</a>
           </p>
         ) : <span />}
-        {!isOwner && <ReportButton eventId={event.id} isSignedIn={!!userId} />}
+        <div className="flex items-center gap-4">
+          {(isOwner || isAdmin) && (
+            <DeleteEventButton
+              eventId={event.id}
+              label={tDetail("deleteEvent")}
+              confirmText={tDetail("deleteConfirm", { title })}
+              errorText={tDetail("deleteError")}
+              redirectTo={isOwner ? "/promoter" : "/events"}
+              className="text-xs"
+            />
+          )}
+          {!isOwner && <ReportButton eventId={event.id} isSignedIn={!!userId} />}
+        </div>
       </div>
     </article>
   );

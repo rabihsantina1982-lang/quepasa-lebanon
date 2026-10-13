@@ -106,6 +106,9 @@
     "privacyNotice": "We never post on your behalf."
   },
   "EventDetail": {
+    "deleteEvent": "Delete event",
+    "deleteConfirm": "Delete \"{title}\" permanently? It disappears from the site with its photos and stats. This can't be undone.",
+    "deleteError": "Couldn't delete the event. Please try again.",
     "safetyNote": "Pay only through the official ticket link or at the venue. Never send money by bank transfer or to someone who contacts you by message.",
     "about": "About this event",
     "whenWhere": "When & where",
