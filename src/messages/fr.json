@@ -90,6 +90,7 @@
     "charity": "Charité"
   },
   "Auth": {
+    "signInFailed": "La connexion n'a pas abouti. Veuillez réessayer.",
     "agreeTerms": "En continuant, vous acceptez nos <terms>Conditions</terms> et notre <privacy>Politique de confidentialité</privacy>.",
     "captchaError": "Impossible de confirmer que vous êtes humain. Veuillez réessayer.",
     "sendError": "Impossible d'envoyer le lien. Réessayez dans un instant.",

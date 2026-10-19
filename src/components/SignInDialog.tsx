@@ -17,7 +17,7 @@ const providers: { id: Provider; key: string; icon: string }[] = [
   { id: "facebook", key: "facebook", icon: "f" },
 ];
 
-export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: () => void; next?: string }) {
+export function SignInDialog({ open, onClose, next, failed }: { open: boolean; onClose: () => void; next?: string; failed?: boolean }) {
   const t = useTranslations("Auth");
   const [email, setEmail]   = useState("");
   const [sent, setSent]     = useState(false);
@@ -71,6 +71,9 @@ export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: 
     <Dialog open={open} onClose={onClose} label={t("dialogTitle")}>
       <h2 className="text-xl font-semibold">{t("dialogTitle")}</h2>
       <p className="mt-2 text-sm text-[var(--color-muted)]">{t("dialogBody")}</p>
+      {failed && (
+        <p className="mt-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">{t("signInFailed")}</p>
+      )}
 
       {sent ? (
         <div className="mt-6 text-center py-4">

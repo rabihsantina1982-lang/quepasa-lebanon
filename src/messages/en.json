@@ -90,6 +90,7 @@
     "charity": "Charity"
   },
   "Auth": {
+    "signInFailed": "Sign-in didn't finish. Please try again.",
     "agreeTerms": "By continuing you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
     "captchaError": "Couldn't confirm you're human. Please try again.",
     "sendError": "Couldn't send the link. Please try again in a moment.",

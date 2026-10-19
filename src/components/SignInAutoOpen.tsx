@@ -11,6 +11,8 @@ export function SignInAutoOpen() {
   const [open, setOpen] = useState(false);
 
   const next = searchParams.get("next") ?? undefined;
+  // Set by /auth/callback when a Google/Facebook sign-in didn't finish.
+  const failed = searchParams.get("signin_error") === "1";
 
   useEffect(() => {
     if (searchParams.get("signin") === "1") setOpen(true);
@@ -21,9 +23,10 @@ export function SignInAutoOpen() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("signin");
     params.delete("next");
+    params.delete("signin_error");
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
-  return <SignInDialog open={open} onClose={handleClose} next={next} />;
+  return <SignInDialog open={open} onClose={handleClose} next={next} failed={failed} />;
 }
