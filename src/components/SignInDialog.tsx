@@ -11,9 +11,10 @@ import { Link } from "@/i18n/navigation";
 
 // Only list providers that are actually enabled in this app's Supabase
 // project (Authentication -> Providers); a listed-but-disabled one fails
-// with "provider is not enabled". Facebook and Apple aren't set up yet.
+// with "provider is not enabled". Apple isn't set up yet.
 const providers: { id: Provider; key: string; icon: string }[] = [
   { id: "google",   key: "google",   icon: "G" },
+  { id: "facebook", key: "facebook", icon: "f" },
 ];
 
 export function SignInDialog({ open, onClose, next }: { open: boolean; onClose: () => void; next?: string }) {
