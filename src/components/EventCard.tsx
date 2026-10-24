@@ -40,7 +40,7 @@ export async function EventCard({
 
   return (
     <div className={`group rounded-[var(--radius-card)] overflow-hidden bg-[var(--color-card)] border hover:shadow-lg transition-shadow ${featured ? "border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/40" : "border-[var(--color-border)]"}`}>
-      <Link href={`/events/${event.slug}`} className="block">
+      <Link href={`/events/${event.slug}`} className="block" data-qp-from={isPromoted(event, "boost") ? "boost" : undefined}>
         <div className="relative aspect-[4/3] bg-[var(--color-border)]">
           {hero ? (
             <MediaTile media={hero} variant="card" alt={title} />

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Link2, Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { withParam } from "@/lib/outboundLinks";
 
 interface ShareMenuProps {
   eventId: string;
@@ -63,7 +64,7 @@ export function ShareMenu({
     e.stopPropagation();
     // Promo line, then the title, then the link on its own line so
     // WhatsApp shows the event's photo preview under the message.
-    const text = `${t("shareMessage")}\n${title}\n${url}`;
+    const text = `${t("shareMessage")}\n${title}\n${withParam(url, "via", "whatsapp")}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
     trackShare("whatsapp");
     setOpen(false);
@@ -72,8 +73,10 @@ export function ShareMenu({
   async function copyLink(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    // Tagged so visits through a copied link count as "Shared link".
+    const shared = withParam(url, "via", "link");
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shared);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -82,7 +85,7 @@ export function ShareMenu({
       // itself can throw in some environments, so it's caught separately —
       // tracking below must still fire either way.
       try {
-        window.prompt("Copy this link:", url);
+        window.prompt("Copy this link:", shared);
       } catch {
         // ignore
       }

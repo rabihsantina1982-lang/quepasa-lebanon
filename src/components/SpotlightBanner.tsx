@@ -20,6 +20,7 @@ export async function SpotlightBanner({ events, locale }: { events: EventWithRel
           <Link
             key={ev.id}
             href={`/events/${ev.slug}`}
+            data-qp-from="spotlight"
             className={`relative shrink-0 snap-start overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-border)] aspect-[16/9] sm:aspect-[21/8] ${
               events.length > 1 ? "w-[88%] sm:w-[70%]" : "w-full"
             }`}

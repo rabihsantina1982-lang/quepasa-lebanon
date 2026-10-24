@@ -11,12 +11,13 @@ import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
 import { eventQuality } from "@/lib/eventQuality";
 import { eventLastDay } from "@/lib/promotionBooking";
+import { breakdown, TRAFFIC_MINIMUM, type TrafficRow } from "@/lib/trafficLabels";
 import { cardPaymentsEnabled, stripeTestMode } from "@/lib/stripe";
 import { finalizeCheckout, cancelCheckout, type FinalizeResult } from "@/lib/payments";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventQuality } from "@/components/EventQuality";
 import { DeleteEventButton } from "@/components/DeleteEventButton";
-import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban, Pencil, CircleCheck, CircleAlert } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban, Pencil, CircleCheck, CircleAlert, Globe, TrendingUp } from "lucide-react";
 
 export default async function PromoterDashboard({
   params,
@@ -131,6 +132,19 @@ export default async function PromoterDashboard({
   type AudienceRow = { dimension: "gender" | "age"; bucket: string; people: number };
   const { data: audienceRows } = fullStats ? await supabase.rpc("my_audience_stats") : { data: [] };
   const audience = (audienceRows ?? []) as AudienceRow[];
+
+  // Where viewers come from, their language and device (Pro; the database
+  // leaves out any breakdown covering fewer than 10 visits).
+  const { data: trafficRows } = fullStats ? await supabase.rpc("my_traffic_stats") : { data: [] };
+  const traffic = (trafficRows ?? []) as TrafficRow[];
+
+  // How each boost / spotlight did against the same stretch of time just before it.
+  type PromoResult = {
+    promotion_id: string; event_id: string; kind: "boost" | "spotlight"; starts_at: string; ends_at: string;
+    views_during: number; clicks_during: number; views_before: number; clicks_before: number;
+  };
+  const { data: resultRows } = eventIds.length ? await supabase.rpc("my_promotion_results") : { data: [] };
+  const promoResults = (resultRows ?? []) as PromoResult[];
 
   // Active / upcoming promotions on their events, and their requests.
   const now = new Date();
@@ -299,10 +313,13 @@ export default async function PromoterDashboard({
             </div>
 
             {fullStats ? (
-              <AudienceCard rows={audience} />
+              <>
+                <AudienceCard rows={audience} />
+                <TrafficCard rows={traffic} />
+              </>
             ) : (
               <div className="rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] p-4 text-sm text-[var(--color-muted)] flex items-center gap-2">
-                <Lock size={14} className="shrink-0" aria-hidden /> Ticket clicks, reminders, shares and your audience&apos;s age and gender are part of Pro.
+                <Lock size={14} className="shrink-0" aria-hidden /> Ticket clicks, reminders, shares, where your viewers come from (WhatsApp, Instagram, Google…), their language and device, and your audience&apos;s age and gender are part of Pro.
               </div>
             )}
 
@@ -352,6 +369,18 @@ export default async function PromoterDashboard({
                       </>
                     )}
                   </div>
+                  {fullStats && breakdown(traffic, ev.id, "source").total > 0 && (
+                    <div className="text-xs text-[var(--color-muted)] inline-flex flex-wrap items-center gap-1">
+                      <Globe size={12} aria-hidden /> Top sources:{" "}
+                      {(() => {
+                        const b = breakdown(traffic, ev.id, "source");
+                        return b.items.slice(0, 3).map((i) => `${i.label} ${Math.round((i.n / b.total) * 100)}%`).join(" · ");
+                      })()}
+                    </div>
+                  )}
+                  {promoResults.filter((r) => r.event_id === ev.id).map((r) => (
+                    <PromotionResult key={r.promotion_id} result={r} fmtDate={fmtDate} now={now} />
+                  ))}
                   {bookedLater(ev.id).length > 0 && (
                     <div className="flex flex-wrap gap-2 text-xs">
                       {bookedLater(ev.id).map((p) => (
@@ -462,7 +491,7 @@ function AudienceCard({ rows }: { rows: { dimension: "gender" | "age"; bucket: s
       </div>
       <p className="text-xs text-[var(--color-muted)]">People who saved, set a reminder on, or clicked tickets for your events.</p>
       {age.sum === 0 ? (
-        <p className="text-sm text-[var(--color-muted)]">No signed-in visitors have interacted with your events yet.</p>
+        <p className="text-sm text-[var(--color-muted)]">Shows once at least {TRAFFIC_MINIMUM} signed-in people have saved, set a reminder on, or clicked tickets for your events. To protect their privacy, smaller groups aren&apos;t broken down.</p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {[{ title: "Age", g: age }, { title: "Gender", g: gender }].map(({ title, g }) => (
@@ -481,6 +510,79 @@ function AudienceCard({ rows }: { rows: { dimension: "gender" | "age"; bucket: s
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function TrafficCard({ rows }: { rows: TrafficRow[] }) {
+  const groups = [
+    { title: "Where viewers come from", b: breakdown(rows, null, "source"), max: 6 },
+    { title: "Language they browse in", b: breakdown(rows, null, "language"), max: 5 },
+    { title: "Device", b: breakdown(rows, null, "device"), max: 3 },
+  ];
+  const empty = groups.every((g) => g.b.total === 0);
+  return (
+    <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 space-y-3">
+      <div className="text-sm font-semibold flex items-center gap-2">
+        <Globe size={14} aria-hidden /> Your viewers
+      </div>
+      <p className="text-xs text-[var(--color-muted)]">
+        Visits to your event pages, counted anonymously. Your ticket links also carry a QuePasa tag (utm_source=quepasa), so
+        your ticketing site&apos;s own reports show the visits and sales that came from QuePasa.
+      </p>
+      {empty ? (
+        <p className="text-sm text-[var(--color-muted)]">Shows once your events have at least {TRAFFIC_MINIMUM} recorded visits.</p>
+      ) : (
+        <div className="grid sm:grid-cols-3 gap-4">
+          {groups.map(({ title, b, max }) => (
+            <div key={title} className="space-y-1.5">
+              <div className="text-xs text-[var(--color-muted)]">{title}</div>
+              {b.total === 0 ? (
+                <p className="text-xs text-[var(--color-muted)]">Not enough visits yet.</p>
+              ) : (
+                b.items.slice(0, max).map((i) => (
+                  <div key={i.label} className="flex items-center gap-2 text-xs">
+                    <span className="w-28 shrink-0 truncate" title={i.label}>{i.label}</span>
+                    <span className="flex-1 h-2 rounded-full bg-[var(--color-border)] overflow-hidden">
+                      <span className="block h-full bg-[var(--color-primary)]" style={{ width: `${(i.n / b.total) * 100}%` }} />
+                    </span>
+                    <span className="w-10 text-end tabular-nums">{Math.round((i.n / b.total) * 100)}%</span>
+                  </div>
+                ))
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// "Boost 3 Nov to 9 Nov: 420 views vs 130 in the 7 days before (+223%) ..."
+function PromotionResult({
+  result: r,
+  fmtDate,
+  now,
+}: {
+  result: { kind: "boost" | "spotlight"; starts_at: string; ends_at: string; views_during: number; clicks_during: number; views_before: number; clicks_before: number };
+  fmtDate: (d: Date) => string;
+  now: Date;
+}) {
+  const running = new Date(r.ends_at) > now;
+  const days = Math.max(1, Math.round((Math.min(now.getTime(), new Date(r.ends_at).getTime()) - new Date(r.starts_at).getTime()) / 86400000));
+  const change = (now: number, before: number) =>
+    before > 0 ? ` (${now >= before ? "+" : ""}${Math.round(((now - before) / before) * 100)}%)` : now > 0 ? " (new)" : "";
+  return (
+    <div className="rounded-md bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/20 px-3 py-2 text-xs space-y-0.5">
+      <div className="font-medium inline-flex items-center gap-1">
+        <TrendingUp size={12} className="text-[var(--color-primary)]" aria-hidden />
+        {r.kind === "boost" ? "Boost" : "Homepage spotlight"} {fmtDate(new Date(r.starts_at))} to {fmtDate(new Date(new Date(r.ends_at).getTime() - 1))}
+        {running && <span className="text-[var(--color-muted)] font-normal"> · so far</span>}
+      </div>
+      <div className="text-[var(--color-muted)]">
+        {Number(r.views_during)} views vs {Number(r.views_before)} in the {days} day{days > 1 ? "s" : ""} before{change(Number(r.views_during), Number(r.views_before))} ·{" "}
+        {Number(r.clicks_during)} ticket clicks vs {Number(r.clicks_before)}{change(Number(r.clicks_during), Number(r.clicks_before))}
+      </div>
     </div>
   );
 }

@@ -212,7 +212,7 @@ export default async function EventDetailPage({
 
       <div className="flex flex-wrap gap-2">
         {event.ticket_url ? (
-          <TrackedTicketLink eventId={event.id} href={event.ticket_url} skip={isOwner}>
+          <TrackedTicketLink eventId={event.id} href={event.ticket_url} campaign={event.slug} skip={isOwner}>
             <Button size="lg" variant="primary"><Ticket size={16} />{t("getTickets")}</Button>
           </TrackedTicketLink>
         ) : event.booking_phone ? (
@@ -271,6 +271,7 @@ export default async function EventDetailPage({
                   <TrackedTicketLink
                     eventId={event.id}
                     href={s.ticket_url}
+                    campaign={event.slug}
                     skip={isOwner}
                     className="shrink-0 inline-flex items-center gap-1 font-medium text-[var(--color-primary)] hover:underline"
                   >

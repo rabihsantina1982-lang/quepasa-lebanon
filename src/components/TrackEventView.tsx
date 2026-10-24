@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { trackEventActivity } from "@/lib/track";
+import { trackEventActivity, detectViewSource } from "@/lib/track";
 
-// Logs one view per event per browser session. Skipped for the event's own
-// promoter so their visits don't inflate their stats.
+// Logs one view per event per browser session, with where the visitor came
+// from. Skipped for the event's own promoter so their visits don't inflate
+// their stats.
 export function TrackEventView({ eventId, skip }: { eventId: string; skip?: boolean }) {
   useEffect(() => {
     if (skip) return;
@@ -15,7 +16,7 @@ export function TrackEventView({ eventId, skip }: { eventId: string; skip?: bool
     } catch {
       // storage unavailable (private mode) — still count the view
     }
-    trackEventActivity(eventId, "view");
+    trackEventActivity(eventId, "view", detectViewSource());
   }, [eventId, skip]);
 
   return null;
