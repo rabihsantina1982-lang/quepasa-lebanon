@@ -1,5 +1,4 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, BadgeCheck, CheckCircle2, Phone } from "lucide-react";
@@ -19,6 +18,8 @@ export interface SubmissionRow {
   submitter: { business_name: string | null; display_name: string | null; email: string | null; verified_at: string | null } | null;
   links: (LinkCheck & { url: string })[];
   signals: ScamSignal[];
+  // Boost / spotlight booked with the submission (paid by card or pay-later).
+  orders: { kind: string; label: string; paid: boolean }[];
 }
 
 const LEVEL_STYLE = {
@@ -33,8 +34,18 @@ export function AdminQueue({ items }: { items: SubmissionRow[] }) {
     if (status === "published" && (r.links.some((l) => l.level === "danger") || r.signals.some((s) => s.level === "danger"))) {
       if (!confirm("This event has scam warning signs. Publish it anyway?")) return;
     }
-    const supabase = createClient();
-    await supabase.from("events").update({ status }).eq("id", r.id);
+    if (status === "rejected" && r.orders.some((o) => o.paid)) {
+      if (!confirm("This event has a paid boost or spotlight. Rejecting it refunds the card payment in full. Reject?")) return;
+    }
+    const res = await fetch("/api/admin/event-review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: r.id, action: status === "published" ? "approve" : "reject" }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) alert(data.error || "Something went wrong.");
+    else if (data.failed?.length) alert(`Rejected, but the automatic refund failed. Please refund in Stripe: ${data.failed.join(" | ")}`);
+    else if (data.refunded?.length) alert(`Rejected and refunded: ${data.refunded.join(" | ")}`);
     router.refresh();
   }
   if (items.length === 0) return <p className="text-[var(--color-muted)]">Nothing pending. 🎉</p>;
@@ -66,6 +77,19 @@ export function AdminQueue({ items }: { items: SubmissionRow[] }) {
                 <Button size="sm" variant="outline" onClick={() => setStatus(r, "rejected")}>Reject</Button>
               </div>
             </div>
+
+            {r.orders.length > 0 && (
+              <div className="mt-3 space-y-1 rounded-md bg-[var(--color-primary)]/10 px-3 py-2">
+                {r.orders.map((o) => (
+                  <div key={o.label}>
+                    <span className="font-medium">{o.paid ? "Paid by card" : "Pay-later request"}:</span> {o.label}
+                  </div>
+                ))}
+                {r.orders.some((o) => o.paid) && (
+                  <div className="text-xs text-[var(--color-muted)]">Rejecting this event refunds the card payment automatically.</div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3 space-y-1.5 border-t border-[var(--color-border)] pt-3">
               {r.links.length === 0 && !r.booking_phone && (

@@ -6,6 +6,11 @@ import { EventQuality } from "@/components/EventQuality";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useRouter, Link } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
+import { ListingOptionsOverview, ListingOptionPicker, lastDayFromInputs, type ListingChoice } from "@/components/ListingOptions";
+import { price } from "@/lib/pricing";
+import { formatDayKey } from "@/components/BookingCalendar";
+import { addDaysToKey } from "@/lib/bookingDays";
 import { Upload, X, Video, Plus, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { DatePicker, TimePicker } from "@/components/ui/DateTimePicker";
@@ -71,8 +76,19 @@ const CATEGORY_LABELS: Record<string, string> = {
   exhibitions: "Exhibitions", outdoor: "Outdoor", religious: "Religious", charity: "Charity",
 };
 
-export function NewEventForm({ initial, autofillEnabled = false }: { initial?: NewEventInitial; autofillEnabled?: boolean }) {
+export function NewEventForm({
+  initial,
+  autofillEnabled = false,
+  cardPayments = false,
+  testMode = false,
+}: {
+  initial?: NewEventInitial;
+  autofillEnabled?: boolean;
+  cardPayments?: boolean;
+  testMode?: boolean;
+}) {
   const router = useRouter();
+  const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -91,6 +107,10 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
   const [caption, setCaption] = useState("");
   const [filling, setFilling] = useState(false);
   const [fillNote, setFillNote] = useState<{ ok: boolean; text: string } | null>(null);
+  // Free listing, or a paid boost / spotlight booked together with the event.
+  const [listing, setListing] = useState<ListingChoice>({ plan: "free", weeks: 1, start: null, ready: true, total: 0 });
+  // Paid option sent as a pay-later request (card payments off), or why booking it failed.
+  const [booking, setBooking] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [form, setForm] = useState({
     title: initial?.title ?? "", description: initial?.description ?? "", starts_at: "", ends_at: "",
@@ -264,6 +284,10 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
       setError("Please pick the event date.");
       return;
     }
+    if (!editing && listing.plan !== "free" && !listing.ready) {
+      setError(listing.start ? "Some of the dates you picked are fully booked. Pick other dates." : "Pick a start day for your paid option, or choose Free listing.");
+      return;
+    }
 
     setSubmitting(true);
 
@@ -362,6 +386,33 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         body: JSON.stringify({ eventId: (event as { id: string }).id }),
       }).catch(() => {});
 
+      // 6. Paid option: book the dates, then straight to payment (or a pay-later request).
+      if (listing.plan !== "free" && listing.start) {
+        const res = await fetch(cardPayments ? "/api/promoter/checkout" : "/api/promoter/promotion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            kind: listing.plan,
+            eventId: (event as { id: string }).id,
+            duration: listing.weeks,
+            startDate: listing.start,
+            locale,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.url) {
+          window.location.href = data.url;
+          return;
+        }
+        const label = listing.plan === "boost" ? "Boost" : "Homepage spotlight";
+        const dates = `${formatDayKey(listing.start)} to ${formatDayKey(addDaysToKey(listing.start, listing.weeks * 7 - 1))}`;
+        setBooking(
+          res.ok
+            ? { ok: true, text: `${label} requested for ${dates} (${price(listing.total)}). We'll contact you to arrange payment.` }
+            : { ok: false, text: `We couldn't book your ${label.toLowerCase()}: ${data.error || "please try again"}. You can book it from your dashboard.` }
+        );
+      }
+
       setSubmitted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -401,10 +452,17 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         <div className="text-5xl mb-4">🎉</div>
         <h1 className="text-2xl font-bold">Event submitted!</h1>
         <p className="mt-3 text-[var(--color-muted)]">Your event is under review and will be published within 24 hours.</p>
+        {booking && (
+          <p className={`mt-3 text-sm rounded-md px-3 py-2 ${booking.ok ? "bg-[var(--color-primary)]/10" : "bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100"}`}>
+            {booking.text}
+          </p>
+        )}
+        {!booking && (
         <p className="mt-3 text-sm text-[var(--color-muted)]">
           Want more people to see it? Once it&apos;s live you can boost it to the top of Browse or put it in the homepage spotlight.{" "}
           <Link href="/premium" className="text-[var(--color-primary)] underline">See the options</Link>
         </p>
+        )}
         <div className="mt-6 flex gap-3 justify-center">
           <Button variant="primary" onClick={() => router.push("/promoter")}>Back to dashboard</Button>
           <Button variant="outline" onClick={() => { setSubmitted(false); setMedia([]); setExistingMedia([]); }}>Post another</Button>
@@ -441,13 +499,8 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
           : initial
           ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
           : "Fill in the details below. Your event is reviewed before it goes live."}
-        {!editing && !initial && (
-          <>
-            {" "}Listing is free.{" "}
-            <Link href="/premium" className="text-[var(--color-primary)] underline">Paid options</Link> to reach more people.
-          </>
-        )}
       </p>
+      {!editing && <ListingOptionsOverview />}
       {!initial && autofillEnabled && (
         <div className="mb-6 rounded-[var(--radius-card)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 p-4 space-y-3">
           <div className="flex items-center gap-2 font-semibold">
@@ -682,6 +735,19 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
           <EventQuality result={quality} />
         </div>
 
+        {!editing && (
+          <ListingOptionPicker
+            value={listing}
+            onChange={setListing}
+            eventLastDay={lastDayFromInputs(mode === "dates" ? showDates : [form.starts_at, form.ends_at])}
+          />
+        )}
+        {!editing && listing.plan !== "free" && cardPayments && testMode && (
+          <p className="text-xs rounded-md bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100 px-2 py-1.5">
+            Test mode: no real money is taken. Use card 4242 4242 4242 4242, any future expiry date and any 3-digit code.
+          </p>
+        )}
+
         {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
         <p className="text-xs text-[var(--color-muted)]">
@@ -689,7 +755,15 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
           <Link href="/legal/organiser-terms" target="_blank" className="underline">Organiser Terms</Link>.
         </p>
         <Button type="submit" size="lg" variant="primary" disabled={submitting} className="w-full">
-          {editing ? (submitting ? "Saving…" : "Save changes") : submitting ? "Uploading & submitting…" : "Submit event for review"}
+          {editing
+            ? submitting ? "Saving…" : "Save changes"
+            : submitting
+            ? "Uploading & submitting…"
+            : listing.plan === "free"
+            ? "Submit event for review"
+            : cardPayments
+            ? `Submit & pay ${price(listing.total)}`
+            : `Submit & request ${listing.plan === "boost" ? "Boost" : "Spotlight"} (${price(listing.total)})`}
         </Button>
       </form>
     </div>

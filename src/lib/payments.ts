@@ -56,7 +56,10 @@ export async function prepareOrder(admin: SupabaseClient, userId: string, body: 
     .eq("user_id", userId)
     .maybeSingle();
   if (!event) return { error: "Event not found", status: 404 };
-  if (event.status !== "published") return { error: "You can promote this event once it's published.", status: 400 };
+  // Events still in review can be booked too (paid at submission, refunded if rejected).
+  if (event.status !== "published" && event.status !== "pending") {
+    return { error: "This event can't be promoted right now.", status: 400 };
+  }
   const lastDay = eventLastDay(event);
 
   const startKey = body.startDate;
@@ -225,3 +228,47 @@ export async function cancelCheckout(admin: SupabaseClient, requestId: string, u
   }
 }
 
+// An event was rejected: refund every boost / spotlight paid for it by card,
+// take those promotions off, and close any open requests. Returns what was
+// refunded, for the admin.
+export async function releaseEventOrders(admin: SupabaseClient, eventId: string): Promise<{ refunded: string[]; failed: string[] }> {
+  const refunded: string[] = [];
+  const failed: string[] = [];
+  const { data: rows } = await admin
+    .from("promotion_requests")
+    .select(REQUEST_FIELDS + ", payment_method, paid_at, stripe_session_id")
+    .eq("event_id", eventId)
+    .in("status", ["pending", "awaiting_payment", "approved"]);
+  type Row = ActivatableRequest & {
+    amount: number | null; status: string; payment_method: string | null; paid_at: string | null; stripe_session_id: string | null;
+    events: { title_i18n: Record<string, string>; slug: string } | null;
+  };
+  const stripe = getStripe();
+  for (const r of (rows ?? []) as unknown as Row[]) {
+    const label = `${describeRow(r)}${r.amount != null ? ` (${price(Number(r.amount))})` : ""}`;
+    if (r.status === "approved" && r.payment_method === "card" && r.paid_at && r.stripe_session_id) {
+      try {
+        if (!stripe) throw new Error("Stripe isn't set up");
+        const session = await stripe.checkout.sessions.retrieve(r.stripe_session_id);
+        const intent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+        if (!intent) throw new Error("No payment found");
+        await stripe.refunds.create({ payment_intent: intent }, { idempotencyKey: `refund-${r.id}` });
+        refunded.push(label);
+      } catch (e) {
+        failed.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
+        continue;
+      }
+    } else if (r.status === "approved") {
+      // Paid outside the app (or free): nothing to refund here.
+      continue;
+    } else if (r.status === "awaiting_payment" && r.stripe_session_id && stripe) {
+      await stripe.checkout.sessions.expire(r.stripe_session_id).catch(() => {});
+    }
+    await admin.from("event_promotions").delete().eq("request_id", r.id);
+    await admin.from("promotion_requests").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", r.id);
+  }
+  if (failed.length) {
+    await alertAdmins(`payment:refund:${eventId}`, "Refund needed: automatic refund failed", failed.join(" | "));
+  }
+  return { refunded, failed };
+}

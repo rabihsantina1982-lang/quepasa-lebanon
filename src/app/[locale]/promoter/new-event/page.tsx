@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { cardPaymentsEnabled, stripeTestMode } from "@/lib/stripe";
 import { NewEventForm, type NewEventInitial } from "./NewEventForm";
 
 export default async function NewEventPage({
@@ -109,5 +110,12 @@ export default async function NewEventPage({
   }
 
   // The "Paste from Instagram" box only appears once the AI key is configured.
-  return <NewEventForm initial={initial} autofillEnabled={!!process.env.ANTHROPIC_API_KEY} />;
+  return (
+    <NewEventForm
+      initial={initial}
+      autofillEnabled={!!process.env.ANTHROPIC_API_KEY}
+      cardPayments={cardPaymentsEnabled()}
+      testMode={stripeTestMode()}
+    />
+  );
 }

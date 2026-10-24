@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminQueue, type SubmissionRow } from "./AdminQueue";
 import { checkTicketLink } from "@/lib/ticketLinks";
 import { scamSignals } from "@/lib/scamSignals";
+import { price } from "@/lib/pricing";
+import { APP_TIMEZONE } from "@/lib/dates";
 import { ReportQueue, type ReportedEvent } from "./ReportQueue";
 import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
@@ -43,12 +45,33 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     .select("id, slug, title_i18n, description_i18n, starts_at, source, created_at, ticket_url, booking_phone, showtimes, submitter:profiles!events_user_id_fkey(business_name, display_name, email, verified_at)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
-  type PendingRow = Omit<SubmissionRow, "links" | "signals"> & { description_i18n: Record<string, string> | null };
+  type PendingRow = Omit<SubmissionRow, "links" | "signals" | "orders"> & { description_i18n: Record<string, string> | null };
+  // Boosts / spotlights booked together with these submissions.
+  const pendingIds = ((pendingRows ?? []) as { id: string }[]).map((e) => e.id);
+  const { data: orderRows } = pendingIds.length
+    ? await admin
+        .from("promotion_requests")
+        .select("event_id, kind, duration, amount, starts_at, ends_at, status, payment_method, paid_at")
+        .in("event_id", pendingIds)
+        .in("status", ["pending", "approved"])
+    : { data: [] };
+  type OrderRow = { event_id: string; kind: string; duration: number; amount: number | null; starts_at: string | null; ends_at: string | null; status: string; payment_method: string | null; paid_at: string | null };
+  const orderDay = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: APP_TIMEZONE });
+  const ordersFor = (id: string) =>
+    ((orderRows ?? []) as OrderRow[])
+      .filter((o) => o.event_id === id)
+      .map((o) => ({
+        kind: o.kind,
+        paid: o.payment_method === "card" && !!o.paid_at,
+        label: `${o.kind === "boost" ? "Boost" : "Homepage spotlight"}, ${o.duration} week${o.duration > 1 ? "s" : ""}${
+          o.starts_at && o.ends_at ? `, ${orderDay(o.starts_at)} to ${orderDay(new Date(new Date(o.ends_at).getTime() - 1).toISOString())}` : ""
+        }${o.amount != null ? ` · ${price(Number(o.amount))}` : ""}`,
+      }));
   const pendingEvents = ((pendingRows ?? []) as unknown as PendingRow[]).map(({ description_i18n, ...e }) => {
     const links = [...new Set([e.ticket_url, ...(e.showtimes ?? []).map((s) => s.ticket_url)].filter((u): u is string => !!u))]
       .map((url) => ({ url, ...checkTicketLink(url) }));
     const text = [...Object.values(e.title_i18n ?? {}), ...Object.values(description_i18n ?? {})].join(" ");
-    return { ...e, links, signals: scamSignals(text, links.length > 0) };
+    return { ...e, links, signals: scamSignals(text, links.length > 0), orders: ordersFor(e.id) };
   });
 
   // All promoter applications (pending ones for the queue; the rest supply

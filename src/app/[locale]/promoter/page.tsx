@@ -186,7 +186,7 @@ export default async function PromoterDashboard({
           <CircleCheck size={16} className="mt-0.5 shrink-0 text-green-600" aria-hidden />
           <span>
             <strong>Payment received, thank you!</strong> {payment.description}. It switches on automatically on the first
-            day. A receipt is on its way to your email.
+            day (once your event is approved, if it&apos;s still in review). A receipt is on its way to your email.
           </span>
         </div>
       )}
