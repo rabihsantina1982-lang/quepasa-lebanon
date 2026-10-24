@@ -23,13 +23,16 @@ export type ViewSource = (typeof VIEW_SOURCES)[number];
 // QuePasa; read once by the event page.
 export const NAV_SOURCE_KEY = "qp_from";
 
-export function detectViewSource(): ViewSource {
+// `slug` is the event being viewed. It's matched against the clicked link
+// rather than location.pathname, which may not have updated yet when the page
+// mounts after an in-app navigation.
+export function detectViewSource(slug: string): ViewSource {
   try {
     const raw = sessionStorage.getItem(NAV_SOURCE_KEY);
     if (raw) {
       sessionStorage.removeItem(NAV_SOURCE_KEY);
       const s = JSON.parse(raw) as { path: string; source: ViewSource; at: number };
-      if (Date.now() - s.at < 30000 && location.pathname === s.path && VIEW_SOURCES.includes(s.source)) return s.source;
+      if (Date.now() - s.at < 30000 && s.path.endsWith(`/events/${slug}`) && VIEW_SOURCES.includes(s.source)) return s.source;
     }
   } catch {
     // storage unavailable: fall back to the link and referrer

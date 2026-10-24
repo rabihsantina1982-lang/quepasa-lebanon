@@ -159,7 +159,7 @@ export default async function EventDetailPage({
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-6 space-y-6">
-      <TrackEventView eventId={event.id} skip={isOwner} />
+      <TrackEventView eventId={event.id} slug={event.slug} skip={isOwner} />
       {media.length > 0 && <EventMediaCarousel media={media} alt={title} />}
 
       <header className="space-y-2">
