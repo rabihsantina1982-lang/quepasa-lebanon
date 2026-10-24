@@ -151,7 +151,7 @@
   },
   "Connect": {
     "title": "Réseau",
-    "subtitle": "Découvrez les artistes, DJ, organisateurs, lieux et entreprises derrière les événements.",
+    "subtitle": "Découvrez celles et ceux qui font les événements : artistes, DJ, coachs, experts, athlètes, chefs, organisateurs, lieux et plus encore.",
     "all": "Tous",
     "types": {
       "artist": "Artiste",
@@ -159,7 +159,12 @@
       "organizer": "Organisateur",
       "venue": "Lieu",
       "business": "Entreprise",
-      "promoter": "Promoteur"
+      "promoter": "Promoteur",
+      "coach": "Coach / Instructeur",
+      "expert": "Expert / Intervenant",
+      "athlete": "Athlète / Équipe",
+      "chef": "Chef / Cuisine",
+      "community": "Communauté / Club"
     },
     "empty": "Personne n'est encore inscrit.",
     "joinCta": "Inscrivez votre activité sur QuePasa →",

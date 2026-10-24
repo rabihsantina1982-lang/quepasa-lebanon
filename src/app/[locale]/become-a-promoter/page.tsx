@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter, Link } from "@/i18n/navigation";
 import { PRICING, price } from "@/lib/pricing";
 import { VerificationSteps } from "@/components/VerificationSteps";
+import { PROFILE_TYPES, PROFILE_TYPE_EN } from "@/lib/profileTypes";
 
 const inputCls = "w-full h-11 px-3 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors";
 const textareaCls = "w-full px-3 py-2 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-sm outline-none focus:border-[var(--color-primary)] transition-colors resize-none";
@@ -125,7 +126,7 @@ export default function BecomeAPromoterPage() {
           <Field label="Your full name" required>
             <input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} className={inputCls} required />
           </Field>
-          <Field label="Business / Artist name" required>
+          <Field label="Business or public name" required>
             <input value={form.business_name} onChange={(e) => set("business_name", e.target.value)} className={inputCls} required />
           </Field>
         </div>
@@ -133,12 +134,9 @@ export default function BecomeAPromoterPage() {
         <Field label="I am a…" required>
           <select value={form.business_type} onChange={(e) => set("business_type", e.target.value)} className={inputCls} required>
             <option value="">— select one —</option>
-            <option value="artist">Artist / Performer</option>
-            <option value="dj">DJ</option>
-            <option value="organizer">Event Organizer</option>
-            <option value="venue">Venue</option>
-            <option value="business">Business / Brand</option>
-            <option value="promoter">Promoter / Agency</option>
+            {PROFILE_TYPES.map((pt) => (
+              <option key={pt} value={pt}>{PROFILE_TYPE_EN[pt]}</option>
+            ))}
           </select>
         </Field>
 

@@ -151,7 +151,7 @@
   },
   "Connect": {
     "title": "Connect",
-    "subtitle": "Meet the artists, DJs, organizers, venues and businesses behind the events.",
+    "subtitle": "Meet the people behind the events: artists, DJs, coaches, experts, athletes, chefs, organizers, venues and more.",
     "all": "All",
     "types": {
       "artist": "Artist",
@@ -159,7 +159,12 @@
       "organizer": "Event Organizer",
       "venue": "Venue",
       "business": "Business",
-      "promoter": "Promoter"
+      "promoter": "Promoter",
+      "coach": "Coach / Instructor",
+      "expert": "Expert / Speaker",
+      "athlete": "Athlete / Team",
+      "chef": "Chef / Food",
+      "community": "Community / Club"
     },
     "empty": "No one is listed yet.",
     "joinCta": "List your business on QuePasa →",
