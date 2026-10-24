@@ -10,17 +10,36 @@ import { toProfileType } from "@/lib/profileTypes";
 import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
 import { eventQuality } from "@/lib/eventQuality";
+import { eventLastDay } from "@/lib/promotionBooking";
+import { cardPaymentsEnabled, stripeTestMode } from "@/lib/stripe";
+import { finalizeCheckout, cancelCheckout, type FinalizeResult } from "@/lib/payments";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { EventQuality } from "@/components/EventQuality";
 import { DeleteEventButton } from "@/components/DeleteEventButton";
-import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban, Pencil } from "lucide-react";
+import { Calendar, Plus, Star, Sparkles, Eye, Ticket, Heart, Bell, Share2, Copy, ExternalLink, Lock, Home, Users, BadgeCheck, Ban, Pencil, CircleCheck, CircleAlert } from "lucide-react";
 
-export default async function PromoterDashboard({ params }: { params: Promise<{ locale: string }> }) {
+export default async function PromoterDashboard({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const sp = await searchParams;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/events`);
+
+  // Back from Stripe's payment page: switch the order on (the webhook may
+  // already have), or free the held dates if they left without paying.
+  let payment: FinalizeResult | null = null;
+  if (sp.paid) payment = await finalizeCheckout(createAdminClient(), sp.paid, user.id);
+  else if (sp.cancelled) await cancelCheckout(createAdminClient(), sp.cancelled, user.id);
+  const cardPayments = cardPaymentsEnabled();
+  const testMode = stripeTestMode();
 
   // Check profile role
   const { data: profile } = await supabase
@@ -116,11 +135,12 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   // Active / upcoming promotions on their events, and their requests.
   const now = new Date();
   const { data: promotionRows } = eventIds.length
-    ? await supabase.from("event_promotions").select("event_id, kind, ends_at").in("event_id", eventIds).gt("ends_at", now.toISOString())
+    ? await supabase.from("event_promotions").select("event_id, kind, starts_at, ends_at").in("event_id", eventIds).gt("ends_at", now.toISOString()).order("starts_at")
     : { data: [] };
-  const promotions = (promotionRows ?? []) as { event_id: string; kind: "boost" | "spotlight"; ends_at: string }[];
+  const promotions = (promotionRows ?? []) as { event_id: string; kind: "boost" | "spotlight"; starts_at: string; ends_at: string }[];
+  const bookedLater = (eventId: string) => promotions.filter((p) => p.event_id === eventId && new Date(p.starts_at) > now);
   const promotedUntil = (eventId: string, kind: "boost" | "spotlight") => {
-    const ends = promotions.filter((p) => p.event_id === eventId && p.kind === kind).map((p) => new Date(p.ends_at).getTime());
+    const ends = promotions.filter((p) => p.event_id === eventId && p.kind === kind && new Date(p.starts_at) <= now).map((p) => new Date(p.ends_at).getTime());
     return ends.length ? new Date(Math.max(...ends)) : null;
   };
 
@@ -132,7 +152,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
   const isPending = (kind: string, eventId: string | null) =>
     requests.some((r) => r.status === "pending" && r.kind === kind && r.event_id === eventId);
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const freeBoostsUsed = requests.filter((r) => r.use_free_boost && r.status !== "rejected" && new Date(r.created_at) >= monthStart).length;
+  const freeBoostsUsed = requests.filter((r) => r.use_free_boost && r.status !== "rejected" && r.status !== "cancelled" && new Date(r.created_at) >= monthStart).length;
   const freeBoostAvailable = pro && freeBoostsUsed < PRICING.proFreeBoostsPerMonth;
 
   const fmtDate = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Beirut" });
@@ -161,6 +181,30 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
         </div>
       )}
 
+      {payment && (payment.status === "activated" || payment.status === "already") && (
+        <div className="rounded-[var(--radius-card)] border border-green-600/40 bg-green-50 dark:bg-green-900/20 p-4 text-sm flex items-start gap-2">
+          <CircleCheck size={16} className="mt-0.5 shrink-0 text-green-600" aria-hidden />
+          <span>
+            <strong>Payment received, thank you!</strong> {payment.description}. It switches on automatically on the first
+            day. A receipt is on its way to your email.
+          </span>
+        </div>
+      )}
+      {payment && (payment.status === "unpaid" || payment.status === "unknown") && (
+        <div className="rounded-[var(--radius-card)] border border-amber-500/40 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm flex items-start gap-2">
+          <CircleAlert size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden />
+          <span>
+            We haven&apos;t received this payment yet. If your card was charged, it will show here within a few minutes;
+            otherwise please try again.
+          </span>
+        </div>
+      )}
+      {sp.cancelled && (
+        <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-sm text-[var(--color-muted)]">
+          Payment cancelled. Nothing was charged and the dates were released.
+        </div>
+      )}
+
       {/* Verification */}
       {!suspended && profile?.role !== "admin" && (
         verified ? (
@@ -185,7 +229,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
             <p className="text-sm text-[var(--color-muted)]">
               Until {fmtDate(proUntil!)} · Free boost this month: {freeBoostAvailable ? "available" : "used"}
             </p>
-            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Extend Pro" />
+            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Extend Pro" cardPayments={cardPayments} testMode={testMode} />
           </div>
         ) : profile?.role === "admin" ? (
           <p className="text-sm text-[var(--color-muted)]">Admin account: everything is unlocked.</p>
@@ -199,7 +243,7 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
             {proUntil && proUntil < now && (
               <p className="text-xs text-[var(--color-muted)]">Your Pro ended on {fmtDate(proUntil)}.</p>
             )}
-            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Get Pro" />
+            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Get Pro" cardPayments={cardPayments} testMode={testMode} />
           </div>
         )}
       </div>
@@ -308,6 +352,15 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                       </>
                     )}
                   </div>
+                  {bookedLater(ev.id).length > 0 && (
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {bookedLater(ev.id).map((p) => (
+                        <span key={`${p.kind}-${p.starts_at}`} className="inline-flex items-center gap-1 rounded-full border border-[var(--color-primary)]/40 text-[var(--color-primary)] px-2 py-0.5 font-medium">
+                          <Calendar size={12} aria-hidden /> {p.kind === "boost" ? "Boost" : "Spotlight"} booked {fmtDate(new Date(p.starts_at))} to {fmtDate(new Date(new Date(p.ends_at).getTime() - 1))}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {(boostUntil || spotlightUntil) && (
                     <div className="flex flex-wrap gap-2 text-xs">
                       {boostUntil && (
@@ -343,6 +396,9 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                         <PromotionRequest
                           kind="boost"
                           eventId={ev.id}
+                          eventLastDay={eventLastDay(ev)}
+                          cardPayments={cardPayments}
+                          testMode={testMode}
                           freeBoostAvailable={freeBoostAvailable}
                           pending={isPending("boost", ev.id)}
                           buttonLabel={boostUntil ? "Extend boost" : "Boost"}
@@ -350,6 +406,9 @@ export default async function PromoterDashboard({ params }: { params: Promise<{ 
                         <PromotionRequest
                           kind="spotlight"
                           eventId={ev.id}
+                          eventLastDay={eventLastDay(ev)}
+                          cardPayments={cardPayments}
+                          testMode={testMode}
                           pending={isPending("spotlight", ev.id)}
                           buttonLabel={spotlightUntil ? "Extend spotlight" : "Homepage spotlight"}
                         />

@@ -14,7 +14,7 @@ import { DuplicateQueue, type DuplicateSide } from "./DuplicateQueue";
 import { EventStatusButton } from "@/components/EventStatusButton";
 import { DeleteEventButton } from "@/components/DeleteEventButton";
 import { findDuplicates, type DupEvent } from "@/lib/duplicateCheck";
-import { PromotionQueue, ActivePromotions, type PromotionRequestItem, type ActivePromotion, type ProMember } from "./PromotionQueue";
+import { PromotionQueue, ActivePromotions, CardPayments, type PromotionRequestItem, type ActivePromotion, type ProMember, type CardPayment } from "./PromotionQueue";
 
 export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -102,10 +102,10 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
 
   // Boost / spotlight / Pro requests, plus what's currently running.
   const nowIso = new Date().toISOString();
-  const [{ data: promotionRequests }, { data: activePromotions }, { data: proMembers }] = await Promise.all([
+  const [{ data: promotionRequests }, { data: activePromotions }, { data: proMembers }, { data: cardPayments }] = await Promise.all([
     admin
       .from("promotion_requests")
-      .select("id, user_id, kind, duration, use_free_boost, note, created_at, profiles(business_name, display_name, email), events(title_i18n, slug)")
+      .select("id, user_id, kind, duration, use_free_boost, note, created_at, starts_at, ends_at, profiles(business_name, display_name, email), events(title_i18n, slug)")
       .eq("status", "pending")
       .order("created_at", { ascending: true }),
     admin
@@ -118,6 +118,13 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
       .select("id, business_name, display_name, email, pro_until")
       .gt("pro_until", nowIso)
       .order("pro_until", { ascending: true }),
+    admin
+      .from("promotion_requests")
+      .select("id, kind, duration, amount, starts_at, ends_at, paid_at, profiles(business_name, display_name, email), events(title_i18n, slug)")
+      .eq("payment_method", "card")
+      .not("paid_at", "is", null)
+      .order("paid_at", { ascending: false })
+      .limit(15),
   ]);
 
   // Open reports from visitors, grouped by event (most-reported first).
@@ -281,6 +288,11 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
           promotions={(activePromotions ?? []) as unknown as ActivePromotion[]}
           proMembers={(proMembers ?? []) as ProMember[]}
         />
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-bold mb-4">Card Payments</h2>
+        <CardPayments items={(cardPayments ?? []) as unknown as CardPayment[]} />
       </section>
 
     </div>
