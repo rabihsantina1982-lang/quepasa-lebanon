@@ -75,7 +75,7 @@ function SignInItem({ label }: { label: string }) {
 }
 
 // Signed in: the last slot opens a small menu with the links the desktop header
-// shows (dashboard, admin, premium) plus sign out — none were reachable on
+// shows (dashboard, admin), paid options for promoters, plus sign out — none were reachable on
 // phones before.
 function AccountMenu({ isPromoter, isAdmin, firstName }: { isPromoter: boolean; isAdmin: boolean; firstName: string | null }) {
   const t = useTranslations("Nav");
@@ -134,9 +134,11 @@ function AccountMenu({ isPromoter, isAdmin, firstName }: { isPromoter: boolean; 
               <Shield size={16} aria-hidden /> {t("admin")}
             </Link>
           )}
-          <Link href="/premium" className={linkCls}>
-            <Sparkles size={16} aria-hidden /> {t("premium")}
-          </Link>
+          {isPromoter && (
+            <Link href="/premium" className={linkCls}>
+              <Sparkles size={16} aria-hidden /> {t("premium")}
+            </Link>
+          )}
           <Link href="/account" className={linkCls}>
             <UserCog size={16} aria-hidden /> {t("account")}
           </Link>

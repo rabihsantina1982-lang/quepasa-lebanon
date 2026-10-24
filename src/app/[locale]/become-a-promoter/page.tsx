@@ -104,7 +104,7 @@ export default function BecomeAPromoterPage() {
         <div className="mt-6 grid grid-cols-2 gap-3">
           <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-4">
             <div className="text-sm font-semibold text-[var(--color-muted)]">FREE</div>
-            <div className="mt-1 text-2xl font-bold">$0</div>
+            <div className="mt-1 text-2xl font-bold">{price(0)}</div>
             <div className="mt-2 text-sm text-[var(--color-muted)]">Unlimited events, views and saves</div>
           </div>
           <div className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] p-4">

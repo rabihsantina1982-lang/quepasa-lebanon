@@ -401,6 +401,10 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
         <div className="text-5xl mb-4">🎉</div>
         <h1 className="text-2xl font-bold">Event submitted!</h1>
         <p className="mt-3 text-[var(--color-muted)]">Your event is under review and will be published within 24 hours.</p>
+        <p className="mt-3 text-sm text-[var(--color-muted)]">
+          Want more people to see it? Once it&apos;s live you can boost it to the top of Browse or put it in the homepage spotlight.{" "}
+          <Link href="/premium" className="text-[var(--color-primary)] underline">See the options</Link>
+        </p>
         <div className="mt-6 flex gap-3 justify-center">
           <Button variant="primary" onClick={() => router.push("/promoter")}>Back to dashboard</Button>
           <Button variant="outline" onClick={() => { setSubmitted(false); setMedia([]); setExistingMedia([]); }}>Post another</Button>
@@ -437,6 +441,12 @@ export function NewEventForm({ initial, autofillEnabled = false }: { initial?: N
           : initial
           ? "Everything is copied from your earlier event. Just pick the new date(s), check the details, and submit."
           : "Fill in the details below. Your event is reviewed before it goes live."}
+        {!editing && !initial && (
+          <>
+            {" "}Listing is free.{" "}
+            <Link href="/premium" className="text-[var(--color-primary)] underline">Paid options</Link> to reach more people.
+          </>
+        )}
       </p>
       {!initial && autofillEnabled && (
         <div className="mb-6 rounded-[var(--radius-card)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 p-4 space-y-3">
