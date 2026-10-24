@@ -41,6 +41,8 @@ export default async function PromoterDashboard({
   else if (sp.cancelled) await cancelCheckout(createAdminClient(), sp.cancelled, user.id);
   const cardPayments = cardPaymentsEnabled();
   const testMode = stripeTestMode();
+  // "Get Pro" on the submit page links here with ?getpro=1: open the Pro panel.
+  const openPro = sp.getpro === "1";
 
   // Check profile role
   const { data: profile } = await supabase
@@ -232,7 +234,7 @@ export default async function PromoterDashboard({
       )}
 
       {/* Plan */}
-      <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] p-5 space-y-3">
+      <div id="plan" className="scroll-mt-20 rounded-[var(--radius-card)] border border-[var(--color-border)] p-5 space-y-3">
         <div className="flex items-center gap-2 font-semibold">
           <Star size={16} className="text-[var(--color-primary)]" />
           Your plan
@@ -243,12 +245,15 @@ export default async function PromoterDashboard({
             <p className="text-sm text-[var(--color-muted)]">
               Until {fmtDate(proUntil!)} · Free boost this month: {freeBoostAvailable ? "available" : "used"}
             </p>
-            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Extend Pro" cardPayments={cardPayments} testMode={testMode} />
+            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Extend Pro" cardPayments={cardPayments} testMode={testMode} defaultOpen={openPro} />
           </div>
-        ) : profile?.role === "admin" ? (
-          <p className="text-sm text-[var(--color-muted)]">Admin account: everything is unlocked.</p>
         ) : (
           <div className="space-y-2">
+            {profile?.role === "admin" && (
+              <p className="text-xs rounded-md bg-[var(--color-border)]/50 px-2 py-1.5 text-[var(--color-muted)]">
+                Admin account: everything is already unlocked for you. Below is what a promoter on the free plan sees (preview).
+              </p>
+            )}
             <span className="rounded-full bg-[var(--color-border)] text-xs font-bold px-3 py-1">FREE</span>
             <p className="text-sm text-[var(--color-muted)]">
               Unlimited events, always free. Upgrade to Pro ({price(PRICING.proPerMonth)}/month) for full stats including
@@ -257,7 +262,7 @@ export default async function PromoterDashboard({
             {proUntil && proUntil < now && (
               <p className="text-xs text-[var(--color-muted)]">Your Pro ended on {fmtDate(proUntil)}.</p>
             )}
-            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Get Pro" cardPayments={cardPayments} testMode={testMode} />
+            <PromotionRequest kind="pro" pending={isPending("pro", null)} buttonLabel="Get Pro" cardPayments={cardPayments} testMode={testMode} defaultOpen={openPro} />
           </div>
         )}
       </div>

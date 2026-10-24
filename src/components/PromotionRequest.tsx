@@ -29,6 +29,7 @@ export function PromotionRequest({
   buttonLabel,
   cardPayments = false,
   testMode = false,
+  defaultOpen = false,
 }: {
   kind: Kind;
   eventId?: string;
@@ -38,12 +39,13 @@ export function PromotionRequest({
   buttonLabel?: string;
   cardPayments?: boolean;
   testMode?: boolean;
+  defaultOpen?: boolean;
 }) {
   const router = useRouter();
   const locale = useLocale();
   const opt = OPTIONS[kind];
   const dated = kind !== "pro";
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [duration, setDuration] = useState(opt.durations[0]);
   const [start, setStart] = useState<string | null>(null);
   const [availability, setAvailability] = useState<AvailabilityData | null>(null);

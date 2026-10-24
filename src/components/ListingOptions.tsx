@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Home, Sparkles, Tag } from "lucide-react";
+import { Check, Home, Sparkles, Star, Tag } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { PRICING, SLOTS, price } from "@/lib/pricing";
 import { dayKey } from "@/lib/bookingDays";
 import { BookingCalendar, formatDayKey, periodIssues, type AvailabilityData } from "@/components/BookingCalendar";
@@ -32,6 +33,13 @@ const PLANS: { id: ListingPlan; label: string; Icon: typeof Tag; each: number; p
   },
 ];
 
+const PRO_POINTS = [
+  "Ticket clicks, reminders and shares",
+  "Where viewers come from, their language and device",
+  "Audience age and gender, and a weekly stats email",
+  `${PRICING.proFreeBoostsPerMonth} free Boost week every month, top spot in Connect`,
+];
+
 const WEEKS = [1, 2, 3, 4];
 
 function planPrice(each: number): string {
@@ -44,7 +52,7 @@ export function ListingOptionsOverview() {
   return (
     <div className="mb-6 space-y-2">
       <div className="text-sm font-semibold">How you can list your event</div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         {PLANS.map((p) => (
           <div
             key={p.id}
@@ -65,11 +73,32 @@ export function ListingOptionsOverview() {
             </ul>
           </div>
         ))}
+        {/* Pro is a monthly plan for the whole account, so it isn't picked per event below. */}
+        <div className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] bg-[var(--color-primary)]/5 p-3 text-sm flex flex-col">
+          <div className="flex items-center gap-1.5 font-semibold">
+            <Star size={14} className="text-[var(--color-primary)]" aria-hidden /> Pro
+            <span className="ms-auto text-[10px] font-medium text-[var(--color-muted)]">all your events</span>
+          </div>
+          <div className="mt-0.5 font-bold">{price(PRICING.proPerMonth)} / month</div>
+          <ul className="mt-2 space-y-1 text-xs text-[var(--color-muted)]">
+            {PRO_POINTS.map((pt) => (
+              <li key={pt} className="flex gap-1.5">
+                <Check size={12} className="mt-0.5 shrink-0 text-[var(--color-primary)]" aria-hidden /> {pt}
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/promoter?getpro=1#plan"
+            className="mt-3 self-start inline-flex items-center gap-1 rounded-full bg-[var(--color-primary)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+          >
+            <Star size={12} aria-hidden /> Get Pro
+          </Link>
+        </div>
       </div>
       <p className="text-xs text-[var(--color-muted)]">
-        You choose at the end of the form, just before you submit. Paid options run on the dates you pick; if we
-        don&apos;t approve your event, you&apos;re refunded in full. Pro ({price(PRICING.proPerMonth)}/month, with full
-        stats and a free boost every month) is on your dashboard.
+        Boost and Spotlight are chosen at the end of the form, just before you submit, and run on the dates you pick; if
+        we don&apos;t approve your event, you&apos;re refunded in full. Pro is a monthly plan for your whole account
+        (new organisers get it free for their first {PRICING.proWelcomeMonths} months).
       </p>
     </div>
   );
