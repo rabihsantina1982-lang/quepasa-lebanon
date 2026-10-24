@@ -85,7 +85,7 @@ QuePasa does not sell tickets or take payment for them. You are fully responsibl
 You keep ownership of what you upload. You give QuePasa a free, non-exclusive licence to show, resize, translate and share it on the Service and in our promotion of your event, such as the weekly weekend posts on Instagram and WhatsApp, for as long as the listing is up and a reasonable time after.
 
 ## 5. Statistics
-We show you views, saves and, with Pro, ticket clicks, reminders, shares and audience age and gender. Audience figures are totals only; we never give you the names or contact details of people who viewed or saved your events.
+We show you views and saves for your events, and the results of any Boost or Spotlight you buy. With Pro you also get ticket clicks, reminders, shares, where your viewers come from (for example a WhatsApp link, Google or Instagram), the language they browse in, the device they use, and audience age and gender, on your dashboard and in a weekly email while Pro is active. All figures are totals about your own events only; we never give you the names or contact details of people who viewed or saved your events, and a breakdown only appears once it covers at least 10 visits or 10 people. Your ticket links carry a QuePasa tag (utm_source=quepasa) so your ticketing provider's own reports can show the visits and sales that came from QuePasa.
 
 ## 6. Suspension and removal
 We may hide events, remove your Verified badge, or suspend or close your account if you break these terms, if we receive credible reports of fraud or misleading listings, or to protect visitors. Where it is safe to, we will tell you why. Suspension hides all your events and stops new posts and promotion requests.
@@ -142,15 +142,15 @@ Listing events on QuePasa is free. Organisers can pay for extra visibility. Thes
 ## What you can buy
 - Boost (USD 15 per week): your event pinned near the top of Browse, with a "Featured" badge.
 - Homepage Spotlight (USD 35 per week): your event in the banner above the events grid on the main events page.
-- Pro (USD 25 per month): full statistics (ticket clicks, reminders, shares, audience age and gender), first place in Connect, and 1 free Boost week each calendar month.
+- Pro (USD 25 per month): full statistics (ticket clicks, reminders, shares, where viewers come from, their language and device, audience age and gender) on your dashboard and in a weekly email, first place in Connect, and 1 free Boost week each calendar month.
 
 New organisers get Pro free for their first 3 months after approval. Prices may include or exclude VAT as required by law [to be confirmed].
 
 ## How it works
-- You request a promotion from your organiser dashboard.
-- We review the request; the event must be approved, live and not yet over.
-- You pay by [payment method] before or when the promotion starts.
-- The promotion runs for the period bought and ends automatically.
+- You choose Boost or Spotlight when you post an event, or later from your organiser dashboard, and pick the dates on a calendar that shows how many places are left each day.
+- You pay by card through our secure payment provider when you book, or send a request and pay by [payment method]; we then confirm it.
+- Your event must be approved before the promotion appears. If we don't approve it, card payments are refunded in full automatically.
+- The promotion runs for the dates booked and ends automatically.
 
 ## Labelling
 Paid placements are marked "Featured" so visitors know they are promoted. Payment never buys a Verified badge, approval of a listing, or protection from removal.
@@ -179,7 +179,7 @@ In short: we collect what we need to run an events guide, we never sell your dat
 - Account details: email, name and profile photo (from Google or Facebook if you sign in that way), language. Why: to sign you in and run your account. Kept: until you delete your account.
 - Optional profile: date of birth, gender, interests. Why: to suggest events, and to show organisers anonymous audience totals. Kept: until you remove them or delete your account.
 - Your activity: saved events, reminders, shares, reports you make. Why: to provide those features and keep listings honest. Kept: until you delete them or your account.
-- Event statistics: event views, ticket-link clicks, shares. Why: to show organisers how their events perform and stop fake counts. If you aren't signed in, we use a scrambled one-way code made from your connection and browser; we do not store your IP address. Kept: up to [24 months], then deleted or anonymised.
+- Event statistics: event views, ticket-link clicks, shares, and for each visit where it came from (for example a WhatsApp link, Google, Instagram or a page on QuePasa), the language you browse in and whether you use a phone, tablet or computer. Why: to show organisers how their events perform, stop fake counts, and help us understand the events market and improve QuePasa. If you aren't signed in, we use a scrambled one-way code made from your connection and browser; we do not store your IP address. Kept: up to [24 months], then deleted or anonymised.
 - Organiser details: business name and type, Instagram, phone, website, description, logo, verification code, events posted. Why: to review applications, verify organisers and publish listings. Kept: while the organiser account is open, plus [12 months].
 - Pasted captions: text an organiser pastes into "Paste from Instagram". Why: to fill in the event form automatically. Kept: not stored by us after the form is filled.
 - Messages: emails you send us. Why: to answer you. Kept: [24 months].
@@ -188,7 +188,10 @@ In short: we collect what we need to run an events guide, we never sell your dat
 If you set a reminder, we email you before the event. We send account emails such as sign-in links. We don't send marketing emails without asking first.
 
 ## What organisers see
-Organisers see totals only, such as views, saves, clicks and the age and gender mix of their audience. They never see your name, email or which events you saved.
+Organisers see totals only, and only about their own events: for example views, saves, clicks, where visitors came from, the languages and devices used, and the age and gender mix of their audience. Detailed figures go only to organisers with an active Pro subscription, on their dashboard and in a weekly email. A breakdown only appears once it covers at least 10 visits or 10 people, so no one can be singled out. Organisers never see your name, email or which events you saved.
+
+## How we use statistics ourselves
+Our team uses the same anonymous figures, across all events, to understand what people look for, which kinds of events and areas are popular, and how to improve QuePasa. These figures are for our internal use and are not sold.
 
 ## Who we share data with
 We use these providers to run the Service. They process data on our instructions only:
