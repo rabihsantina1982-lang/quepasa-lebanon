@@ -14,7 +14,9 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  const { data: me } = await supabase.from("profiles").select("role, display_name, email").eq("id", user.id).single();
+  // Email isn't readable through the signed-in client (column grants, 0015),
+  // so the sign-in email comes from the session instead.
+  const { data: me } = await supabase.from("profiles").select("role, display_name").eq("id", user.id).single();
   if (me?.role !== "admin") return NextResponse.json({ error: "Admin only" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const key: CheckKey = body.check;
   const checks = { ...((app.checks ?? {}) as Checks) };
-  if (body.done) checks[key] = { at: new Date().toISOString(), by: me.display_name || me.email || "admin" };
+  if (body.done) checks[key] = { at: new Date().toISOString(), by: me.display_name || user.email || "admin" };
   else delete checks[key];
   const { error } = await admin.from("promoter_applications").update({ checks }).eq("id", app.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
