@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BusinessProfileForm } from "@/components/BusinessProfileForm";
 import { PromotionRequest } from "@/components/PromotionRequest";
 import { VerificationSteps } from "@/components/VerificationSteps";
+import { VerificationDocs, type OwnDoc } from "@/components/VerificationDocs";
 import { toProfileType } from "@/lib/profileTypes";
 import { isPro, isVerified } from "@/lib/promotions";
 import { PRICING, price } from "@/lib/pricing";
@@ -58,6 +59,14 @@ export default async function PromoterDashboard({
     .eq("user_id", user.id)
     .maybeSingle();
 
+  // Their uploaded verification documents (private; only they and admins see them).
+  const { data: docRows } = await supabase
+    .from("verification_documents")
+    .select("id, kind, file_name, status, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  const ownDocs = (docRows ?? []) as OwnDoc[];
+
   // Not a promoter yet
   if (profile?.role !== "promoter" && profile?.role !== "admin") {
     if (application?.status === "pending") {
@@ -72,6 +81,9 @@ export default async function PromoterDashboard({
           {application.verification_code && (
             <VerificationSteps code={application.verification_code} instagram={application.instagram} />
           )}
+          <div className="mt-4 text-start">
+            <VerificationDocs userId={user.id} initialDocs={ownDocs} />
+          </div>
         </div>
       );
     }
@@ -228,9 +240,14 @@ export default async function PromoterDashboard({
             <BadgeCheck size={16} className="text-[var(--color-primary)]" aria-hidden />
             <span><strong>Verified business.</strong> Your events and profile show the ✓ badge.</span>
           </div>
-        ) : application?.verification_code ? (
-          <VerificationSteps code={application.verification_code} instagram={application.instagram} />
-        ) : null
+        ) : (
+          <>
+            {application?.verification_code && (
+              <VerificationSteps code={application.verification_code} instagram={application.instagram} />
+            )}
+            <VerificationDocs userId={user.id} initialDocs={ownDocs} />
+          </>
+        )
       )}
 
       {/* Plan */}

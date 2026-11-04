@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { VerificationPanel, confirmVerify, type VerificationInfo } from "./VerificationPanel";
 
 interface Application {
   id: string;
@@ -18,6 +19,7 @@ interface Application {
   created_at: string;
   profiles: { display_name: string | null; email: string | null } | null;
   warnings: string[];
+  verification: VerificationInfo;
 }
 
 export function PromoterQueue({ items }: { items: Application[] }) {
@@ -25,7 +27,9 @@ export function PromoterQueue({ items }: { items: Application[] }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  async function act(applicationId: string, action: "approve" | "reject", verify = false) {
+  async function act(a: Application, action: "approve" | "reject", verify = false) {
+    if (verify && !confirmVerify(a.verification.checks, a.business_name)) return;
+    const applicationId = a.id;
     setLoading(applicationId);
     await fetch("/api/admin/promoter", {
       method: "POST",
@@ -77,17 +81,19 @@ export function PromoterQueue({ items }: { items: Application[] }) {
               )}
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
-              <Button size="sm" variant="primary" disabled={loading === a.id} onClick={() => act(a.id, "approve", true)}>
+              <Button size="sm" variant="primary" disabled={loading === a.id} onClick={() => act(a, "approve", true)}>
                 Approve &amp; verify
               </Button>
-              <Button size="sm" variant="outline" disabled={loading === a.id} onClick={() => act(a.id, "approve")}>
+              <Button size="sm" variant="outline" disabled={loading === a.id} onClick={() => act(a, "approve")}>
                 Approve
               </Button>
-              <Button size="sm" variant="outline" disabled={loading === a.id} onClick={() => act(a.id, "reject")}>
+              <Button size="sm" variant="outline" disabled={loading === a.id} onClick={() => act(a, "reject")}>
                 Reject
               </Button>
             </div>
           </div>
+
+          <VerificationPanel info={a.verification} />
 
           <button
             className="mt-2 text-xs text-[var(--color-primary)]"
@@ -104,7 +110,7 @@ export function PromoterQueue({ items }: { items: Application[] }) {
         </div>
       ))}
       <p className="text-xs text-[var(--color-muted)]">
-        Use <strong>Approve &amp; verify</strong> only after opening their Instagram and seeing the code in the bio. Plain{" "}
+        Use <strong>Approve &amp; verify</strong> once the checklist is done (at least the Instagram code, ideally documents too). Plain{" "}
         <strong>Approve</strong> lets them post without the ✓ badge; you can verify them later under Promoters.
       </p>
     </div>

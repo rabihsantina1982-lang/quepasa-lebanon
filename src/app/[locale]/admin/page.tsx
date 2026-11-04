@@ -6,11 +6,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminQueue, type SubmissionRow } from "./AdminQueue";
 import { checkTicketLink } from "@/lib/ticketLinks";
 import { scamSignals } from "@/lib/scamSignals";
+import { isNewAccount } from "@/lib/reports";
 import { price } from "@/lib/pricing";
 import { APP_TIMEZONE } from "@/lib/dates";
 import { ReportQueue, type ReportedEvent } from "./ReportQueue";
 import { PromoterQueue } from "./PromoterQueue";
 import { PromoterList, type PromoterRow } from "./PromoterList";
+import type { VerificationInfo } from "./VerificationPanel";
+import { emailWebsiteMatch, DOC_KINDS, type Checks } from "@/lib/verification";
 import { impersonationWarnings, type NameSource } from "@/lib/impersonation";
 import { DuplicateQueue, type DuplicateSide } from "./DuplicateQueue";
 import { EventStatusButton } from "@/components/EventStatusButton";
@@ -79,12 +82,12 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
   type AppRow = {
     id: string; user_id: string; business_name: string; business_type: string; instagram: string | null;
     phone: string | null; website: string | null; description: string; verification_code: string | null;
-    status: string; created_at: string; profiles: { display_name: string | null; email: string | null } | null;
+    status: string; created_at: string; checks: Checks | null; profiles: { display_name: string | null; email: string | null } | null;
   };
   const [{ data: appRows }, { data: promoterRows }, { data: venueRows }, { data: contactRows }] = await Promise.all([
     admin
       .from("promoter_applications")
-      .select("id, user_id, business_name, business_type, instagram, phone, website, description, verification_code, status, created_at, profiles(display_name, email)")
+      .select("id, user_id, business_name, business_type, instagram, phone, website, description, verification_code, status, created_at, checks, profiles(display_name, email)")
       .order("created_at", { ascending: false }),
     admin
       .from("profiles")
@@ -92,18 +95,49 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
       .eq("role", "promoter")
       .order("business_name", { ascending: true }),
     admin.from("venues").select("name"),
-    admin.from("profile_contacts").select("user_id, instagram"),
+    admin.from("profile_contacts").select("user_id, instagram, website"),
   ]);
   const applications = (appRows ?? []) as unknown as AppRow[];
-  const promoters = (promoterRows ?? []) as Omit<PromoterRow, "instagram" | "verification_code">[];
+  const promoters = (promoterRows ?? []) as Omit<PromoterRow, "instagram" | "verification_code" | "verification">[];
   const latestApp = new Map<string, AppRow>();
   for (const a of applications) if (!latestApp.has(a.user_id)) latestApp.set(a.user_id, a);
-  const contactIg = new Map(((contactRows ?? []) as { user_id: string; instagram: string | null }[]).map((c) => [c.user_id, c.instagram]));
+  const contactRowsTyped = (contactRows ?? []) as { user_id: string; instagram: string | null; website: string | null }[];
+  const contactIg = new Map(contactRowsTyped.map((c) => [c.user_id, c.instagram]));
+  const contactWebsite = new Map(contactRowsTyped.map((c) => [c.user_id, c.website]));
+
+  // Verification: the admin checklist, whether their email matches their
+  // website, and their private documents (links valid for an hour).
+  type DocRow = { id: string; user_id: string; kind: string; path: string; file_name: string | null; status: "pending" | "accepted" | "rejected"; created_at: string };
+  const { data: docRows } = await admin
+    .from("verification_documents")
+    .select("id, user_id, kind, path, file_name, status, created_at")
+    .order("created_at", { ascending: false });
+  const docs = (docRows ?? []) as DocRow[];
+  const { data: signedDocs } = docs.length
+    ? await admin.storage.from("verification-docs").createSignedUrls(docs.map((d) => d.path), 3600)
+    : { data: [] };
+  const docUrl = new Map((signedDocs ?? []).map((d) => [d.path, d.signedUrl]));
+  const verificationFor = (userId: string, email: string | null, website: string | null): VerificationInfo => ({
+    userId,
+    checks: latestApp.get(userId)?.checks ?? {},
+    emailMatch: emailWebsiteMatch(email, website),
+    docs: docs
+      .filter((d) => d.user_id === userId)
+      .map((d) => ({
+        id: d.id,
+        kind: DOC_KINDS.find((k) => k.key === d.kind)?.label ?? d.kind,
+        file_name: d.file_name,
+        status: d.status,
+        created_at: d.created_at,
+        url: docUrl.get(d.path) ?? null,
+      })),
+  });
 
   const promoterList: PromoterRow[] = promoters.map((p) => ({
     ...p,
     instagram: contactIg.get(p.id) || latestApp.get(p.id)?.instagram || null,
     verification_code: latestApp.get(p.id)?.verification_code ?? null,
+    verification: verificationFor(p.id, p.email, contactWebsite.get(p.id) || latestApp.get(p.id)?.website || null),
   }));
 
   // Who a new applicant might be pretending to be.
@@ -115,6 +149,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     .filter((a) => a.status === "pending")
     .map((a) => ({
       ...a,
+      verification: verificationFor(a.user_id, a.profiles?.email ?? null, a.website),
       warnings: impersonationWarnings(a, [
         ...knownNames.filter((n) => !(n.label === "approved promoter" && promoterList.some((p) => p.id === a.user_id && (p.business_name ?? p.display_name) === n.name))),
         ...applications
@@ -164,9 +199,10 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
   const reports = (reportRows ?? []) as unknown as ReportRow[];
   const reporterIds = [...new Set(reports.map((r) => r.user_id))];
   const { data: reporterRows } = reporterIds.length
-    ? await admin.from("profiles").select("id, email").in("id", reporterIds)
+    ? await admin.from("profiles").select("id, email, created_at").in("id", reporterIds)
     : { data: [] };
   const reporterEmail = new Map(((reporterRows ?? []) as { id: string; email: string | null }[]).map((p) => [p.id, p.email]));
+  const reporterNew = new Map(((reporterRows ?? []) as { id: string; created_at: string | null }[]).map((p) => [p.id, isNewAccount(p.created_at)]));
   const reportedEvents = new Map<string, ReportedEvent>();
   for (const r of reports) {
     const e = r.events;
@@ -178,7 +214,7 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
       promoter: e?.promoter?.business_name ?? e?.promoter?.display_name ?? null,
       reports: [],
     };
-    group.reports.push({ id: r.id, reason: r.reason, details: r.details, created_at: r.created_at, reporter: reporterEmail.get(r.user_id) ?? null });
+    group.reports.push({ id: r.id, reason: r.reason, details: r.details, created_at: r.created_at, reporter: reporterEmail.get(r.user_id) ?? null, newAccount: reporterNew.get(r.user_id) ?? true });
     reportedEvents.set(r.event_id, group);
   }
   const reportQueue = [...reportedEvents.values()].sort((a, b) => b.reports.length - a.reports.length);

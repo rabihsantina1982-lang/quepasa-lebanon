@@ -12,7 +12,7 @@ export interface ReportedEvent {
   slug: string;
   status: string;
   promoter: string | null;
-  reports: { id: string; reason: ReportReason; details: string | null; created_at: string; reporter: string | null }[];
+  reports: { id: string; reason: ReportReason; details: string | null; created_at: string; reporter: string | null; newAccount: boolean }[];
 }
 
 // Hidden by the report threshold (an admin "Hide" closes the reports).
@@ -83,7 +83,7 @@ export function ReportQueue({ items }: { items: ReportedEvent[] }) {
               <li key={r.id}>
                 <span className="font-medium">{REPORT_REASON_LABELS[r.reason]}</span>
                 <span className="text-[var(--color-muted)]">
-                  {" "}· {r.reporter ?? "unknown"} · {new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                  {" "}· {r.reporter ?? "unknown"}{r.newAccount && <span className="ms-1 rounded-full bg-amber-100 text-amber-800 px-1.5 text-[10px] font-semibold" title="Account under a week old: this report counts half toward hiding the event automatically">new account</span>} · {new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                 </span>
                 {r.details && <p className="mt-0.5 whitespace-pre-line text-[var(--color-fg)]/90">{r.details}</p>}
               </li>

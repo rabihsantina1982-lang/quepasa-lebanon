@@ -5,14 +5,15 @@
  *
  * Signed-in visitors report a problem with a published event. One open
  * report per person per event (enforced by a unique index, migration 0020).
- * At AUTO_HIDE_REPORTS open reports the event is hidden (back to draft) and
- * admins get an email; they restore or keep it hidden from /admin.
+ * When the open reports add up to AUTO_HIDE_REPORTS (reports from accounts
+ * under a week old count half) the event is hidden (back to draft) and admins
+ * get an email; they restore or keep it hidden from /admin.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { REPORT_REASONS, AUTO_HIDE_REPORTS } from "@/lib/reports";
+import { REPORT_REASONS, AUTO_HIDE_REPORTS, reportWeight } from "@/lib/reports";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -40,12 +41,18 @@ export async function POST(req: NextRequest) {
 
 async function autoHide(eventId: string) {
   const admin = createAdminClient();
-  const { count } = await admin
+  const { data: open } = await admin
     .from("event_reports")
-    .select("id", { count: "exact", head: true })
+    .select("user_id")
     .eq("event_id", eventId)
     .eq("status", "open");
-  if ((count ?? 0) < AUTO_HIDE_REPORTS) return;
+  const reporterIds = [...new Set((open ?? []).map((r) => r.user_id as string))];
+  if (reporterIds.length === 0) return;
+  const { data: reporters } = await admin.from("profiles").select("id, created_at").in("id", reporterIds);
+  const createdAt = new Map(((reporters ?? []) as { id: string; created_at: string | null }[]).map((r) => [r.id, r.created_at]));
+  const weight = reporterIds.reduce((sum, id) => sum + reportWeight(createdAt.get(id)), 0);
+  if (weight < AUTO_HIDE_REPORTS) return;
+  const count = reporterIds.length;
 
   const { data: hidden } = await admin
     .from("events")

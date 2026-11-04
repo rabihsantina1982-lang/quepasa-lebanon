@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { VerificationPanel, confirmVerify, checksDone, type VerificationInfo } from "./VerificationPanel";
 
 export interface PromoterRow {
   id: string;
@@ -15,6 +16,7 @@ export interface PromoterRow {
   suspended_at: string | null;
   instagram: string | null;
   verification_code: string | null;
+  verification: VerificationInfo;
 }
 
 type Action = "verify" | "unverify" | "suspend" | "unsuspend";
@@ -22,9 +24,11 @@ type Action = "verify" | "unverify" | "suspend" | "unsuspend";
 export function PromoterList({ items }: { items: PromoterRow[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
 
   async function act(p: PromoterRow, action: Action) {
     const name = p.business_name ?? p.display_name ?? "this promoter";
+    if (action === "verify" && !confirmVerify(p.verification.checks, name)) return;
     if (action === "suspend" && !confirm(`Suspend ${name}? All their events and their profile will be hidden, and they won't be able to post.`)) return;
     setBusy(p.id);
     const res = await fetch("/api/admin/promoter-status", {
@@ -80,6 +84,9 @@ export function PromoterList({ items }: { items: PromoterRow[] }) {
               </span>
             </span>
             <span className="flex gap-2 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => setOpen(open === p.id ? null : p.id)}>
+                Checks {checksDone(p.verification.checks)}/4{p.verification.docs.length ? ` · ${p.verification.docs.length} doc${p.verification.docs.length > 1 ? "s" : ""}` : ""}
+              </Button>
               <Button size="sm" variant="outline" disabled={busy === p.id} onClick={() => act(p, p.verified_at ? "unverify" : "verify")}>
                 {p.verified_at ? "Remove ✓" : "Verify ✓"}
               </Button>
@@ -87,6 +94,11 @@ export function PromoterList({ items }: { items: PromoterRow[] }) {
                 {suspended ? "Unsuspend" : "Suspend"}
               </Button>
             </span>
+            {open === p.id && (
+              <div className="basis-full">
+                <VerificationPanel info={p.verification} />
+              </div>
+            )}
           </li>
         );
       })}
