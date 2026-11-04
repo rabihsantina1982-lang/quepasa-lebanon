@@ -71,7 +71,7 @@ type ParsedPost = {
 const CATEGORY_LABELS: Record<string, string> = {
   live_music: "Live Music", dj_performance: "DJ Performance", sports: "Sports",
   food_drink: "Food & Drink", arts_culture: "Arts & Culture", theater: "Theater", family_kids: "Family & Kids",
-  nightlife: "Nightlife", wellness: "Wellness",
+  wellness: "Wellness",
   festivals: "Festivals", conferences: "Conferences & Expos", workshops: "Workshops",
   exhibitions: "Exhibitions", outdoor: "Outdoor", religious: "Religious", charity: "Charity",
 };

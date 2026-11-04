@@ -13,7 +13,6 @@ const FALLBACK_CATEGORIES: CategoryRow[] = [
   { id: 5,  slug: "arts_culture", name_i18n: { en: "Arts & Culture" }, icon: "🎨" },
   { id: 17, slug: "theater",      name_i18n: { en: "Theater" },          icon: "🎭" },
   { id: 6,  slug: "family_kids",  name_i18n: { en: "Family & Kids" },  icon: "👨‍👩‍👧" },
-  { id: 7,  slug: "nightlife",    name_i18n: { en: "Nightlife" },      icon: "🌙" },
   { id: 9,  slug: "wellness",     name_i18n: { en: "Wellness" },       icon: "🧘" },
   { id: 10, slug: "festivals",    name_i18n: { en: "Festivals" },      icon: "🎪" },
   { id: 11, slug: "conferences",  name_i18n: { en: "Conferences & Expos" },    icon: "🎤" },

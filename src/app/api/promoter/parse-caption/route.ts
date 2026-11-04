@@ -23,7 +23,7 @@ const CURRENCY = "USD";
 
 const CATEGORIES = [
   "live_music", "dj_performance", "sports", "food_drink", "arts_culture", "theater", "family_kids",
-  "nightlife", "wellness", "festivals", "conferences", "workshops", "exhibitions", "outdoor", "religious", "charity",
+  "wellness", "festivals", "conferences", "workshops", "exhibitions", "outdoor", "religious", "charity",
 ] as const;
 
 const EventDetails = z.object({
@@ -58,7 +58,7 @@ Rules:
 - Dates: resolve relative or partial dates ("this Friday", "Sat 17/10", "17 Oct") against the TODAY date given with the post, always choosing the next upcoming occurrence. Day-first is the norm (17/10 = 17 October).
 - Times are local ${COUNTRY} time; convert to 24h HH:MM. If both "doors" and "show" times are given, use the show start.
 - Prices: convert to numbers in ${CURRENCY}. If prices are only in another currency, put null and mention it in "missing".
-- Category guidance: plays, musicals, ballet and stand-up comedy are "theater"; DJ nights and club events with a DJ lineup are "dj_performance"; parties without a named DJ lineup are "nightlife"; markets and food events are "food_drink"; art shows are "exhibitions".
+- Category guidance: plays, musicals, ballet and stand-up comedy are "theater"; DJ nights and club events with a DJ lineup are "dj_performance"; club nights and parties without a named DJ lineup are also "dj_performance"; markets and food events are "food_drink"; art shows are "exhibitions".
 - Allowed tags per category (use only these, only for the chosen category, and only when clearly true): ${JSON.stringify(CATEGORY_TAGS)}. A comedy play is "play"; "comedy" means stand-up only.
 - region must be one of: ${REGIONS.join(", ")}; pick it from the venue's town when you are confident, else null.
 - If the post is not about a specific upcoming event (e.g. a menu, a throwback, a general promo), set is_event to false and fill the rest as best you can.`;

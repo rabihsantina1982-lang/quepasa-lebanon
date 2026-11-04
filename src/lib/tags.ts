@@ -80,13 +80,12 @@ export const TAG_LABELS: Record<string, L> = {
 // Which sub-filters belong to which category (display order).
 export const CATEGORY_TAGS: Record<string, string[]> = {
   live_music: ["arabic", "tarab", "jazz", "blues", "rock", "pop", "hip_hop", "rnb", "classical", "latin", "tribute"],
-  dj_performance: ["house", "techno", "afro_house", "commercial"],
+  dj_performance: ["house", "techno", "afro_house", "commercial", "club", "party"],
   sports: ["football", "basketball", "running", "motorsport", "combat", "tennis_padel", "water_sports", "cycling", "golf"],
   food_drink: ["brunch", "wine", "beer", "dining", "food_festival"],
   theater: ["play", "musical", "comedy", "ballet_dance", "opera"],
   arts_culture: ["art", "museum", "film", "books", "heritage", "photography"],
   exhibitions: ["art", "museum", "photography", "heritage", "consumer_show", "trade_show"],
-  nightlife: ["club", "bar_lounge", "party"],
   festivals: ["music_festival", "food_festival", "cultural", "seasonal"],
   conferences: ["tech", "trade_show", "health"],
   family_kids: ["kids_show", "attractions"],
