@@ -50,6 +50,7 @@
     "weekend": "Weekend guide"
   },
   "Filters": {
+    "allCategories": "All",
     "searchPlaceholder": "Search events, artists, venues…",
     "allInCategory": "All",
     "category": "Category",

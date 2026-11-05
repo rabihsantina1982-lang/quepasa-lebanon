@@ -50,6 +50,7 @@
     "weekend": "دليل نهاية الأسبوع"
   },
   "Filters": {
+    "allCategories": "الكل",
     "searchPlaceholder": "ابحث عن فعاليات، فنانين، أماكن…",
     "allInCategory": "الكل",
     "category": "الفئة",

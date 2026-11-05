@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { X, Search } from "lucide-react";
 import { tagLabel } from "@/lib/tags";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { categoryImage } from "@/lib/categoryImages";
 import { governorateChips } from "@/lib/regions";
 import type { CategoryRow } from "@/lib/supabase/types";
 
@@ -48,6 +50,12 @@ export function EventFilters({
     const next = new URLSearchParams(params);
     activeCategory === slug ? next.delete("category") : next.set("category", slug);
     next.delete("tag"); // sub-filters belong to one category
+    update(next);
+  }
+  function clearCategory() {
+    const next = new URLSearchParams(params);
+    next.delete("category");
+    next.delete("tag");
     update(next);
   }
   function setTag(tag: string) {
@@ -133,27 +141,19 @@ export function EventFilters({
           </button>
         ))}
       </div>
-      {/* Category row — single select. Two swipeable rows on phones (fully
-          wrapping took up half the screen), wraps freely on wider screens. */}
-      <div className="grid grid-rows-2 grid-flow-col auto-cols-max gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex sm:flex-wrap sm:overflow-visible sm:pb-0">
-        {categories.map((c) => {
-          const active = activeCategory === c.slug;
-          return (
-            <button
-              key={c.slug}
-              onClick={() => setCategory(c.slug)}
-              className={cn(
-                "shrink-0 rounded-full px-3 h-9 text-sm border transition-colors",
-                active
-                  ? "bg-[var(--color-primary)] text-[var(--color-primary-fg)] border-[var(--color-primary)]"
-                  : "bg-[var(--color-card)] border-[var(--color-border)] hover:border-[var(--color-fg)]/30"
-              )}
-            >
-              <span className="me-1" aria-hidden>{c.icon}</span>
-              {tCat(c.slug as never)}
-            </button>
-          );
-        })}
+      {/* Category tiles: a photo per category with its name on top. One
+          swipeable row on phones, a wrapping grid on wider screens. */}
+      <div className="grid grid-flow-col auto-cols-[112px] gap-2 overflow-x-auto pb-1 no-scrollbar sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-[repeat(auto-fill,minmax(132px,1fr))] sm:overflow-visible sm:pb-0">
+        <CategoryTile label={t("allCategories")} active={!activeCategory} onClick={clearCategory} />
+        {categories.map((c) => (
+          <CategoryTile
+            key={c.slug}
+            label={tCat(c.slug as never)}
+            image={categoryImage(c.slug)}
+            active={activeCategory === c.slug}
+            onClick={() => setCategory(c.slug)}
+          />
+        ))}
       </div>
       {/* Sub-filters for the selected category (e.g. Live Music -> Jazz) */}
       {activeCategory && availableTags.length > 0 && (
@@ -234,4 +234,33 @@ function useHideOnScrollDown() {
   }, []);
 
   return hidden;
+}
+
+function CategoryTile({ label, image, active, onClick }: { label: string; image?: string | null; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "relative aspect-[4/3] overflow-hidden rounded-xl bg-[var(--color-primary)] outline outline-[3px] outline-offset-2 transition-transform hover:-translate-y-0.5",
+        active ? "outline-[var(--color-primary)]" : "outline-transparent"
+      )}
+    >
+      {image && (
+        <>
+          <Image src={image} alt="" fill sizes="(max-width: 640px) 112px, 160px" className="object-cover" />
+          <span className="absolute inset-0 bg-black/40" aria-hidden />
+        </>
+      )}
+      <span
+        className={cn(
+          "absolute inset-0 flex items-center justify-center px-1.5 text-center font-extrabold uppercase leading-tight tracking-wide text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.7)]",
+          image ? "text-[13px] sm:text-[16px]" : "text-[17px] sm:text-[21px]"
+        )}
+      >
+        {label}
+      </span>
+    </button>
+  );
 }
