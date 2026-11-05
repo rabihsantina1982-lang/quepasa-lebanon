@@ -35,7 +35,7 @@ const PLANS: { id: ListingPlan; label: string; Icon: typeof Tag; each: number; p
 
 const PRO_POINTS = [
   "Ticket clicks, reminders and shares",
-  "Where viewers come from, their language and device",
+  "Where viewers come from and the language they browse in",
   "Audience age and gender, and a weekly stats email",
   `${PRICING.proFreeBoostsPerMonth} free Boost week every month, top spot in Connect`,
 ];

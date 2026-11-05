@@ -7,8 +7,7 @@
  * so it must not require auth; the signed-in user is attached when present.
  * Repeats from the same visitor, the event's own promoter and unknown or
  * unpublished events aren't counted (src/lib/visitor.ts). Views also record
- * where the visitor came from (src/lib/track.ts); every row records the device
- * type, worked out from the browser, for the promoter's traffic breakdown.
+ * where the visitor came from (src/lib/track.ts).
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -20,12 +19,6 @@ import { VIEW_SOURCES } from "@/lib/track";
 const VALID_KINDS = ["view", "ticket_click"] as const;
 type Kind = (typeof VALID_KINDS)[number];
 
-// Phone, tablet or computer, from the browser's user agent.
-function deviceType(ua: string): "mobile" | "tablet" | "desktop" {
-  if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua)) return "tablet";
-  if (/Mobi|iPhone|iPod|Android|IEMobile|Opera Mini/i.test(ua)) return "mobile";
-  return "desktop";
-}
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -55,7 +48,6 @@ export async function POST(req: NextRequest) {
     locale: typeof locale === "string" ? locale.slice(0, 5) : "en",
     visitor,
     source: kind === "view" && (VIEW_SOURCES as readonly string[]).includes(source) ? source : null,
-    device: deviceType(req.headers.get("user-agent") ?? ""),
   });
 
   if (error) {

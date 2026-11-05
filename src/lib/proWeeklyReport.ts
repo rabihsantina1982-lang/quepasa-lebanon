@@ -4,7 +4,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { APP_TIMEZONE } from "./dates";
-import { SOURCE_LABELS, LANGUAGE_LABELS, DEVICE_LABELS } from "./trafficLabels";
+import { SOURCE_LABELS, LANGUAGE_LABELS } from "./trafficLabels";
 
 const SITE_NAME = "QuePasa Lebanon";
 
@@ -78,13 +78,11 @@ export async function buildProReport(
   };
   const sources = breakdown("source", SOURCE_LABELS);
   const languages = breakdown("language", LANGUAGE_LABELS);
-  const devices = breakdown("device", DEVICE_LABELS);
   const viewers =
-    sources || languages || devices
+    sources || languages
       ? `<h3 style="margin:20px 0 6px">Your viewers this week</h3>
          ${sources ? `<p style="margin:4px 0"><strong>Came from:</strong> ${sources}</p>` : ""}
-         ${languages ? `<p style="margin:4px 0"><strong>Language:</strong> ${languages}</p>` : ""}
-         ${devices ? `<p style="margin:4px 0"><strong>Device:</strong> ${devices}</p>` : ""}`
+         ${languages ? `<p style="margin:4px 0"><strong>Language:</strong> ${languages}</p>` : ""}`
       : `<p style="color:#6b6b6b;font-size:13px">Where your viewers come from shows here once your events get at least 10 visits in a week.</p>`;
 
   // Boost / spotlight results for promotions that ran during the week.

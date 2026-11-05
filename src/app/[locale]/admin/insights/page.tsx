@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { pickLocalized } from "@/lib/utils";
 import { APP_TIMEZONE } from "@/lib/dates";
 import { price } from "@/lib/pricing";
-import { SOURCE_LABELS, LANGUAGE_LABELS, DEVICE_LABELS } from "@/lib/trafficLabels";
+import { SOURCE_LABELS, LANGUAGE_LABELS } from "@/lib/trafficLabels";
 import { BarList, StatCard } from "../analytics/AnalyticsUI";
 
 // Admin-only market view: visits, ticket clicks and engagement across the
@@ -159,10 +159,6 @@ export default async function AdminInsightsPage({
         <section>
           <h2 className="text-lg font-semibold mb-3">Language they browse in</h2>
           <BarList items={bars("language", (b) => LANGUAGE_LABELS[b] ?? b)} emptyLabel="No data yet." />
-        </section>
-        <section>
-          <h2 className="text-lg font-semibold mb-3">Device</h2>
-          <BarList items={bars("device", (b) => DEVICE_LABELS[b] ?? b)} emptyLabel="No devices recorded yet (tracking started 25 Oct 2026)." />
         </section>
       </div>
 

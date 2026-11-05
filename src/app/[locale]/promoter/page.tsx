@@ -147,7 +147,7 @@ export default async function PromoterDashboard({
   const { data: audienceRows } = fullStats ? await supabase.rpc("my_audience_stats") : { data: [] };
   const audience = (audienceRows ?? []) as AudienceRow[];
 
-  // Where viewers come from, their language and device (Pro; the database
+  // Where viewers come from and their language (Pro; the database
   // leaves out any breakdown covering fewer than 10 visits).
   const { data: trafficRows } = fullStats ? await supabase.rpc("my_traffic_stats") : { data: [] };
   const traffic = (trafficRows ?? []) as TrafficRow[];
@@ -341,7 +341,7 @@ export default async function PromoterDashboard({
               </>
             ) : (
               <div className="rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] p-4 text-sm text-[var(--color-muted)] flex items-center gap-2">
-                <Lock size={14} className="shrink-0" aria-hidden /> Ticket clicks, reminders, shares, where your viewers come from (WhatsApp, Instagram, Google…), their language and device, and your audience&apos;s age and gender are part of Pro.
+                <Lock size={14} className="shrink-0" aria-hidden /> Ticket clicks, reminders, shares, where your viewers come from (WhatsApp, Instagram, Google…), the language they browse in, and your audience&apos;s age and gender are part of Pro.
               </div>
             )}
 
@@ -540,7 +540,6 @@ function TrafficCard({ rows }: { rows: TrafficRow[] }) {
   const groups = [
     { title: "Where viewers come from", b: breakdown(rows, null, "source"), max: 6 },
     { title: "Language they browse in", b: breakdown(rows, null, "language"), max: 5 },
-    { title: "Device", b: breakdown(rows, null, "device"), max: 3 },
   ];
   const empty = groups.every((g) => g.b.total === 0);
   return (
@@ -555,7 +554,7 @@ function TrafficCard({ rows }: { rows: TrafficRow[] }) {
       {empty ? (
         <p className="text-sm text-[var(--color-muted)]">Shows once your events have at least {TRAFFIC_MINIMUM} recorded visits.</p>
       ) : (
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {groups.map(({ title, b, max }) => (
             <div key={title} className="space-y-1.5">
               <div className="text-xs text-[var(--color-muted)]">{title}</div>

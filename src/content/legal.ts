@@ -66,7 +66,8 @@ These terms apply to promoters, venues and businesses ("Organisers") who apply f
 - You must be at least 18 and authorised to act for the business you name.
 - Give accurate details: business name, type, Instagram account, phone number and, if you have one, website.
 - To confirm you control the Instagram account, we ask you to place a short code in its bio until we approve you. You can remove it afterwards.
-- We may approve, decline, or ask for more information at our discretion. A Verified badge means we checked who runs the account; it is not an endorsement of your events.
+- To get the Verified badge you can also upload your trade licence, an event permit or the ID of the person responsible. These documents are private: only our team can open them, they are never shown on the Service, and we use them only to confirm your business.
+- We may approve, decline, or ask for more information at our discretion. A Verified badge means we checked who runs the account (for example the Instagram code, your phone, whether your website and email match, and your documents); it is not an endorsement of your events.
 
 ## 2. Listing events
 Listing is free and unlimited. For every event you post, you confirm that:
@@ -85,7 +86,7 @@ QuePasa does not sell tickets or take payment for them. You are fully responsibl
 You keep ownership of what you upload. You give QuePasa a free, non-exclusive licence to show, resize, translate and share it on the Service and in our promotion of your event, such as the weekly weekend posts on Instagram and WhatsApp, for as long as the listing is up and a reasonable time after.
 
 ## 5. Statistics
-We show you views and saves for your events, and the results of any Boost or Spotlight you buy. With Pro you also get ticket clicks, reminders, shares, where your viewers come from (for example a WhatsApp link, Google or Instagram), the language they browse in, the device they use, and audience age and gender, on your dashboard and in a weekly email while Pro is active. All figures are totals about your own events only; we never give you the names or contact details of people who viewed or saved your events, and a breakdown only appears once it covers at least 10 visits or 10 people. Your ticket links carry a QuePasa tag (utm_source=quepasa) so your ticketing provider's own reports can show the visits and sales that came from QuePasa.
+We show you views and saves for your events, and the results of any Boost or Spotlight you buy. With Pro you also get ticket clicks, reminders, shares, where your viewers come from (for example a WhatsApp link, Google or Instagram), the language they browse in, and audience age and gender, on your dashboard and in a weekly email while Pro is active. All figures are totals about your own events only; we never give you the names or contact details of people who viewed or saved your events, and a breakdown only appears once it covers at least 10 visits or 10 people. Your ticket links carry a QuePasa tag (utm_source=quepasa) so your ticketing provider's own reports can show the visits and sales that came from QuePasa.
 
 ## 6. Suspension and removal
 We may hide events, remove your Verified badge, or suspend or close your account if you break these terms, if we receive credible reports of fraud or misleading listings, or to protect visitors. Where it is safe to, we will tell you why. Suspension hides all your events and stops new posts and promotion requests.
@@ -122,11 +123,11 @@ Real, public events in [Country] that people can attend or book: concerts, night
 ## How we check
 - Every new listing is reviewed by our team before it goes live.
 - We look for warning signs such as unknown or shortened ticket links, unsafe payment requests and events that are already listed.
-- We verify organisers who apply, and mark checked ones with a Verified badge.
+- We verify organisers who apply: the Instagram code, a phone check, whether their website and email match, and their business documents. Checked organisers get a Verified badge.
 
 ## Reports and removals
 - Anyone signed in can use "Report this event". Reports are private: we don't tell the organiser who reported.
-- If several different people report the same event, it is hidden automatically until we review it.
+- If several different people report the same event, it is hidden automatically until we review it. Reports from accounts less than a week old count for less, so new accounts can't hide an event on their own.
 - We may restore, edit, hide or remove the listing, and suspend organisers who break the rules. Serious fraud may be reported to the authorities.
 - False or malicious reporting is itself against the rules.
 
@@ -142,7 +143,7 @@ Listing events on QuePasa is free. Organisers can pay for extra visibility. Thes
 ## What you can buy
 - Boost (USD 15 per week): your event pinned near the top of Browse, with a "Featured" badge.
 - Homepage Spotlight (USD 35 per week): your event in the banner above the events grid on the main events page.
-- Pro (USD 25 per month): full statistics (ticket clicks, reminders, shares, where viewers come from, their language and device, audience age and gender) on your dashboard and in a weekly email, first place in Connect, and 1 free Boost week each calendar month.
+- Pro (USD 25 per month): full statistics (ticket clicks, reminders, shares, where viewers come from, their language, audience age and gender) on your dashboard and in a weekly email, first place in Connect, and 1 free Boost week each calendar month.
 
 New organisers get Pro free for their first 3 months after approval. Prices may include or exclude VAT as required by law [to be confirmed].
 
@@ -179,8 +180,9 @@ In short: we collect what we need to run an events guide, we never sell your dat
 - Account details: email, name and profile photo (from Google or Facebook if you sign in that way), language. Why: to sign you in and run your account. Kept: until you delete your account.
 - Optional profile: date of birth, gender, interests. Why: to suggest events, and to show organisers anonymous audience totals. Kept: until you remove them or delete your account.
 - Your activity: saved events, reminders, shares, reports you make. Why: to provide those features and keep listings honest. Kept: until you delete them or your account.
-- Event statistics: event views, ticket-link clicks, shares, and for each visit where it came from (for example a WhatsApp link, Google, Instagram or a page on QuePasa), the language you browse in and whether you use a phone, tablet or computer. Why: to show organisers how their events perform, stop fake counts, and help us understand the events market and improve QuePasa. If you aren't signed in, we use a scrambled one-way code made from your connection and browser; we do not store your IP address. Kept: up to [24 months], then deleted or anonymised.
-- Organiser details: business name and type, Instagram, phone, website, description, logo, verification code, events posted. Why: to review applications, verify organisers and publish listings. Kept: while the organiser account is open, plus [12 months].
+- Event statistics: event views, ticket-link clicks, shares, and for each visit where it came from (for example a WhatsApp link, Google, Instagram or a page on QuePasa) and the language you browse in. Why: to show organisers how their events perform, stop fake counts, and help us understand the events market and improve QuePasa. If you aren't signed in, we use a scrambled one-way code made from your connection and browser; we do not store your IP address. Kept: up to [24 months], then deleted or anonymised.
+- Organiser details: business name and type, Instagram, phone, website, description, logo, verification code, the checks our team made, events posted. Why: to review applications, verify organisers and publish listings. Kept: while the organiser account is open, plus [12 months].
+- Verification documents: a trade licence, event permit or ID that an organiser chooses to upload. Why: to confirm the business is real before giving the Verified badge. Who sees them: only our admins; they are never shown on the Service. Kept: while the organiser account is open, and deleted with the account.
 - Pasted captions: text an organiser pastes into "Paste from Instagram". Why: to fill in the event form automatically. Kept: not stored by us after the form is filled.
 - Messages: emails you send us. Why: to answer you. Kept: [24 months].
 
@@ -188,7 +190,7 @@ In short: we collect what we need to run an events guide, we never sell your dat
 If you set a reminder, we email you before the event. We send account emails such as sign-in links. We don't send marketing emails without asking first.
 
 ## What organisers see
-Organisers see totals only, and only about their own events: for example views, saves, clicks, where visitors came from, the languages and devices used, and the age and gender mix of their audience. Detailed figures go only to organisers with an active Pro subscription, on their dashboard and in a weekly email. A breakdown only appears once it covers at least 10 visits or 10 people, so no one can be singled out. Organisers never see your name, email or which events you saved.
+Organisers see totals only, and only about their own events: for example views, saves, clicks, where visitors came from, the languages used, and the age and gender mix of their audience. Detailed figures go only to organisers with an active Pro subscription, on their dashboard and in a weekly email. A breakdown only appears once it covers at least 10 visits or 10 people, so no one can be singled out. Organisers never see your name, email or which events you saved.
 
 ## How we use statistics ourselves
 Our team uses the same anonymous figures, across all events, to understand what people look for, which kinds of events and areas are popular, and how to improve QuePasa. These figures are for our internal use and are not sold.
