@@ -141,9 +141,9 @@ export function EventFilters({
           </button>
         ))}
       </div>
-      {/* Category tiles: a photo per category with its name on top. One
-          swipeable row on phones, a wrapping grid on wider screens. */}
-      <div className="grid grid-flow-col auto-cols-[112px] gap-2 overflow-x-auto pb-1 no-scrollbar sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-[repeat(auto-fill,minmax(132px,1fr))] sm:overflow-visible sm:pb-0">
+      {/* Category tiles: a photo per category with its name on top. Two
+          swipeable rows on phones, a wrapping grid on wider screens. */}
+      <div className="grid grid-rows-2 grid-flow-col auto-cols-[112px] gap-2 overflow-x-auto pb-1 no-scrollbar sm:grid-rows-none sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-[repeat(auto-fill,minmax(132px,1fr))] sm:overflow-visible sm:pb-0">
         <CategoryTile label={t("allCategories")} active={!activeCategory} onClick={clearCategory} />
         {categories.map((c) => (
           <CategoryTile
