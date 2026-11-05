@@ -100,8 +100,8 @@ export default async function EventsPage({
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.map((ev) => (
-            <EventCard key={ev.id} event={ev} locale={locale} initialSaved={savedIds.has(ev.id)} isSignedIn={!!userId} />
+          {events.map((ev, i) => (
+            <EventCard key={ev.id} event={ev} locale={locale} initialSaved={savedIds.has(ev.id)} isSignedIn={!!userId} priority={i < 3} />
           ))}
         </div>
       )}

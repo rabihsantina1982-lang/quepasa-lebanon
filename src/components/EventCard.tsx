@@ -14,11 +14,14 @@ export async function EventCard({
   locale,
   initialSaved = false,
   isSignedIn = false,
+  priority = false,
 }: {
   event: EventWithRelations;
   locale: string;
   initialSaved?: boolean;
   isSignedIn?: boolean;
+  // Load the photo straight away (cards visible on first screen).
+  priority?: boolean;
 }) {
   const t = await getTranslations("Common");
   const title = pickLocalized(event.title_i18n, locale);
@@ -43,9 +46,9 @@ export async function EventCard({
       <Link href={`/events/${event.slug}`} className="block" data-qp-from={isPromoted(event, "boost") ? "boost" : undefined}>
         <div className="relative aspect-[4/3] bg-[var(--color-border)]">
           {hero ? (
-            <MediaTile media={hero} variant="card" alt={title} />
+            <MediaTile media={hero} variant="card" alt={title} priority={priority} />
           ) : event.cover_image ? (
-            <Image src={event.cover_image} alt={title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+            <Image src={event.cover_image} alt={title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" priority={priority} />
           ) : null}
           {hasVideo && (
             <span className={`absolute ${featured ? "top-10" : "top-2"} start-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] text-white`}>
