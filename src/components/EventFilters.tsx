@@ -90,6 +90,7 @@ export function EventFilters({
   const anyActive = activeTag || urlQuery || activeCategory || activeDate || activeGovernorate;
 
   return (
+    <>
     <div
       className={cn(
         "sticky top-16 z-20 -mx-4 px-4 py-3 bg-[var(--color-bg)] border-b border-[var(--color-border)] space-y-3 transition-[transform,opacity] duration-300",
@@ -139,20 +140,6 @@ export function EventFilters({
           >
             {t(key as never)}
           </button>
-        ))}
-      </div>
-      {/* Category tiles: a photo per category with its name on top. Two
-          swipeable rows on phones, a wrapping grid on wider screens. */}
-      <div className="grid grid-rows-2 grid-flow-col auto-cols-[112px] gap-2 overflow-x-auto pb-1 no-scrollbar sm:grid-rows-none sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-[repeat(auto-fill,minmax(132px,1fr))] sm:overflow-visible sm:pb-0">
-        <CategoryTile label={t("allCategories")} active={!activeCategory} onClick={clearCategory} />
-        {categories.map((c) => (
-          <CategoryTile
-            key={c.slug}
-            label={tCat(c.slug as never)}
-            image={categoryImage(c.slug)}
-            active={activeCategory === c.slug}
-            onClick={() => setCategory(c.slug)}
-          />
         ))}
       </div>
       {/* Sub-filters for the selected category (e.g. Live Music -> Jazz) */}
@@ -208,6 +195,24 @@ export function EventFilters({
         )}
       </div>
     </div>
+    {/* Category tiles: a photo per category with its name on top. Two
+        swipeable rows on phones, a wrapping grid on wider screens. Kept out
+        of the sticky bar above, so they scroll away with the page and only
+        show again back at the top (in the bar they covered most of the
+        screen whenever it slid back in). */}
+      <div className="mt-3 grid grid-rows-2 grid-flow-col auto-cols-[112px] gap-2 overflow-x-auto pb-1 no-scrollbar sm:grid-rows-none sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-[repeat(auto-fill,minmax(132px,1fr))] sm:overflow-visible sm:pb-0">
+        <CategoryTile label={t("allCategories")} active={!activeCategory} onClick={clearCategory} />
+        {categories.map((c) => (
+          <CategoryTile
+            key={c.slug}
+            label={tCat(c.slug as never)}
+            image={categoryImage(c.slug)}
+            active={activeCategory === c.slug}
+            onClick={() => setCategory(c.slug)}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 
